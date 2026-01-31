@@ -2,22 +2,13 @@ import 'package:shapekit/src/domain/entities/geometry/record.dart';
 import 'package:shapekit/src/domain/entities/geometry/polyline.dart';
 
 class Polygon extends Polyline {
-  Polygon({
-    required super.bounds,
-    required super.parts,
-    required super.points,
-  }) {
+  Polygon({required super.bounds, required super.parts, required super.points}) {
     type = ShapeType.shapePOLYGON;
   }
 }
 
 class PolygonM extends PolylineM {
-  PolygonM({
-    required super.bounds,
-    required super.parts,
-    required super.points,
-    required super.arrayM,
-  }) {
+  PolygonM({required super.bounds, required super.parts, required super.points, required super.arrayM}) {
     type = ShapeType.shapePOLYGONM;
   }
 }

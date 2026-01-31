@@ -25,12 +25,7 @@ enum ShapefileErrorType {
 /// Base exception class for shapefile operations
 class ShapefileException implements Exception {
   /// Creates a shapefile exception
-  const ShapefileException(
-    this.message, {
-    this.filePath,
-    required this.type,
-    this.details,
-  });
+  const ShapefileException(this.message, {this.filePath, required this.type, this.details});
 
   /// Error message describing what went wrong
   final String message;
@@ -61,81 +56,45 @@ class ShapefileException implements Exception {
 class FileNotFoundException extends ShapefileException {
   /// Creates a file not found exception
   const FileNotFoundException(String filePath)
-      : super(
-          'File not found or cannot be accessed',
-          filePath: filePath,
-          type: ShapefileErrorType.fileNotFound,
-        );
+    : super('File not found or cannot be accessed', filePath: filePath, type: ShapefileErrorType.fileNotFound);
 }
 
 /// Exception thrown when file format is invalid
 class InvalidFormatException extends ShapefileException {
   /// Creates an invalid format exception
-  const InvalidFormatException(
-    super.message, {
-    super.filePath,
-    super.details,
-  }) : super(
-          type: ShapefileErrorType.invalidFormat,
-        );
+  const InvalidFormatException(super.message, {super.filePath, super.details})
+    : super(type: ShapefileErrorType.invalidFormat);
 }
 
 /// Exception thrown when geometry type is not supported
 class UnsupportedTypeException extends ShapefileException {
   /// Creates an unsupported type exception
-  const UnsupportedTypeException(
-    String geometryType, {
-    String? filePath,
-  }) : super(
-          'Unsupported geometry type: $geometryType',
-          filePath: filePath,
-          type: ShapefileErrorType.unsupportedType,
-        );
+  const UnsupportedTypeException(String geometryType, {String? filePath})
+    : super('Unsupported geometry type: $geometryType', filePath: filePath, type: ShapefileErrorType.unsupportedType);
 }
 
 /// Exception thrown when file header is invalid
 class InvalidHeaderException extends ShapefileException {
   /// Creates an invalid header exception
-  const InvalidHeaderException(
-    super.message, {
-    super.filePath,
-    super.details,
-  }) : super(
-          type: ShapefileErrorType.invalidHeader,
-        );
+  const InvalidHeaderException(super.message, {super.filePath, super.details})
+    : super(type: ShapefileErrorType.invalidHeader);
 }
 
 /// Exception thrown when bounding box is invalid
 class InvalidBoundsException extends ShapefileException {
   /// Creates an invalid bounds exception
-  const InvalidBoundsException(
-    super.message, {
-    super.filePath,
-  }) : super(
-          type: ShapefileErrorType.invalidBounds,
-        );
+  const InvalidBoundsException(super.message, {super.filePath}) : super(type: ShapefileErrorType.invalidBounds);
 }
 
 /// Exception thrown when record data is corrupted
 class CorruptedDataException extends ShapefileException {
   /// Creates a corrupted data exception
-  const CorruptedDataException(
-    super.message, {
-    super.filePath,
-    super.details,
-  }) : super(
-          type: ShapefileErrorType.corruptedData,
-        );
+  const CorruptedDataException(super.message, {super.filePath, super.details})
+    : super(type: ShapefileErrorType.corruptedData);
 }
 
 /// Exception thrown when I/O operation fails
 class ShapefileIOException extends ShapefileException {
   /// Creates an I/O exception
-  const ShapefileIOException(
-    super.message, {
-    super.filePath,
-    super.details,
-  }) : super(
-          type: ShapefileErrorType.ioError,
-        );
+  const ShapefileIOException(super.message, {super.filePath, super.details}) : super(type: ShapefileErrorType.ioError);
 }

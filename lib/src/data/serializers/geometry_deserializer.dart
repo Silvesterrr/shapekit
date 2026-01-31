@@ -182,8 +182,14 @@ class GeometryDeserializer {
     final posMMin = posPointStart + numPoints * lenPoint;
     final mValues = _readMValues(data, posMMin, numPoints);
 
-    final bounds =
-        Bounds(baseBounds.minX, baseBounds.minY, baseBounds.maxX, baseBounds.maxY, mValues.minM, mValues.maxM);
+    final bounds = BoundsM(
+      baseBounds.minX,
+      baseBounds.minY,
+      baseBounds.maxX,
+      baseBounds.maxY,
+      mValues.minM,
+      mValues.maxM,
+    );
 
     return PolylineM(bounds: bounds, parts: parts, points: points, arrayM: mValues.arrayM);
   }
@@ -212,8 +218,16 @@ class GeometryDeserializer {
     final posMMin = posZMin + 2 * lenDouble + numPoints * lenDouble;
     final mValues = _readMValues(data, posMMin, numPoints);
 
-    final bounds = Bounds(baseBounds.minX, baseBounds.minY, baseBounds.maxX, baseBounds.maxY, zValues.minZ,
-        zValues.maxZ, mValues.minM, mValues.maxM);
+    final bounds = BoundsZ(
+      baseBounds.minX,
+      baseBounds.minY,
+      baseBounds.maxX,
+      baseBounds.maxY,
+      mValues.minM,
+      mValues.maxM,
+      zValues.minZ,
+      zValues.maxZ,
+    );
 
     return PolylineZ(bounds: bounds, parts: parts, points: points, arrayM: mValues.arrayM, arrayZ: zValues.arrayZ);
   }
@@ -250,8 +264,14 @@ class GeometryDeserializer {
     final posMMin = posPointStart + numPoints * lenPoint;
     final mValues = _readMValues(data, posMMin, numPoints);
 
-    final bounds =
-        Bounds(baseBounds.minX, baseBounds.minY, baseBounds.maxX, baseBounds.maxY, mValues.minM, mValues.maxM);
+    final bounds = BoundsM(
+      baseBounds.minX,
+      baseBounds.minY,
+      baseBounds.maxX,
+      baseBounds.maxY,
+      mValues.minM,
+      mValues.maxM,
+    );
 
     return PolygonM(bounds: bounds, parts: parts, points: points, arrayM: mValues.arrayM);
   }
@@ -276,8 +296,16 @@ class GeometryDeserializer {
     final posMMin = posZMin + 2 * lenDouble + numPoints * lenDouble;
     final mValues = _readMValues(data, posMMin, numPoints);
 
-    final bounds = Bounds(baseBounds.minX, baseBounds.minY, baseBounds.maxX, baseBounds.maxY, zValues.minZ,
-        zValues.maxZ, mValues.minM, mValues.maxM);
+    final bounds = BoundsZ(
+      baseBounds.minX,
+      baseBounds.minY,
+      baseBounds.maxX,
+      baseBounds.maxY,
+      mValues.minM,
+      mValues.maxM,
+      zValues.minZ,
+      zValues.maxZ,
+    );
 
     return PolygonZ(bounds: bounds, parts: parts, points: points, arrayM: mValues.arrayM, arrayZ: zValues.arrayZ);
   }
@@ -313,8 +341,14 @@ class GeometryDeserializer {
     final posMMin = posPointStart + numPoints * lenPoint;
     final mValues = _readMValues(data, posMMin, numPoints);
 
-    final bounds =
-        Bounds(baseBounds.minX, baseBounds.minY, baseBounds.maxX, baseBounds.maxY, mValues.minM, mValues.maxM);
+    final bounds = BoundsM(
+      baseBounds.minX,
+      baseBounds.minY,
+      baseBounds.maxX,
+      baseBounds.maxY,
+      mValues.minM,
+      mValues.maxM,
+    );
 
     return MultiPointM(bounds: bounds, points: points, arrayM: mValues.arrayM);
   }
@@ -337,8 +371,16 @@ class GeometryDeserializer {
     final posMMin = posZMin + 2 * lenDouble + numPoints * lenDouble;
     final mValues = _readMValues(data, posMMin, numPoints);
 
-    final bounds = Bounds(baseBounds.minX, baseBounds.minY, baseBounds.maxX, baseBounds.maxY, zValues.minZ,
-        zValues.maxZ, mValues.minM, mValues.maxM);
+    final bounds = BoundsZ(
+      baseBounds.minX,
+      baseBounds.minY,
+      baseBounds.maxX,
+      baseBounds.maxY,
+      mValues.minM,
+      mValues.maxM,
+      zValues.minZ,
+      zValues.maxZ,
+    );
 
     return MultiPointZ(bounds: bounds, points: points, arrayZ: zValues.arrayZ, arrayM: mValues.arrayM);
   }

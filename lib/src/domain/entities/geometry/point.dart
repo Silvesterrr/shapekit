@@ -90,14 +90,12 @@ class PointZ extends PointM {
 }
 
 class MultiPoint extends Record {
-  MultiPoint({
-    required List<Point> points,
-    required Bounds bounds,
-  })  : points = List.unmodifiable(points),
-        minX = bounds.minX,
-        minY = bounds.minY,
-        maxX = bounds.maxX,
-        maxY = bounds.maxY {
+  MultiPoint({required List<Point> points, required Bounds bounds})
+    : points = List.unmodifiable(points),
+      minX = bounds.minX,
+      minY = bounds.minY,
+      maxX = bounds.maxX,
+      maxY = bounds.maxY {
     type = ShapeType.shapeMULTIPOINT;
   }
 
@@ -111,28 +109,24 @@ class MultiPoint extends Record {
   int get numPoints => points.length;
 
   List<Object> toList() => [
-        minX,
-        minY,
-        maxX,
-        maxY,
-        [
-          for (int i = 0; i < numPoints; ++i) [points[i].x, points[i].y],
-        ],
-      ];
+    minX,
+    minY,
+    maxX,
+    maxY,
+    [
+      for (int i = 0; i < numPoints; ++i) [points[i].x, points[i].y],
+    ],
+  ];
 
   @override
   String toString() => '{($minX, $minY, $maxX, $maxY), $numPoints, $points}';
 }
 
 class MultiPointM extends MultiPoint {
-  MultiPointM({
-    required super.points,
-    required List<double> arrayM,
-    required super.bounds,
-  })  : assert(bounds.minM != 0.0 || bounds.maxM != 0.0, 'MultiPointM requires bounds with M values set'),
-        arrayM = List.unmodifiable(arrayM),
-        minM = bounds.minM,
-        maxM = bounds.maxM {
+  MultiPointM({required super.points, required List<double> arrayM, required BoundsM super.bounds})
+    : arrayM = List.unmodifiable(arrayM),
+      minM = bounds.minM,
+      maxM = bounds.maxM {
     type = ShapeType.shapeMULTIPOINTM;
   }
 
@@ -150,13 +144,12 @@ class MultiPointM extends MultiPoint {
 class MultiPointZ extends MultiPointM {
   MultiPointZ({
     required super.points,
-    required List<double> arrayZ,
     required super.arrayM,
-    required super.bounds,
-  })  : assert(bounds.minZ != 0.0 || bounds.maxZ != 0.0, 'MultiPointZ requires bounds with Z values set'),
-        arrayZ = List.unmodifiable(arrayZ),
-        minZ = bounds.minZ,
-        maxZ = bounds.maxZ {
+    required List<double> arrayZ,
+    required BoundsZ super.bounds,
+  }) : arrayZ = List.unmodifiable(arrayZ),
+       minZ = bounds.minZ,
+       maxZ = bounds.maxZ {
     type = ShapeType.shapeMULTIPOINTZ;
   }
 

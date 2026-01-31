@@ -1,0 +1,290 @@
+import 'dart:io';
+import 'package:test/test.dart';
+import 'package:shapekit/shapekit.dart';
+
+void main() {
+  late Directory tempDir;
+
+  setUp(() {
+    tempDir = Directory.systemTemp.createTempSync('shapekit_test_');
+  });
+
+  tearDown(() {
+    if (tempDir.existsSync()) {
+      tempDir.deleteSync(recursive: true);
+    }
+  });
+
+  group('Shapefile Reading', () {
+    test('reads a point shapefile', () {
+      // First, create a test shapefile
+      final filePath = '${tempDir.path}/test_read_points.shp';
+      final writeShapefile = Shapefile();
+
+      final records = [Point(126.9780, 37.5665), Point(129.0756, 35.1796)];
+
+      writeShapefile.writerEntirety(
+        filePath,
+        ShapeType.shapePOINT,
+        records,
+        minX: 126.9780,
+        minY: 35.1796,
+        maxX: 129.0756,
+        maxY: 37.5665,
+      );
+
+      // Now read it back
+      final readShapefile = Shapefile();
+      final success = readShapefile.reader(filePath);
+
+      expect(success, isTrue);
+      expect(readShapefile.records.length, equals(2));
+      expect(readShapefile.records[0], isA<Point>());
+      expect(readShapefile.records[1], isA<Point>());
+
+      final point1 = readShapefile.records[0] as Point;
+      final point2 = readShapefile.records[1] as Point;
+
+      expect(point1.x, closeTo(126.9780, 0.0001));
+      expect(point1.y, closeTo(37.5665, 0.0001));
+      expect(point2.x, closeTo(129.0756, 0.0001));
+      expect(point2.y, closeTo(35.1796, 0.0001));
+    });
+
+    test('reads a shapefile with attributes', () {
+      final filePath = '${tempDir.path}/test_read_attrs.shp';
+      final writeShapefile = Shapefile();
+
+      final records = [Point(0.0, 0.0), Point(10.0, 10.0)];
+
+      final fields = [DbaseField.fieldC('NAME', 50), DbaseField.fieldN('VALUE', 10)];
+
+      final attributes = [
+        ['Point A', 100],
+        ['Point B', 200],
+      ];
+
+      writeShapefile.writerEntirety(
+        filePath,
+        ShapeType.shapePOINT,
+        records,
+        minX: 0.0,
+        minY: 0.0,
+        maxX: 10.0,
+        maxY: 10.0,
+        attributeFields: fields,
+        attributeRecords: attributes,
+      );
+
+      // Read it back
+      final readShapefile = Shapefile();
+      final success = readShapefile.reader(filePath);
+
+      expect(success, isTrue);
+      expect(readShapefile.attributeFields.length, equals(2));
+      expect(readShapefile.attributeRecords.length, equals(2));
+
+      expect(readShapefile.attributeFields[0].name, equals('NAME'));
+      expect(readShapefile.attributeFields[1].name, equals('VALUE'));
+
+      expect(readShapefile.attributeRecords[0][0].toString().trim(), equals('Point A'));
+      expect(readShapefile.attributeRecords[0][1], equals(100));
+      expect(readShapefile.attributeRecords[1][0].toString().trim(), equals('Point B'));
+      expect(readShapefile.attributeRecords[1][1], equals(200));
+    });
+
+    test('reads a polyline shapefile', () {
+      final filePath = '${tempDir.path}/test_read_polyline.shp';
+      final writeShapefile = Shapefile();
+
+      final records = [
+        Polyline(
+          bounds: Bounds(0.0, 0.0, 10.0, 10.0),
+          parts: [0],
+          points: [Point(0.0, 0.0), Point(5.0, 5.0), Point(10.0, 10.0)],
+        ),
+      ];
+
+      writeShapefile.writerEntirety(
+        filePath,
+        ShapeType.shapePOLYLINE,
+        records,
+        minX: 0.0,
+        minY: 0.0,
+        maxX: 10.0,
+        maxY: 10.0,
+      );
+
+      // Read it back
+      final readShapefile = Shapefile();
+      final success = readShapefile.reader(filePath);
+
+      expect(success, isTrue);
+      expect(readShapefile.records.length, equals(1));
+      expect(readShapefile.records[0], isA<Polyline>());
+
+      final polyline = readShapefile.records[0] as Polyline;
+      expect(polyline.numParts, equals(1));
+      expect(polyline.numPoints, equals(3));
+    });
+
+    test('reads a polygon shapefile', () {
+      final filePath = '${tempDir.path}/test_read_polygon.shp';
+      final writeShapefile = Shapefile();
+
+      final records = [
+        Polygon(
+          bounds: Bounds(0.0, 0.0, 10.0, 10.0),
+          parts: [0],
+          points: [Point(0.0, 0.0), Point(10.0, 0.0), Point(10.0, 10.0), Point(0.0, 10.0), Point(0.0, 0.0)],
+        ),
+      ];
+
+      writeShapefile.writerEntirety(
+        filePath,
+        ShapeType.shapePOLYGON,
+        records,
+        minX: 0.0,
+        minY: 0.0,
+        maxX: 10.0,
+        maxY: 10.0,
+      );
+
+      // Read it back
+      final readShapefile = Shapefile();
+      final success = readShapefile.reader(filePath);
+
+      expect(success, isTrue);
+      expect(readShapefile.records.length, equals(1));
+      expect(readShapefile.records[0], isA<Polygon>());
+
+      final polygon = readShapefile.records[0] as Polygon;
+      expect(polygon.numParts, equals(1));
+      expect(polygon.numPoints, equals(5));
+    });
+
+    test('reads shapefile with Z values', () {
+      final filePath = '${tempDir.path}/test_read_pointz.shp';
+      final writeShapefile = Shapefile();
+
+      final records = [PointZ(126.9780, 37.5665, 42.5, 123.4)];
+
+      writeShapefile.writerEntirety(
+        filePath,
+        ShapeType.shapePOINTZ,
+        records,
+        minX: 126.9780,
+        minY: 37.5665,
+        maxX: 126.9780,
+        maxY: 37.5665,
+        minZ: 42.5,
+        maxZ: 42.5,
+        minM: 123.4,
+        maxM: 123.4,
+      );
+
+      // Read it back
+      final readShapefile = Shapefile();
+      final success = readShapefile.reader(filePath);
+
+      expect(success, isTrue);
+      expect(readShapefile.records[0], isA<PointZ>());
+
+      final point = readShapefile.records[0] as PointZ;
+      expect(point.x, closeTo(126.9780, 0.0001));
+      expect(point.y, closeTo(37.5665, 0.0001));
+      expect(point.m, closeTo(42.5, 0.0001));
+      expect(point.z, closeTo(123.4, 0.0001));
+    });
+
+    test('reads multiple records correctly', () {
+      final filePath = '${tempDir.path}/test_read_multiple.shp';
+      final writeShapefile = Shapefile();
+
+      final records = List.generate(50, (i) => Point(i.toDouble(), i.toDouble()));
+
+      writeShapefile.writerEntirety(
+        filePath,
+        ShapeType.shapePOINT,
+        records,
+        minX: 0.0,
+        minY: 0.0,
+        maxX: 49.0,
+        maxY: 49.0,
+      );
+
+      // Read it back
+      final readShapefile = Shapefile();
+      final success = readShapefile.reader(filePath);
+
+      expect(success, isTrue);
+      expect(readShapefile.records.length, equals(50));
+
+      for (var i = 0; i < 50; i++) {
+        final point = readShapefile.records[i] as Point;
+        expect(point.x, closeTo(i.toDouble(), 0.0001));
+        expect(point.y, closeTo(i.toDouble(), 0.0001));
+      }
+    });
+
+    test('returns false for non-existent file', () {
+      final readShapefile = Shapefile();
+      final success = readShapefile.reader('${tempDir.path}/nonexistent.shp');
+
+      expect(success, isFalse);
+    });
+
+    test('reads header information correctly', () {
+      final filePath = '${tempDir.path}/test_header.shp';
+      final writeShapefile = Shapefile();
+
+      writeShapefile.writerEntirety(
+        filePath,
+        ShapeType.shapePOINT,
+        [Point(5.0, 10.0)],
+        minX: 0.0,
+        minY: 0.0,
+        maxX: 10.0,
+        maxY: 20.0,
+      );
+
+      final readShapefile = Shapefile();
+      readShapefile.reader(filePath);
+
+      expect(readShapefile.headerSHP.type, equals(ShapeType.shapePOINT));
+      expect(readShapefile.headerSHP.bounds.minX, closeTo(0.0, 0.0001));
+      expect(readShapefile.headerSHP.bounds.minY, closeTo(0.0, 0.0001));
+      expect(readShapefile.headerSHP.bounds.maxX, closeTo(10.0, 0.0001));
+      expect(readShapefile.headerSHP.bounds.maxY, closeTo(20.0, 0.0001));
+    });
+  });
+
+  group('Shapefile Reading - Step by Step', () {
+    test('reads using step-by-step API', () {
+      final filePath = '${tempDir.path}/test_stepread.shp';
+
+      // Create test file
+      final writeShapefile = Shapefile();
+      writeShapefile.writerEntirety(
+        filePath,
+        ShapeType.shapePOINT,
+        [Point(5.0, 5.0)],
+        minX: 0.0,
+        minY: 0.0,
+        maxX: 10.0,
+        maxY: 10.0,
+      );
+
+      // Read using step-by-step (open is an instance method)
+      final readShapefile = Shapefile();
+      readShapefile.open(filePath);
+      readShapefile.readSHX();
+      readShapefile.readSHP();
+
+      expect(readShapefile.records.length, equals(1));
+      expect(readShapefile.records[0], isA<Point>());
+
+      readShapefile.close();
+    });
+  });
+}

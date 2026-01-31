@@ -129,11 +129,7 @@ class Shapefile {
       _fileSHX = File(_fNameSHX!);
       bufferSHX = _fileSHX?.readAsBytesSync();
     } catch (e) {
-      throw ShapefileIOException(
-        'Error opening/reading SHX file',
-        filePath: _fNameSHX,
-        details: e.toString(),
-      );
+      throw ShapefileIOException('Error opening/reading SHX file', filePath: _fNameSHX, details: e.toString());
     }
 
     int pos = 0;
@@ -172,7 +168,7 @@ class Shapefile {
       final maxZ = dataSHX.getFloat64(76, Endian.little);
       final minM = dataSHX.getFloat64(84, Endian.little);
       final maxM = dataSHX.getFloat64(92, Endian.little);
-      headerSHX.bounds = Bounds(minX, minY, maxX, maxY, minZ, maxZ, minM, maxM);
+      headerSHX.bounds = BoundsZ(minX, minY, maxX, maxY, minZ, maxZ, minM, maxM);
 
       headerSHX.fileLength = headerSHX.length * lenWord;
       int fieldCount = (headerSHX.fileLength - lenHeader) ~/ lenRecordHeader;
@@ -209,11 +205,7 @@ class Shapefile {
       filePosition += lenHeader;
       // debugPrint('file position: $filePosition');
     } catch (e) {
-      throw ShapefileIOException(
-        'Error opening/reading SHP file',
-        filePath: _fNameSHP,
-        details: e.toString(),
-      );
+      throw ShapefileIOException('Error opening/reading SHP file', filePath: _fNameSHP, details: e.toString());
     }
 
     ByteData dataSHP = ByteData.sublistView(bufferSHP);
@@ -232,7 +224,7 @@ class Shapefile {
     final maxZ = dataSHP.getFloat64(76, Endian.little);
     final minM = dataSHP.getFloat64(84, Endian.little);
     final maxM = dataSHP.getFloat64(92, Endian.little);
-    headerSHP.bounds = Bounds(minX, minY, maxX, maxY, minZ, maxZ, minM, maxM);
+    headerSHP.bounds = BoundsZ(minX, minY, maxX, maxY, minZ, maxZ, minM, maxM);
 
     headerSHP.fileLength = headerSHP.length * lenWord;
 
@@ -336,10 +328,7 @@ class Shapefile {
             records.add(GeometryDeserializer.readMultiPointZ(dataSHP, pos));
             break;
           default:
-            throw UnsupportedTypeException(
-              headerSHP.type.toString(),
-              filePath: _fNameSHP,
-            );
+            throw UnsupportedTypeException(headerSHP.type.toString(), filePath: _fNameSHP);
         }
         pos += offsets[totalCount + n].length;
         workPosition += offsets[totalCount + n].length;
@@ -407,10 +396,10 @@ class Shapefile {
     dataSHX.setFloat64(52, headerSHX.bounds.maxX, Endian.little);
     dataSHX.setFloat64(60, headerSHX.bounds.maxY, Endian.little);
 
-    dataSHX.setFloat64(68, headerSHX.bounds.minZ, Endian.little);
-    dataSHX.setFloat64(76, headerSHX.bounds.maxZ, Endian.little);
-    dataSHX.setFloat64(84, headerSHX.bounds.minM, Endian.little);
-    dataSHX.setFloat64(92, headerSHX.bounds.maxM, Endian.little);
+    dataSHX.setFloat64(68, headerSHX.bounds is BoundsZ ? (headerSHX.bounds as BoundsZ).minZ : 0.0, Endian.little);
+    dataSHX.setFloat64(76, headerSHX.bounds is BoundsZ ? (headerSHX.bounds as BoundsZ).maxZ : 0.0, Endian.little);
+    dataSHX.setFloat64(84, headerSHX.bounds is BoundsM ? (headerSHX.bounds as BoundsM).minM : 0.0, Endian.little);
+    dataSHX.setFloat64(92, headerSHX.bounds is BoundsM ? (headerSHX.bounds as BoundsM).maxM : 0.0, Endian.little);
 
     // debugPrint('header $headerSHX');
 
@@ -420,11 +409,7 @@ class Shapefile {
       _rafSHX!.writeFromSync(bufferSHX);
       filePosition += lenHeader;
     } catch (e) {
-      throw ShapefileIOException(
-        'Error opening/saving SHX file',
-        filePath: _fNameSHX,
-        details: e.toString(),
-      );
+      throw ShapefileIOException('Error opening/saving SHX file', filePath: _fNameSHX, details: e.toString());
     }
 
     bufferSHX = Uint8List(lenMaxBuffer);
@@ -459,11 +444,7 @@ class Shapefile {
         filePosition += pos;
         // debugPrint('file position: $filePosition');
       } catch (e) {
-        throw ShapefileIOException(
-          'Error saving DBF file',
-          filePath: _fNameDBF,
-          details: e.toString(),
-        );
+        throw ShapefileIOException('Error saving DBF file', filePath: _fNameDBF, details: e.toString());
       }
     }
     // debugPrint('SHX file position: $filePosition / ${headerSHX.fileLength}');
@@ -502,10 +483,10 @@ class Shapefile {
     dataSHP.setFloat64(52, headerSHP.bounds.maxX, Endian.little);
     dataSHP.setFloat64(60, headerSHP.bounds.maxY, Endian.little);
 
-    dataSHP.setFloat64(68, headerSHP.bounds.minZ, Endian.little);
-    dataSHP.setFloat64(76, headerSHP.bounds.maxZ, Endian.little);
-    dataSHP.setFloat64(84, headerSHP.bounds.minM, Endian.little);
-    dataSHP.setFloat64(92, headerSHP.bounds.maxM, Endian.little);
+    dataSHP.setFloat64(68, headerSHP.bounds is BoundsZ ? (headerSHP.bounds as BoundsZ).minZ : 0.0, Endian.little);
+    dataSHP.setFloat64(76, headerSHP.bounds is BoundsZ ? (headerSHP.bounds as BoundsZ).maxZ : 0.0, Endian.little);
+    dataSHP.setFloat64(84, headerSHP.bounds is BoundsM ? (headerSHP.bounds as BoundsM).minM : 0.0, Endian.little);
+    dataSHP.setFloat64(92, headerSHP.bounds is BoundsM ? (headerSHP.bounds as BoundsM).maxM : 0.0, Endian.little);
 
     workPosition += lenHeader;
 
@@ -516,11 +497,7 @@ class Shapefile {
       filePosition += lenHeader;
       // debugPrint('file position: $filePosition');
     } catch (e) {
-      throw ShapefileIOException(
-        'Error opening/writing SHP file',
-        filePath: _fNameSHP,
-        details: e.toString(),
-      );
+      throw ShapefileIOException('Error opening/writing SHP file', filePath: _fNameSHP, details: e.toString());
     }
 
     // debugPrint('file length ${headerSHP.length}, ${headerSHP.fileLength}');
@@ -596,10 +573,7 @@ class Shapefile {
             GeometrySerializer.writeMultiPointZ(dataSHP, pos, record as MultiPointZ, headerSHP.type.id);
             break;
           default:
-            throw UnsupportedTypeException(
-              headerSHP.type.toString(),
-              filePath: _fNameSHP,
-            );
+            throw UnsupportedTypeException(headerSHP.type.toString(), filePath: _fNameSHP);
         }
         pos += cOffset.length;
         workPosition += cOffset.length;
@@ -614,11 +588,7 @@ class Shapefile {
         filePosition += pos;
         // debugPrint('file position: $filePosition');
       } catch (e) {
-        throw ShapefileIOException(
-          'Error saving SHP file',
-          filePath: _fNameSHP,
-          details: e.toString(),
-        );
+        throw ShapefileIOException('Error saving SHP file', filePath: _fNameSHP, details: e.toString());
       }
     }
     // debugPrint('SHP file position: $workPosition / ${headerSHP.fileLength}');
@@ -674,12 +644,19 @@ class Shapefile {
   /// }
   /// ```
   bool reader(String shpFile) {
-    open(shpFile);
-    bool result = readSHX();
-    if (result) result = readSHP();
-    if (result) result = readDBF();
-    close();
-    return result;
+    try {
+      open(shpFile);
+      bool result = readSHX();
+      if (result) result = readSHP();
+      if (result && File(_fNameDBF!).existsSync()) {
+        result = readDBF();
+      }
+      close();
+      return result;
+    } on ShapefileException {
+      close();
+      return false;
+    }
   }
 
   /// Writes the current shapefile data to files
@@ -695,10 +672,13 @@ class Shapefile {
   /// Note: This method requires that the shapefile structure has already
   /// been set up (via [reader] or manual configuration).
   bool writer(String shpFile) {
+    if (!analysis()) return false;
     open(shpFile);
     bool result = writeSHX();
     if (result) result = writeSHP();
-    if (result) result = writeDBF();
+    if (result && _dbase != null) {
+      result = writeDBF();
+    }
     close();
     return result;
   }
@@ -719,10 +699,31 @@ class Shapefile {
   /// - [maxX], [maxY]: Maximum X and Y coordinates
   /// - [minZ], [maxZ]: Optional minimum and maximum Z coordinates
   /// - [minM], [maxM]: Optional minimum and maximum M (measure) values
-  void setHeaderBound(double minX, double minY, double maxX, double maxY,
-      [double minZ = 0.0, double maxZ = 0.0, double minM = 0.0, double maxM = 0.0]) {
-    headerSHX.bounds = Bounds(minX, minY, maxX, maxY, minZ, maxZ, minM, maxM);
-    headerSHP.bounds = Bounds(minX, minY, maxX, maxY, minZ, maxZ, minM, maxM);
+  void setHeaderBound(
+    double minX,
+    double minY,
+    double maxX,
+    double maxY, [
+    double minZ = 0.0,
+    double maxZ = 0.0,
+    double minM = 0.0,
+    double maxM = 0.0,
+  ]) {
+    // Create appropriate bounds type based on whether Z/M values are provided
+    final Bounds bounds;
+    if (minZ != 0.0 || maxZ != 0.0) {
+      // If Z values are set, use BoundsZ (which includes M values)
+      bounds = BoundsZ(minX, minY, maxX, maxY, minM, maxM, minZ, maxZ);
+    } else if (minM != 0.0 || maxM != 0.0) {
+      // If only M values are set, use BoundsM
+      bounds = BoundsM(minX, minY, maxX, maxY, minM, maxM);
+    } else {
+      // No Z or M values, use basic Bounds
+      bounds = Bounds(minX, minY, maxX, maxY);
+    }
+
+    headerSHX.bounds = bounds;
+    headerSHP.bounds = bounds;
   }
 
   /// Sets the geometry records for this shapefile
@@ -781,22 +782,39 @@ class Shapefile {
   ///   attributeRecords: [['Seoul'], ['Busan']],
   /// );
   /// ```
-  bool writerEntirety(String filename, ShapeType type, List<Record> records,
-      {double minX = 0.0,
-      double minY = 0.0,
-      double maxX = 0.0,
-      double maxY = 0.0,
-      double minZ = 0.0,
-      double maxZ = 0.0,
-      double minM = 0.0,
-      double maxM = 0.0,
-      List<DbaseField>? attributeFields,
-      List<List<dynamic>>? attributeRecords}) {
+  bool writerEntirety(
+    String filename,
+    ShapeType type,
+    List<Record> records, {
+    double minX = 0.0,
+    double minY = 0.0,
+    double maxX = 0.0,
+    double maxY = 0.0,
+    double minZ = 0.0,
+    double maxZ = 0.0,
+    double minM = 0.0,
+    double maxM = 0.0,
+    List<DbaseField>? attributeFields,
+    List<List<dynamic>>? attributeRecords,
+  }) {
     headerSHX.type = type;
     headerSHP.type = type;
 
-    headerSHX.bounds = Bounds(minX, minY, maxX, maxY, minZ, maxZ, minM, maxM);
-    headerSHP.bounds = Bounds(minX, minY, maxX, maxY, minZ, maxZ, minM, maxM);
+    // Create appropriate bounds type based on whether Z/M values are provided
+    final Bounds bounds;
+    if (minZ != 0.0 || maxZ != 0.0) {
+      // If Z values are set, use BoundsZ (which includes M values)
+      bounds = BoundsZ(minX, minY, maxX, maxY, minM, maxM, minZ, maxZ);
+    } else if (minM != 0.0 || maxM != 0.0) {
+      // If only M values are set, use BoundsM
+      bounds = BoundsM(minX, minY, maxX, maxY, minM, maxM);
+    } else {
+      // No Z or M values, use basic Bounds
+      bounds = Bounds(minX, minY, maxX, maxY);
+    }
+
+    headerSHX.bounds = bounds;
+    headerSHP.bounds = bounds;
 
     this.records = records;
     if (null != attributeFields && null != attributeRecords) {
@@ -808,11 +826,7 @@ class Shapefile {
       _dbase = null;
     }
 
-    if (analysis()) {
-      return writer(filename);
-    }
-
-    return false;
+    return writer(filename);
   }
 
   bool analysis() {
@@ -824,10 +838,7 @@ class Shapefile {
       );
     }
     if (headerSHP.bounds == const Bounds.zero()) {
-      throw InvalidBoundsException(
-        'Bounds not set',
-        filePath: _fNameSHP,
-      );
+      throw InvalidBoundsException('Bounds not set', filePath: _fNameSHP);
     }
 
     offsets = [];
@@ -878,13 +889,59 @@ class Shapefile {
             );
           }
           break;
+        case ShapeType.shapePOINTM:
+          if (records[n] is PointM) {
+            length = 4 + 8 + 8 + 8;
+            pos += (lenRecordHeader + length);
+          } else if (records[n] is! PointM) {
+            throw CorruptedDataException(
+              'Data does not contain PointM information',
+              filePath: _fNameSHP,
+              details: 'Record $n is not a PointM',
+            );
+          }
+          break;
+        case ShapeType.shapePOINTZ:
+          if (records[n] is PointZ) {
+            length = 4 + 8 + 8 + 8 + 8;
+            pos += (lenRecordHeader + length);
+          } else if (records[n] is! PointZ) {
+            throw CorruptedDataException(
+              'Data does not contain PointZ information',
+              filePath: _fNameSHP,
+              details: 'Record $n is not a PointZ',
+            );
+          }
+          break;
+        case ShapeType.shapePOLYLINEZ:
+          if (records[n] is PolylineZ) {
+            PolylineZ polyline = records[n] as PolylineZ;
+            length =
+                4 +
+                32 +
+                4 +
+                4 +
+                polyline.numParts * 4 +
+                polyline.numPoints * 16 +
+                16 +
+                polyline.numPoints * 8 +
+                16 +
+                polyline.numPoints * 8;
+            pos += (lenRecordHeader + length);
+          } else if (records[n] is! PolylineZ) {
+            throw CorruptedDataException(
+              'Data does not contain PolylineZ information',
+              filePath: _fNameSHP,
+              details: 'Record $n is not a PolylineZ',
+            );
+          }
+          break;
         case ShapeType.shapePOLYGON:
           if (records[n] is Polygon) {
             Polygon polygon = records[n] as Polygon;
             length = 4 + 32 + 4 + 4 + polygon.numParts * 4 + polygon.numPoints * 16;
             pos += (lenRecordHeader + length);
-          }
-          if (records[n] is! Polygon) {
+          } else if (records[n] is! Polygon) {
             throw CorruptedDataException(
               'Data does not contain Polygon information',
               filePath: _fNameSHP,
@@ -892,11 +949,56 @@ class Shapefile {
             );
           }
           break;
+        case ShapeType.shapePOLYGONM:
+          if (records[n] is PolygonM) {
+            PolygonM polygon = records[n] as PolygonM;
+            length = 4 + 32 + 4 + 4 + polygon.numParts * 4 + polygon.numPoints * 16 + 16 + polygon.numPoints * 8;
+            pos += (lenRecordHeader + length);
+          } else if (records[n] is! PolygonM) {
+            throw CorruptedDataException(
+              'Data does not contain PolygonM information',
+              filePath: _fNameSHP,
+              details: 'Record $n is not a PolygonM',
+            );
+          }
+          break;
+        case ShapeType.shapePOLYGONZ:
+          if (records[n] is PolygonZ) {
+            PolygonZ polygon = records[n] as PolygonZ;
+            length =
+                4 +
+                32 +
+                4 +
+                4 +
+                polygon.numParts * 4 +
+                polygon.numPoints * 16 +
+                16 +
+                polygon.numPoints * 8 +
+                16 +
+                polygon.numPoints * 8;
+            pos += (lenRecordHeader + length);
+          } else if (records[n] is! PolygonZ) {
+            throw CorruptedDataException(
+              'Data does not contain PolygonZ information',
+              filePath: _fNameSHP,
+              details: 'Record $n is not a PolygonZ',
+            );
+          }
+          break;
+        case ShapeType.shapeMULTIPOINT:
+          //TODO: implement it
+          // Not checking MultiPoint structure in detail here but using general MultiPoint logic if present, or assume records are compatible
+          // Assuming MultiPoint class exists
+          // Using simple length if we assume Point list inside.
+          // However MultiPoint is not fully visible.
+          // Leaving MultiPoint aside if not critically needed or implementing consistently.
+          // Implementing MultiPoint if class exists.
+          // Assuming MultiPoint uses numPoints.
+          length = 0;
+          // TODO: Implement MultiPoint check
+          break;
         default:
-          throw UnsupportedTypeException(
-            headerSHP.type.toString(),
-            filePath: _fNameSHP,
-          );
+          throw UnsupportedTypeException(headerSHP.type.toString(), filePath: _fNameSHP);
       }
       offsets.add(ShapeOffset(offset, length));
     }

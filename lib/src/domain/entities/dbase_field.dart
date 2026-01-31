@@ -94,12 +94,11 @@ class DbaseField {
   /// - [length]: Total number of digits including decimal point (default: 20)
   /// - [count]: Number of decimal places (default: 8)
   ///
-  factory DbaseField.fieldNF(String nameN, [int length = 20, int count = 8]) =>
-      DbaseField()
-        ..name = nameN
-        ..type = 'N'
-        ..length = length
-        ..decimalCount = count;
+  factory DbaseField.fieldNF(String nameN, [int length = 20, int count = 8]) => DbaseField()
+    ..name = nameN
+    ..type = 'N'
+    ..length = length
+    ..decimalCount = count;
 
   @override
   String toString() => '{$name, $type, $length, $decimalCount, $id, $flag}';

@@ -28,21 +28,12 @@ class Bounds {
   /// Parameters are in order: minX, minY, maxX, maxY, [minZ], [maxZ], [minM], [maxM]
   ///
   /// All Z and M parameters default to 0.0 if not specified.
-  const Bounds(
-    this.minX,
-    this.minY,
-    this.maxX,
-    this.maxY, [
-    this.minZ = 0.0,
-    this.maxZ = 0.0,
-    this.minM = 0.0,
-    this.maxM = 0.0,
-  ]);
+  const Bounds(this.minX, this.minY, this.maxX, this.maxY);
 
   /// Creates a zero-initialized bounding box
   ///
   /// All coordinates are set to 0.0.
-  const Bounds.zero() : this(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+  const Bounds.zero() : this(0.0, 0.0, 0.0, 0.0);
 
   /// Minimum X coordinate (longitude) in the dataset
   final double minX;
@@ -56,19 +47,29 @@ class Bounds {
   /// Maximum Y coordinate (latitude) in the dataset
   final double maxY;
 
-  /// Minimum Z coordinate (elevation) in the dataset
-  final double minZ;
+  @override
+  String toString() => 'minX($minX), minY($minY), maxX($maxX), maxY($maxY)';
+}
 
-  /// Maximum Z coordinate (elevation) in the dataset
-  final double maxZ;
+class BoundsM extends Bounds {
+  const BoundsM(super.minX, super.minY, super.maxX, super.maxY, this.minM, this.maxM);
 
-  /// Minimum M value (measure) in the dataset
   final double minM;
 
-  /// Maximum M value (measure) in the dataset
   final double maxM;
 
   @override
+  String toString() => 'minX($minX), minY($minY), maxX($maxX), maxY($maxY), minM($minM), maxM($maxM)';
+}
+
+class BoundsZ extends BoundsM {
+  const BoundsZ(super.minX, super.minY, super.maxX, super.maxY, super.minM, super.maxM, this.minZ, this.maxZ);
+
+  final double minZ;
+
+  final double maxZ;
+
+  @override
   String toString() =>
-      'minX($minX), minY($minY), maxX($maxX), maxY($maxY), minZ($minZ), maxZ($maxZ), minM($minM), maxM($maxM)';
+      'minX($minX), minY($minY), maxX($maxX), maxY($maxY), minM($minM), maxM($maxM), minZ($minZ), maxZ($maxZ)';
 }

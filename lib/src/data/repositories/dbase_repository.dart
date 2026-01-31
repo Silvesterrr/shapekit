@@ -61,11 +61,7 @@ class DbaseFile {
       filePosition += lenDbaseHeader;
       // debugPrint('file length $_fileLength, file position: $filePosition');
     } catch (e) {
-      throw ShapefileIOException(
-        'Error opening/reading DBF file',
-        filePath: _fNameDBF,
-        details: e.toString(),
-      );
+      throw ShapefileIOException('Error opening/reading DBF file', filePath: _fNameDBF, details: e.toString());
     }
 
     ByteData dataDBF = ByteData.sublistView(bufferDBF);
@@ -103,21 +99,14 @@ class DbaseFile {
       filePosition += descriptorLength;
       // debugPrint('file position $filePosition');
     } catch (e) {
-      throw ShapefileIOException(
-        'Error reading DBF file header',
-        filePath: _fNameDBF,
-        details: e.toString(),
-      );
+      throw ShapefileIOException('Error reading DBF file header', filePath: _fNameDBF, details: e.toString());
     }
     dataDBF = ByteData.sublistView(bufferDBF);
 
     int pos = 0;
     while (pos < descriptorLength) {
       var field = DbaseField();
-      var name = dataDBF.buffer
-          .asUint8List(pos, 11)
-          .where((e) => e != 0)
-          .toList();
+      var name = dataDBF.buffer.asUint8List(pos, 11).where((e) => e != 0).toList();
 
       String fieldName = isCp949
           ? cp949.decode(name, allowInvalid: true)
@@ -125,7 +114,7 @@ class DbaseFile {
           ? utf8.decode(name, allowMalformed: true)
           : String.fromCharCodes(name);
 
-      field.name = fieldName;
+      field.name = fieldName.trim();
 
       field.type = String.fromCharCode(dataDBF.getUint8(pos + 11));
       field.length = dataDBF.getUint8(pos + 16);
@@ -208,12 +197,8 @@ class DbaseFile {
             // (stored internally as 8 digits in YYYYMMDD format)
             case 'D':
               String dataD = String.fromCharCodes(data);
-              if (dataD == '00000000' ||
-                  dataD.trim().isEmpty ||
-                  dataD == '        ') {
-                record.add(
-                  DateTime.parse('0000-01-01'),
-                ); // Add null for empty/zero dates
+              if (dataD == '00000000' || dataD.trim().isEmpty || dataD == '        ') {
+                record.add(DateTime.parse('0000-01-01')); // Add null for empty/zero dates
               } else if (dataD.length == 8) {
                 String yy = dataD.substring(0, 4);
                 String mm = dataD.substring(4, 6);
@@ -230,16 +215,12 @@ class DbaseFile {
               break;
             case 'F':
               // String dataF = utf8.decode(data).trim();
-              String dataF = String.fromCharCodes(
-                data,
-              ).replaceAll(RegExp('\\0'), '').trim();
+              String dataF = String.fromCharCodes(data).replaceAll(RegExp('\\0'), '').trim();
               record.add(double.parse(dataF));
               break;
             case 'N':
               // String dataN = utf8.decode(data).trim();
-              String dataN = String.fromCharCodes(
-                data,
-              ).replaceAll(RegExp(r'[^\d.-]'), '');
+              String dataN = String.fromCharCodes(data).replaceAll(RegExp(r'[^\d.-]'), '');
               // debugPrint('$field, $data, $dataN');
               if (0 < dataN.indexOf('-')) {
                 if (0 < field.decimalCount) {
@@ -266,10 +247,7 @@ class DbaseFile {
             // case 'M':
             //   break;
             default:
-              throw UnsupportedTypeException(
-                'DBF field type ${field.type}',
-                filePath: _fNameDBF,
-              );
+              throw UnsupportedTypeException('DBF field type ${field.type}', filePath: _fNameDBF);
           }
           offset += field.length;
         }
@@ -340,11 +318,7 @@ class DbaseFile {
       filePosition += lenDbaseHeader;
       // debugPrint('file position: $filePosition');
     } catch (e) {
-      throw ShapefileIOException(
-        'Error opening/saving DBF file',
-        filePath: _fNameDBF,
-        details: e.toString(),
-      );
+      throw ShapefileIOException('Error opening/saving DBF file', filePath: _fNameDBF, details: e.toString());
     }
 
     bufferDBF = Uint8List(descriptorLength);
@@ -380,11 +354,7 @@ class DbaseFile {
       filePosition += pos;
       // debugPrint('file position: $filePosition');
     } catch (e) {
-      throw ShapefileIOException(
-        'Error saving DBF file',
-        filePath: _fNameDBF,
-        details: e.toString(),
-      );
+      throw ShapefileIOException('Error saving DBF file', filePath: _fNameDBF, details: e.toString());
     }
 
     bufferDBF = Uint8List(lenMaxBuffer);
@@ -439,16 +409,12 @@ class DbaseFile {
               // debugPrint('write: $yy:$mm:$dd');
               break;
             case 'F':
-              var dataF = (list[i] as double)
-                  .toStringAsPrecision(field.decimalCount)
-                  .padLeft(field.length, ' ');
+              var dataF = (list[i] as double).toStringAsFixed(field.decimalCount).padLeft(field.length, ' ');
               data.setAll(0, dataF.codeUnits);
               break;
             case 'N':
               if (list[i] is double) {
-                String dataN = (list[i] as double)
-                    .toStringAsPrecision(field.decimalCount)
-                    .padLeft(field.length, ' ');
+                String dataN = (list[i] as double).toStringAsFixed(field.decimalCount).padLeft(field.length, ' ');
                 data.setAll(0, dataN.codeUnits);
               } else {
                 String dataN = list[i].toString().padLeft(field.length, ' ');
@@ -463,10 +429,7 @@ class DbaseFile {
               }
               break;
             default:
-              throw UnsupportedTypeException(
-                'DBF field type ${field.type}',
-                filePath: _fNameDBF,
-              );
+              throw UnsupportedTypeException('DBF field type ${field.type}', filePath: _fNameDBF);
           }
           // debugPrint('data $data');
           offset += field.length;
@@ -480,11 +443,7 @@ class DbaseFile {
         filePosition += pos;
         // debugPrint('file position: $filePosition');
       } catch (e) {
-        throw ShapefileIOException(
-          'Error saving DBF file records',
-          filePath: _fNameDBF,
-          details: e.toString(),
-        );
+        throw ShapefileIOException('Error saving DBF file records', filePath: _fNameDBF, details: e.toString());
       }
     }
     // end of record
@@ -548,11 +507,7 @@ class DbaseFile {
   ///   [['Alice', 30], ['Bob', 25]],
   /// );
   /// ```
-  bool writerEntirety(
-    String filename,
-    List<DbaseField> fields,
-    List<List<dynamic>> records,
-  ) {
+  bool writerEntirety(String filename, List<DbaseField> fields, List<List<dynamic>> records) {
     this.fields = fields;
     this.records = records;
     if (analysis()) {
@@ -619,8 +574,7 @@ class DbaseFile {
                 throw CorruptedDataException(
                   'Invalid field configuration',
                   filePath: _fNameDBF,
-                  details:
-                      'For N(double) type, field count must be greater than 0',
+                  details: 'For N(double) type, field count must be greater than 0',
                 );
               }
             } else if (list[i] is! int) {
@@ -643,10 +597,7 @@ class DbaseFile {
           // case 'M':
           //   break;
           default:
-            throw UnsupportedTypeException(
-              'DBF field type ${field.type}',
-              filePath: _fNameDBF,
-            );
+            throw UnsupportedTypeException('DBF field type ${field.type}', filePath: _fNameDBF);
         }
       }
     }

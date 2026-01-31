@@ -24,8 +24,7 @@ library;
 export 'package:shapekit/src/data/repositories/shapefile_repository.dart';
 
 // Geometry types
-export 'package:shapekit/src/domain/entities/geometry/record.dart'
-    show ShapeType, Record;
+export 'package:shapekit/src/domain/entities/geometry/record.dart' show ShapeType, Record;
 export 'package:shapekit/src/domain/entities/geometry/point.dart';
 export 'package:shapekit/src/domain/entities/geometry/polyline.dart';
 export 'package:shapekit/src/domain/entities/geometry/polygon.dart';

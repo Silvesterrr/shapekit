@@ -40,11 +40,7 @@ class CShapeProjectionFile {
       _filePRJ = File(_fNamePRJ!);
       _rafPRJ = _filePRJ!.openSync();
     } catch (e) {
-      throw ShapefileIOException(
-        'Error opening/reading PRJ file',
-        filePath: _fNamePRJ,
-        details: e.toString(),
-      );
+      throw ShapefileIOException('Error opening/reading PRJ file', filePath: _fNamePRJ, details: e.toString());
     }
     final prjFileContent = _filePRJ!.readAsStringSync();
 

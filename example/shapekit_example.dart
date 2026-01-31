@@ -75,13 +75,9 @@ void readShapefileExample() {
       if (record is Point) {
         print('  Point $i: (${record.x}, ${record.y})');
       } else if (record is Polyline) {
-        print(
-          '  Polyline $i: ${record.numParts} parts, ${record.numPoints} points',
-        );
+        print('  Polyline $i: ${record.numParts} parts, ${record.numPoints} points');
       } else if (record is Polygon) {
-        print(
-          '  Polygon $i: ${record.numParts} parts, ${record.numPoints} points',
-        );
+        print('  Polygon $i: ${record.numParts} parts, ${record.numPoints} points');
       }
     }
 
@@ -124,13 +120,7 @@ void advancedGeometryExample() {
     Polyline(
       bounds: Bounds(0, 0, 10, 10), // minX, minY, maxX, maxY
       parts: [0, 3], // Two parts: first starts at index 0, second at index 3
-      points: [
-        Point(0, 0),
-        Point(5, 5),
-        Point(10, 10),
-        Point(0, 10),
-        Point(10, 0),
-      ],
+      points: [Point(0, 0), Point(5, 5), Point(10, 10), Point(0, 10), Point(10, 0)],
     ),
   ];
 
