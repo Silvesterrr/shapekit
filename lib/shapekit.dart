@@ -12,7 +12,7 @@
 /// import 'package:shapekit/shapekit.dart';
 ///
 /// // Read a shapefile
-/// final shapefile = CShapefile();
+/// final shapefile = Shapefile();
 /// shapefile.open('path/to/file.shp');
 /// if (shapefile.reader('path/to/file.shp')) {
 ///   print('Records: ${shapefile.records.length}');

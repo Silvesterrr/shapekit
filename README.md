@@ -219,7 +219,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ## References
 
 - [ESRI Shapefile Technical Description](https://www.esri.com/content/dam/esrisites/sitecore-archive/Files/Pdfs/library/whitepapers/pdfs/shapefile.pdf)
-- [dBASE File Format](http://www.dbase.com/Knowledgebase/INT/db7_file_fmt.htm)
+- [dBASE File Format](https://www.dbase.com/Knowledgebase/INT/db7_file_fmt.htm)
 
 ## Acknowledgments
 
