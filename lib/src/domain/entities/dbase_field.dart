@@ -20,8 +20,8 @@ class DbaseField {
 
   set name(String s) => _name = s.length > 11 ? s.substring(0, 11) : s;
   String type = '';
-  int fieldLength = 0;
-  int fieldCount = 0;
+  int length = 0;
+  int decimalCount = 0;
   int id = 0;
   int flag = 0;
 
@@ -38,7 +38,7 @@ class DbaseField {
   factory DbaseField.fieldC(String nameC, [int length = 10]) => DbaseField()
     ..name = nameC
     ..type = 'C'
-    ..fieldLength = length;
+    ..length = length;
 
   /// Creates a Date field
   ///
@@ -54,7 +54,7 @@ class DbaseField {
   factory DbaseField.fieldD(String nameD) => DbaseField()
     ..name = nameD
     ..type = 'D'
-    ..fieldLength = 8;
+    ..length = 8;
 
   /// Creates a Logical (boolean) field
   ///
@@ -70,7 +70,7 @@ class DbaseField {
   factory DbaseField.fieldL(String nameL) => DbaseField()
     ..name = nameL
     ..type = 'L'
-    ..fieldLength = 1;
+    ..length = 1;
 
   /// Creates a Numeric field for integers
   ///
@@ -85,7 +85,7 @@ class DbaseField {
   factory DbaseField.fieldN(String nameN, [int length = 10]) => DbaseField()
     ..name = nameN
     ..type = 'N'
-    ..fieldLength = length;
+    ..length = length;
 
   /// Creates a Numeric field for floating point numbers
   ///
@@ -94,16 +94,13 @@ class DbaseField {
   /// - [length]: Total number of digits including decimal point (default: 20)
   /// - [count]: Number of decimal places (default: 8)
   ///
-  /// Example:
-  /// ```dart
-  /// final areaField = DbaseField.fieldNF('AREA', 15, 6);
-  /// ```
-  factory DbaseField.fieldNF(String nameN, [int length = 20, int count = 8]) => DbaseField()
-    ..name = nameN
-    ..type = 'N'
-    ..fieldLength = length
-    ..fieldCount = count;
+  factory DbaseField.fieldNF(String nameN, [int length = 20, int count = 8]) =>
+      DbaseField()
+        ..name = nameN
+        ..type = 'N'
+        ..length = length
+        ..decimalCount = count;
 
   @override
-  String toString() => '{$name, $type, $fieldLength, $fieldCount, $id, $flag}';
+  String toString() => '{$name, $type, $length, $decimalCount, $id, $flag}';
 }

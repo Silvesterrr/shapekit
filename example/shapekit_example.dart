@@ -98,7 +98,7 @@ void readShapefileExample() {
     if (shapefile.attributeFields.isNotEmpty) {
       print('\nField Definitions:');
       for (final field in shapefile.attributeFields) {
-        print('  ${field.name} (${field.type}): length=${field.fieldLength}');
+        print('  ${field.name} (${field.type}): length=${field.length}');
       }
     }
 

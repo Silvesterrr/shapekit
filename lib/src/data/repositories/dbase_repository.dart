@@ -114,19 +114,22 @@ class DbaseFile {
     int pos = 0;
     while (pos < descriptorLength) {
       var field = DbaseField();
-      var name = dataDBF.buffer.asUint8List(pos, 11).where((e) => e != 0).toList();
+      var name = dataDBF.buffer
+          .asUint8List(pos, 11)
+          .where((e) => e != 0)
+          .toList();
 
       String fieldName = isCp949
           ? cp949.decode(name, allowInvalid: true)
           : isUtf8
-              ? utf8.decode(name, allowMalformed: true)
-              : String.fromCharCodes(name);
+          ? utf8.decode(name, allowMalformed: true)
+          : String.fromCharCodes(name);
 
       field.name = fieldName;
 
       field.type = String.fromCharCode(dataDBF.getUint8(pos + 11));
-      field.fieldLength = dataDBF.getUint8(pos + 16);
-      field.fieldCount = dataDBF.getUint8(pos + 17);
+      field.length = dataDBF.getUint8(pos + 16);
+      field.decimalCount = dataDBF.getUint8(pos + 17);
       field.id = dataDBF.getUint8(pos + 20);
       field.flag = dataDBF.getUint8(pos + 23);
       fields.add(field);
@@ -184,7 +187,7 @@ class DbaseFile {
         // debugPrint('$n, $code');
         offset++;
         for (var field in fields) {
-          var data = dataDBF.buffer.asUint8List(pos + offset, field.fieldLength);
+          var data = dataDBF.buffer.asUint8List(pos + offset, field.length);
           // debugPrint('$field, $data');
           switch (field.type) {
             // All OEM code page characters.
@@ -196,8 +199,8 @@ class DbaseFile {
               String dataC = isCp949
                   ? cp949.decode(data, allowInvalid: true)
                   : isUtf8
-                      ? utf8.decode(data, allowMalformed: true)
-                      : String.fromCharCodes(data);
+                  ? utf8.decode(data, allowMalformed: true)
+                  : String.fromCharCodes(data);
               dataC = dataC.replaceAll(RegExp('\\0'), '').trim();
               record.add(dataC);
               break;
@@ -205,8 +208,12 @@ class DbaseFile {
             // (stored internally as 8 digits in YYYYMMDD format)
             case 'D':
               String dataD = String.fromCharCodes(data);
-              if (dataD == '00000000' || dataD.trim().isEmpty || dataD == '        ') {
-                record.add(DateTime.parse('0000-01-01')); // Add null for empty/zero dates
+              if (dataD == '00000000' ||
+                  dataD.trim().isEmpty ||
+                  dataD == '        ') {
+                record.add(
+                  DateTime.parse('0000-01-01'),
+                ); // Add null for empty/zero dates
               } else if (dataD.length == 8) {
                 String yy = dataD.substring(0, 4);
                 String mm = dataD.substring(4, 6);
@@ -223,21 +230,25 @@ class DbaseFile {
               break;
             case 'F':
               // String dataF = utf8.decode(data).trim();
-              String dataF = String.fromCharCodes(data).replaceAll(RegExp('\\0'), '').trim();
+              String dataF = String.fromCharCodes(
+                data,
+              ).replaceAll(RegExp('\\0'), '').trim();
               record.add(double.parse(dataF));
               break;
             case 'N':
               // String dataN = utf8.decode(data).trim();
-              String dataN = String.fromCharCodes(data).replaceAll(RegExp(r'[^\d.-]'), '');
+              String dataN = String.fromCharCodes(
+                data,
+              ).replaceAll(RegExp(r'[^\d.-]'), '');
               // debugPrint('$field, $data, $dataN');
               if (0 < dataN.indexOf('-')) {
-                if (0 < field.fieldCount) {
+                if (0 < field.decimalCount) {
                   record.add(0.0);
                 } else {
                   record.add(0);
                 }
               } else {
-                if (0 < field.fieldCount) {
+                if (0 < field.decimalCount) {
                   record.add(dataN.isEmpty ? 0.0 : double.parse(dataN));
                 } else {
                   record.add(dataN.isEmpty ? 0 : int.parse(dataN));
@@ -260,7 +271,7 @@ class DbaseFile {
                 filePath: _fNameDBF,
               );
           }
-          offset += field.fieldLength;
+          offset += field.length;
         }
         records.add(record);
 
@@ -315,7 +326,7 @@ class DbaseFile {
     // Number of bytes in the record
     _recordLength = 1; /* check byte (use / not use / end of record) */
     for (var field in fields) {
-      _recordLength += field.fieldLength;
+      _recordLength += field.length;
     }
     dataDBF.setUint16(10, _recordLength, Endian.little);
 
@@ -345,13 +356,13 @@ class DbaseFile {
       var code = isCp949
           ? cp949.encode(field.name)
           : isUtf8
-              ? utf8.encode(field.name)
-              : field.name.codeUnits;
+          ? utf8.encode(field.name)
+          : field.name.codeUnits;
       name.setAll(0, code);
       name.fillRange(code.length, 11, 0x20);
       dataDBF.setUint8(pos + 11, field.type.codeUnitAt(0));
-      dataDBF.setUint8(pos + 16, field.fieldLength);
-      dataDBF.setUint8(pos + 17, field.fieldCount);
+      dataDBF.setUint8(pos + 16, field.length);
+      dataDBF.setUint8(pos + 17, field.decimalCount);
       dataDBF.setUint8(pos + 20, field.id);
       dataDBF.setUint8(pos + 23, field.flag);
 
@@ -402,7 +413,7 @@ class DbaseFile {
         // debugPrint('${list}');
         for (var i = 0; i < fields.length; ++i) {
           var field = fields[i];
-          var data = dataDBF.buffer.asUint8List(pos + offset, field.fieldLength);
+          var data = dataDBF.buffer.asUint8List(pos + offset, field.length);
           switch (field.type) {
             case 'C':
               // var dataC = utf8.encode(list[i]);
@@ -414,10 +425,10 @@ class DbaseFile {
               var code = isCp949
                   ? cp949.encode(dataC)
                   : isUtf8
-                      ? utf8.encode(dataC)
-                      : dataC.codeUnits;
+                  ? utf8.encode(dataC)
+                  : dataC.codeUnits;
               data.setAll(0, code);
-              data.fillRange(code.length, field.fieldLength, 0x20);
+              data.fillRange(code.length, field.length, 0x20);
               break;
             case 'D':
               var dataD = list[i] as DateTime;
@@ -428,16 +439,19 @@ class DbaseFile {
               // debugPrint('write: $yy:$mm:$dd');
               break;
             case 'F':
-              var dataF = (list[i] as double).toStringAsPrecision(field.fieldCount).padLeft(field.fieldLength, ' ');
+              var dataF = (list[i] as double)
+                  .toStringAsPrecision(field.decimalCount)
+                  .padLeft(field.length, ' ');
               data.setAll(0, dataF.codeUnits);
               break;
             case 'N':
               if (list[i] is double) {
-                String dataN =
-                    (list[i] as double).toStringAsPrecision(field.fieldCount).padLeft(field.fieldLength, ' ');
+                String dataN = (list[i] as double)
+                    .toStringAsPrecision(field.decimalCount)
+                    .padLeft(field.length, ' ');
                 data.setAll(0, dataN.codeUnits);
               } else {
-                String dataN = list[i].toString().padLeft(field.fieldLength, ' ');
+                String dataN = list[i].toString().padLeft(field.length, ' ');
                 data.setAll(0, dataN.codeUnits);
               }
               break;
@@ -455,7 +469,7 @@ class DbaseFile {
               );
           }
           // debugPrint('data $data');
-          offset += field.fieldLength;
+          offset += field.length;
         }
         // debugPrint('offset - $offset');
         pos += _recordLength;
@@ -534,7 +548,11 @@ class DbaseFile {
   ///   [['Alice', 30], ['Bob', 25]],
   /// );
   /// ```
-  bool writerEntirety(String filename, List<DbaseField> fields, List<List<dynamic>> records) {
+  bool writerEntirety(
+    String filename,
+    List<DbaseField> fields,
+    List<List<dynamic>> records,
+  ) {
     this.fields = fields;
     this.records = records;
     if (analysis()) {
@@ -569,10 +587,10 @@ class DbaseFile {
             var len = isCp949
                 ? cp949.encode(data).length
                 : isUtf8
-                    ? utf8.encode(data).length
-                    : data.length;
-            if (len >= field.fieldLength) {
-              field.fieldLength = len + 1;
+                ? utf8.encode(data).length
+                : data.length;
+            if (len >= field.length) {
+              field.length = len + 1;
               // Length adjustment is necessary because problems occur when the field length is exceeded.
               // debugPrint('$n , $i - $len , ${field.fieldLength}');
             }
@@ -597,11 +615,12 @@ class DbaseFile {
             break;
           case 'N':
             if (list[i] is double) {
-              if (0 == field.fieldCount) {
+              if (0 == field.decimalCount) {
                 throw CorruptedDataException(
                   'Invalid field configuration',
                   filePath: _fNameDBF,
-                  details: 'For N(double) type, field count must be greater than 0',
+                  details:
+                      'For N(double) type, field count must be greater than 0',
                 );
               }
             } else if (list[i] is! int) {
