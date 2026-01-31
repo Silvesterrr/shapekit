@@ -1,0 +1,26 @@
+name: shapekit
+description: A comprehensive Dart library for reading and writing ESRI Shapefiles with support for all 13 geometry types and Korean text encoding (CP949).
+version: 0.1.0
+repository: https://github.com/Silvesterrr/shapekit
+homepage: https://github.com/Silvesterrr/shapekit
+issue_tracker: https://github.com/Silvesterrr/shapekit/issues
+funding:
+  - https://www.buymeacoffee.com/sylwesterjarosz
+
+topics:
+  - shapefile
+  - gis
+  - geospatial
+  - esri
+  - mapping
+
+environment:
+  sdk: ^3.9.0
+
+dependencies:
+  cp949_codec: ^1.0.2
+
+
+dev_dependencies:
+  lints: ^6.0.0
+  test: ^1.25.6
