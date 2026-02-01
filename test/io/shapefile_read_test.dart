@@ -159,6 +159,200 @@ void main() {
       expect(polygon.numPoints, equals(5));
     });
 
+    test('reads a polylineM shapefile', () {
+      final filePath = '${tempDir.path}/test_read_polylinem.shp';
+      final writeShapefile = Shapefile();
+
+      final records = [
+        PolylineM(
+          bounds: BoundsM(0.0, 0.0, 10.0, 10.0, 0.0, 14.142),
+          parts: [0],
+          points: [Point(0.0, 0.0), Point(5.0, 5.0), Point(10.0, 10.0)],
+          arrayM: [0.0, 7.071, 14.142],
+        ),
+      ];
+
+      writeShapefile.writeComplete(
+        filePath,
+        ShapeType.shapePOLYLINEM,
+        records,
+        minX: 0.0,
+        minY: 0.0,
+        maxX: 10.0,
+        maxY: 10.0,
+        minM: 0.0,
+        maxM: 14.142,
+      );
+
+      // Read it back
+      final readShapefile = Shapefile();
+      readShapefile.read(filePath);
+
+      expect(readShapefile.records.length, equals(1));
+      expect(readShapefile.records[0], isA<PolylineM>());
+
+      final polyline = readShapefile.records[0] as PolylineM;
+      expect(polyline.numParts, equals(1));
+      expect(polyline.numPoints, equals(3));
+      expect(polyline.arrayM[0], closeTo(0.0, 0.0001));
+      expect(polyline.arrayM[2], closeTo(14.142, 0.0001));
+    });
+
+    test('reads a polylineZ shapefile', () {
+      final filePath = '${tempDir.path}/test_read_polylinez.shp';
+      final writeShapefile = Shapefile();
+
+      final records = [
+        PolylineZ(
+          bounds: BoundsZ(0.0, 0.0, 10.0, 10.0, 0.0, 14.142, 100.0, 200.0),
+          parts: [0],
+          points: [Point(0.0, 0.0), Point(5.0, 5.0), Point(10.0, 10.0)],
+          arrayZ: [100.0, 150.0, 200.0],
+          arrayM: [0.0, 7.071, 14.142],
+        ),
+      ];
+
+      writeShapefile.writeComplete(
+        filePath,
+        ShapeType.shapePOLYLINEZ,
+        records,
+        minX: 0.0,
+        minY: 0.0,
+        maxX: 10.0,
+        maxY: 10.0,
+        minZ: 100.0,
+        maxZ: 200.0,
+        minM: 0.0,
+        maxM: 14.142,
+      );
+
+      // Read it back
+      final readShapefile = Shapefile();
+      readShapefile.read(filePath);
+
+      expect(readShapefile.records.length, equals(1));
+      expect(readShapefile.records[0], isA<PolylineZ>());
+
+      final polyline = readShapefile.records[0] as PolylineZ;
+      expect(polyline.numParts, equals(1));
+      expect(polyline.numPoints, equals(3));
+      expect(polyline.arrayZ[0], closeTo(100.0, 0.0001));
+      expect(polyline.arrayZ[2], closeTo(200.0, 0.0001));
+      expect(polyline.arrayM[0], closeTo(0.0, 0.0001));
+    });
+
+    test('reads a polygonM shapefile', () {
+      final filePath = '${tempDir.path}/test_read_polygonm.shp';
+      final writeShapefile = Shapefile();
+
+      final records = [
+        PolygonM(
+          bounds: BoundsM(0.0, 0.0, 10.0, 10.0, 0.0, 40.0),
+          parts: [0],
+          points: [Point(0.0, 0.0), Point(10.0, 0.0), Point(10.0, 10.0), Point(0.0, 10.0), Point(0.0, 0.0)],
+          arrayM: [0.0, 10.0, 20.0, 30.0, 40.0],
+        ),
+      ];
+
+      writeShapefile.writeComplete(
+        filePath,
+        ShapeType.shapePOLYGONM,
+        records,
+        minX: 0.0,
+        minY: 0.0,
+        maxX: 10.0,
+        maxY: 10.0,
+        minM: 0.0,
+        maxM: 40.0,
+      );
+
+      // Read it back
+      final readShapefile = Shapefile();
+      readShapefile.read(filePath);
+
+      expect(readShapefile.records.length, equals(1));
+      expect(readShapefile.records[0], isA<PolygonM>());
+
+      final polygon = readShapefile.records[0] as PolygonM;
+      expect(polygon.numParts, equals(1));
+      expect(polygon.numPoints, equals(5));
+      expect(polygon.arrayM[0], closeTo(0.0, 0.0001));
+      expect(polygon.arrayM[4], closeTo(40.0, 0.0001));
+    });
+
+    test('reads a polygonZ shapefile', () {
+      final filePath = '${tempDir.path}/test_read_polygonz.shp';
+      final writeShapefile = Shapefile();
+
+      final records = [
+        PolygonZ(
+          bounds: BoundsZ(0.0, 0.0, 10.0, 10.0, 0.0, 40.0, 100.0, 150.0),
+          parts: [0],
+          points: [Point(0.0, 0.0), Point(10.0, 0.0), Point(10.0, 10.0), Point(0.0, 10.0), Point(0.0, 0.0)],
+          arrayZ: [100.0, 100.0, 150.0, 150.0, 100.0],
+          arrayM: [0.0, 10.0, 20.0, 30.0, 40.0],
+        ),
+      ];
+
+      writeShapefile.writeComplete(
+        filePath,
+        ShapeType.shapePOLYGONZ,
+        records,
+        minX: 0.0,
+        minY: 0.0,
+        maxX: 10.0,
+        maxY: 10.0,
+        minZ: 100.0,
+        maxZ: 150.0,
+        minM: 0.0,
+        maxM: 40.0,
+      );
+
+      // Read it back
+      final readShapefile = Shapefile();
+      readShapefile.read(filePath);
+
+      expect(readShapefile.records.length, equals(1));
+      expect(readShapefile.records[0], isA<PolygonZ>());
+
+      final polygon = readShapefile.records[0] as PolygonZ;
+      expect(polygon.numParts, equals(1));
+      expect(polygon.numPoints, equals(5));
+      expect(polygon.arrayZ[0], closeTo(100.0, 0.0001));
+      expect(polygon.arrayZ[2], closeTo(150.0, 0.0001));
+      expect(polygon.arrayM[4], closeTo(40.0, 0.0001));
+    });
+
+    test('reads shapefile with M values', () {
+      final filePath = '${tempDir.path}/test_read_pointm.shp';
+      final writeShapefile = Shapefile();
+
+      final records = [PointM(126.9780, 37.5665, 123.4)];
+
+      writeShapefile.writeComplete(
+        filePath,
+        ShapeType.shapePOINTM,
+        records,
+        minX: 126.9780,
+        minY: 37.5665,
+        maxX: 126.9780,
+        maxY: 37.5665,
+        minM: 123.4,
+        maxM: 123.4,
+      );
+
+      // Read it back
+      final readShapefile = Shapefile();
+      readShapefile.read(filePath);
+
+      expect(readShapefile.records[0], isA<PointM>());
+
+      final point = readShapefile.records[0] as PointM;
+      expect(point.x, closeTo(126.9780, 0.0001));
+      expect(point.y, closeTo(37.5665, 0.0001));
+      expect(point.m, closeTo(123.4, 0.0001));
+    });
+
     test('reads shapefile with Z values', () {
       final filePath = '${tempDir.path}/test_read_pointz.shp';
       final writeShapefile = Shapefile();

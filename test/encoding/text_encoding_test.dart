@@ -241,12 +241,34 @@ void main() {
   });
 
   group('Encoding Edge Cases', () {
-    test('handles mixed encoding flags gracefully', () {
-      // Should default to one encoding if both flags are set
+    test('handles mixed encoding flags - UTF-8 takes priority', () {
+      final filePath = '${tempDir.path}/test_mixed_encoding.shp';
+      // When both flags are set, UTF-8 should take priority
       final shapefile = Shapefile(isUtf8: true, isCp949: true);
 
-      expect(shapefile, isNotNull);
-      // Behavior should be defined in implementation
+      final records = [Point(0.0, 0.0)];
+      final fields = [DbaseField.fieldC('TEXT', 50)];
+      final attributes = [
+        ['Test Text'],
+      ];
+
+      shapefile.writeComplete(
+        filePath,
+        ShapeType.shapePOINT,
+        records,
+        minX: 0.0,
+        minY: 0.0,
+        maxX: 0.0,
+        maxY: 0.0,
+        attributeFields: fields,
+        attributeRecords: attributes,
+      );
+
+      // Read back and verify it works
+      final readShapefile = Shapefile(isUtf8: true);
+      readShapefile.read(filePath);
+
+      expect(readShapefile.attributeRecords[0][0].toString().trim(), equals('Test Text'));
     });
 
     test('handles very long text in different encodings', () {

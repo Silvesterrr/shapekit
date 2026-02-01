@@ -104,6 +104,124 @@ void main() {
       expect(File(filePath).existsSync(), isTrue);
     });
 
+    test('writes a polylineM shapefile', () {
+      final filePath = '${tempDir.path}/test_polylinem.shp';
+      final shapefile = Shapefile();
+
+      final records = [
+        PolylineM(
+          bounds: BoundsM(0.0, 0.0, 10.0, 10.0, 0.0, 14.142),
+          parts: [0],
+          points: [Point(0.0, 0.0), Point(5.0, 5.0), Point(10.0, 10.0)],
+          arrayM: [0.0, 7.071, 14.142],
+        ),
+      ];
+
+      shapefile.writeComplete(
+        filePath,
+        ShapeType.shapePOLYLINEM,
+        records,
+        minX: 0.0,
+        minY: 0.0,
+        maxX: 10.0,
+        maxY: 10.0,
+        minM: 0.0,
+        maxM: 14.142,
+      );
+
+      expect(File(filePath).existsSync(), isTrue);
+    });
+
+    test('writes a polylineZ shapefile', () {
+      final filePath = '${tempDir.path}/test_polylinez.shp';
+      final shapefile = Shapefile();
+
+      final records = [
+        PolylineZ(
+          bounds: BoundsZ(0.0, 0.0, 10.0, 10.0, 0.0, 14.142, 100.0, 200.0),
+          parts: [0],
+          points: [Point(0.0, 0.0), Point(5.0, 5.0), Point(10.0, 10.0)],
+          arrayZ: [100.0, 150.0, 200.0],
+          arrayM: [0.0, 7.071, 14.142],
+        ),
+      ];
+
+      shapefile.writeComplete(
+        filePath,
+        ShapeType.shapePOLYLINEZ,
+        records,
+        minX: 0.0,
+        minY: 0.0,
+        maxX: 10.0,
+        maxY: 10.0,
+        minZ: 100.0,
+        maxZ: 200.0,
+        minM: 0.0,
+        maxM: 14.142,
+      );
+
+      expect(File(filePath).existsSync(), isTrue);
+    });
+
+    test('writes a polygonM shapefile', () {
+      final filePath = '${tempDir.path}/test_polygonm.shp';
+      final shapefile = Shapefile();
+
+      final records = [
+        PolygonM(
+          bounds: BoundsM(0.0, 0.0, 10.0, 10.0, 0.0, 40.0),
+          parts: [0],
+          points: [Point(0.0, 0.0), Point(10.0, 0.0), Point(10.0, 10.0), Point(0.0, 10.0), Point(0.0, 0.0)],
+          arrayM: [0.0, 10.0, 20.0, 30.0, 40.0],
+        ),
+      ];
+
+      shapefile.writeComplete(
+        filePath,
+        ShapeType.shapePOLYGONM,
+        records,
+        minX: 0.0,
+        minY: 0.0,
+        maxX: 10.0,
+        maxY: 10.0,
+        minM: 0.0,
+        maxM: 40.0,
+      );
+
+      expect(File(filePath).existsSync(), isTrue);
+    });
+
+    test('writes a polygonZ shapefile', () {
+      final filePath = '${tempDir.path}/test_polygonz.shp';
+      final shapefile = Shapefile();
+
+      final records = [
+        PolygonZ(
+          bounds: BoundsZ(0.0, 0.0, 10.0, 10.0, 0.0, 40.0, 100.0, 150.0),
+          parts: [0],
+          points: [Point(0.0, 0.0), Point(10.0, 0.0), Point(10.0, 10.0), Point(0.0, 10.0), Point(0.0, 0.0)],
+          arrayZ: [100.0, 100.0, 150.0, 150.0, 100.0],
+          arrayM: [0.0, 10.0, 20.0, 30.0, 40.0],
+        ),
+      ];
+
+      shapefile.writeComplete(
+        filePath,
+        ShapeType.shapePOLYGONZ,
+        records,
+        minX: 0.0,
+        minY: 0.0,
+        maxX: 10.0,
+        maxY: 10.0,
+        minZ: 100.0,
+        maxZ: 150.0,
+        minM: 0.0,
+        maxM: 40.0,
+      );
+
+      expect(File(filePath).existsSync(), isTrue);
+    });
+
     test('writes multiple records', () {
       final filePath = '${tempDir.path}/test_multiple.shp';
       final shapefile = Shapefile();
@@ -111,6 +229,27 @@ void main() {
       final records = List.generate(100, (i) => Point(i.toDouble(), i.toDouble()));
 
       shapefile.writeComplete(filePath, ShapeType.shapePOINT, records, minX: 0.0, minY: 0.0, maxX: 99.0, maxY: 99.0);
+
+      expect(File(filePath).existsSync(), isTrue);
+    });
+
+    test('writes shapefile with M values', () {
+      final filePath = '${tempDir.path}/test_pointm.shp';
+      final shapefile = Shapefile();
+
+      final records = [PointM(126.9780, 37.5665, 123.4), PointM(129.0756, 35.1796, 200.0)];
+
+      shapefile.writeComplete(
+        filePath,
+        ShapeType.shapePOINTM,
+        records,
+        minX: 126.9780,
+        minY: 35.1796,
+        maxX: 129.0756,
+        maxY: 37.5665,
+        minM: 123.4,
+        maxM: 200.0,
+      );
 
       expect(File(filePath).existsSync(), isTrue);
     });
