@@ -2,15 +2,13 @@ import 'package:shapekit/src/domain/entities/geometry/record.dart';
 import 'package:shapekit/src/domain/entities/geometry/polyline.dart';
 
 class Polygon extends Polyline {
-  Polygon({required super.bounds, required super.parts, required super.points}) {
-    type = ShapeType.shapePOLYGON;
-  }
+  Polygon({required super.bounds, required super.parts, required super.points})
+    : super.protected(type: ShapeType.shapePOLYGON);
 }
 
 class PolygonM extends PolylineM {
-  PolygonM({required super.bounds, required super.parts, required super.points, required super.arrayM}) {
-    type = ShapeType.shapePOLYGONM;
-  }
+  PolygonM({required super.bounds, required super.parts, required super.points, required super.arrayM})
+    : super.protected(type: ShapeType.shapePOLYGONM);
 }
 
 class PolygonZ extends PolylineZ {
@@ -20,9 +18,7 @@ class PolygonZ extends PolylineZ {
     required super.points,
     required super.arrayM,
     required super.arrayZ,
-  }) {
-    type = ShapeType.shapePOLYGONZ;
-  }
+  }) : super.protected(type: ShapeType.shapePOLYGONZ);
 }
 
 class MultiPatch extends PolylineZ {
@@ -33,9 +29,8 @@ class MultiPatch extends PolylineZ {
     required super.arrayM,
     required super.arrayZ,
     required List<int> partTypes,
-  }) : partTypes = List.unmodifiable(partTypes) {
-    type = ShapeType.shapeMULTIPATCH;
-  }
+  }) : partTypes = List.unmodifiable(partTypes),
+       super.protected(type: ShapeType.shapeMULTIPATCH);
 
   final List<int> partTypes;
 

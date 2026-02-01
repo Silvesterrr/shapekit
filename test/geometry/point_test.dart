@@ -80,7 +80,7 @@ void main() {
 
   group('PointZ', () {
     test('creates a 3D point with Z and M values', () {
-      final point = PointZ(126.9780, 37.5665, 42.5, 123.4);
+      final point = PointZ(126.9780, 37.5665, 123.4, 42.5);
 
       expect(point.x, equals(126.9780));
       expect(point.y, equals(37.5665));
@@ -90,19 +90,19 @@ void main() {
     });
 
     test('toList includes Z and M values', () {
-      final point = PointZ(10.5, 20.3, 30.0, 40.0);
+      final point = PointZ(10.5, 20.3, 40.0, 30.0);
       final list = point.toList();
 
       expect(list, equals([10.5, 20.3, 30.0, 40.0]));
     });
 
     test('toString includes all values', () {
-      final point = PointZ(1.0, 2.0, 3.0, 4.0);
+      final point = PointZ(1.0, 2.0, 4.0, 3.0);
       expect(point.toString(), equals('{1.0, 2.0, 4.0, 3.0}'));
     });
 
     test('handles negative Z values (below sea level)', () {
-      final point = PointZ(10.0, 20.0, 30.0, -50.0);
+      final point = PointZ(10.0, 20.0, -50.0, 30.0);
       expect(point.z, equals(-50.0));
     });
 
@@ -112,7 +112,7 @@ void main() {
     });
 
     test('handles high elevation values', () {
-      final point = PointZ(86.9250, 27.9881, 0.0, 8848.86); // Mt. Everest
+      final point = PointZ(86.9250, 27.9881, 8848.86, 0.0); // Mt. Everest
       expect(point.z, equals(8848.86));
     });
   });

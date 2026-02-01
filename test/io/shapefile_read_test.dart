@@ -193,8 +193,8 @@ void main() {
       final point = readShapefile.records[0] as PointZ;
       expect(point.x, closeTo(126.9780, 0.0001));
       expect(point.y, closeTo(37.5665, 0.0001));
-      expect(point.m, closeTo(42.5, 0.0001));
-      expect(point.z, closeTo(123.4, 0.0001));
+      expect(point.m, closeTo(123.4, 0.0001));
+      expect(point.z, closeTo(42.5, 0.0001));
     });
 
     test('reads multiple records correctly', () {

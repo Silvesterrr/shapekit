@@ -139,7 +139,7 @@ class GeometryDeserializer {
     double y = data.getFloat64(offset + 12, Endian.little);
     double z = data.getFloat64(offset + 20, Endian.little);
     double m = data.getFloat64(offset + 28, Endian.little);
-    return PointZ(x, y, m, z);
+    return PointZ(x, y, z, m);
   }
 
   // ========== Polyline Geometry Readers ==========

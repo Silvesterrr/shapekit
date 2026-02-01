@@ -1,3 +1,4 @@
+import 'package:meta/meta.dart';
 import 'package:shapekit/src/domain/entities/geometry/record.dart';
 import 'package:shapekit/src/domain/entities/shapefile_bounds.dart';
 
@@ -16,9 +17,11 @@ class Point extends Record {
   /// Parameters:
   /// - [x]: X coordinate (typically longitude)
   /// - [y]: Y coordinate (typically latitude)
-  Point(this.x, this.y) {
-    type = ShapeType.shapePOINT;
-  }
+  Point(this.x, this.y) : super(ShapeType.shapePOINT);
+
+  /// Internal constructor for subclasses
+  @protected
+  const Point.protected(this.x, this.y, ShapeType type) : super(type);
 
   final double x;
   final double y;
@@ -47,9 +50,13 @@ class PointM extends Point {
   /// - [x]: X coordinate
   /// - [y]: Y coordinate
   /// - [m]: Measure value
-  PointM(super.x, super.y, this.m) {
-    type = ShapeType.shapePOINTM;
-  }
+  PointM(double x, double y, this.m)
+    : super.protected(x, y, ShapeType.shapePOINTM);
+
+  /// Internal constructor for subclasses
+  @protected
+  const PointM.protected(double x, double y, this.m, ShapeType type)
+    : super.protected(x, y, type);
 
   @override
   List<double> toList() => [...super.toList(), m];
@@ -76,11 +83,10 @@ class PointZ extends PointM {
   /// Parameters:
   /// - [x]: X coordinate
   /// - [y]: Y coordinate
-  /// - [m]: Measure value
   /// - [z]: Z coordinate (elevation)
-  PointZ(super.x, super.y, super.m, this.z) {
-    type = ShapeType.shapePOINTZ;
-  }
+  /// - [m]: Measure value
+  PointZ(double x, double y, this.z, double m)
+    : super.protected(x, y, m, ShapeType.shapePOINTZ);
 
   @override
   List<double> toList() => [...super.toList(), z];
@@ -95,9 +101,20 @@ class MultiPoint extends Record {
       minX = bounds.minX,
       minY = bounds.minY,
       maxX = bounds.maxX,
-      maxY = bounds.maxY {
-    type = ShapeType.shapeMULTIPOINT;
-  }
+      maxY = bounds.maxY,
+      super(ShapeType.shapeMULTIPOINT);
+
+  @protected
+  MultiPoint.protected({
+    required List<Point> points,
+    required Bounds bounds,
+    required ShapeType type,
+  }) : points = List.unmodifiable(points),
+       minX = bounds.minX,
+       minY = bounds.minY,
+       maxX = bounds.maxX,
+       maxY = bounds.maxY,
+       super(type);
 
   final double minX;
   final double minY;
@@ -123,12 +140,25 @@ class MultiPoint extends Record {
 }
 
 class MultiPointM extends MultiPoint {
-  MultiPointM({required super.points, required List<double> arrayM, required BoundsM super.bounds})
-    : arrayM = List.unmodifiable(arrayM),
-      minM = bounds.minM,
-      maxM = bounds.maxM {
-    type = ShapeType.shapeMULTIPOINTM;
-  }
+  MultiPointM({
+    required super.points,
+    required List<double> arrayM,
+    required BoundsM super.bounds,
+  }) : arrayM = List.unmodifiable(arrayM),
+       minM = bounds.minM,
+       maxM = bounds.maxM,
+       super.protected(type: ShapeType.shapeMULTIPOINTM);
+
+  @protected
+  MultiPointM.protected({
+    required super.points,
+    required List<double> arrayM,
+    required BoundsM super.bounds,
+    required super.type,
+  }) : arrayM = List.unmodifiable(arrayM),
+       minM = bounds.minM,
+       maxM = bounds.maxM,
+       super.protected();
 
   final double minM;
   final double maxM;
@@ -138,7 +168,8 @@ class MultiPointM extends MultiPoint {
   List<Object> toList() => [...super.toList(), minM, maxM, arrayM];
 
   @override
-  String toString() => '{($minX, $minY, $maxX, $maxY), $numPoints, $points, $minM, $maxM, $arrayM}';
+  String toString() =>
+      '{($minX, $minY, $maxX, $maxY), $numPoints, $points, $minM, $maxM, $arrayM}';
 }
 
 class MultiPointZ extends MultiPointM {
@@ -149,9 +180,8 @@ class MultiPointZ extends MultiPointM {
     required BoundsZ super.bounds,
   }) : arrayZ = List.unmodifiable(arrayZ),
        minZ = bounds.minZ,
-       maxZ = bounds.maxZ {
-    type = ShapeType.shapeMULTIPOINTZ;
-  }
+       maxZ = bounds.maxZ,
+       super.protected(type: ShapeType.shapeMULTIPOINTZ);
 
   final double minZ;
   final double maxZ;
@@ -161,5 +191,6 @@ class MultiPointZ extends MultiPointM {
   List<Object> toList() => [...super.toList(), minZ, maxZ, arrayZ];
 
   @override
-  String toString() => '{($minX, $minY, $maxX, $maxY), $numPoints, $points, $minM, $maxZ, $arrayZ, $maxM, $arrayM}';
+  String toString() =>
+      '{($minX, $minY, $maxX, $maxY), $numPoints, $points, $minM, $maxZ, $arrayZ, $maxM, $arrayM}';
 }

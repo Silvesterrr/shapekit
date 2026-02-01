@@ -103,5 +103,7 @@ class ShapeType {
 /// Subclasses include Point, Polyline, Polygon, and their variants.
 abstract class Record {
   /// The geometry type of this record
-  ShapeType type = ShapeType.shapeUNDEFINED;
+  final ShapeType type;
+
+  const Record(this.type);
 }

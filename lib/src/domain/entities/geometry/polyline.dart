@@ -1,6 +1,7 @@
 import 'package:shapekit/src/domain/entities/geometry/record.dart';
 import 'package:shapekit/src/domain/entities/geometry/point.dart';
 import 'package:shapekit/src/domain/entities/shapefile_bounds.dart';
+import 'package:meta/meta.dart';
 
 class Polyline extends Record {
   Polyline({required Bounds bounds, required List<int> parts, required List<Point> points})
@@ -9,9 +10,23 @@ class Polyline extends Record {
       maxX = bounds.maxX,
       maxY = bounds.maxY,
       parts = List.unmodifiable(parts),
-      points = List.unmodifiable(points) {
-    type = ShapeType.shapePOLYLINE;
-  }
+      points = List.unmodifiable(points),
+      super(ShapeType.shapePOLYLINE);
+
+  // Internal constructor for subclasses
+  @protected
+  Polyline.protected({
+    required Bounds bounds,
+    required List<int> parts,
+    required List<Point> points,
+    required ShapeType type,
+  }) : minX = bounds.minX,
+       minY = bounds.minY,
+       maxX = bounds.maxX,
+       maxY = bounds.maxY,
+       parts = List.unmodifiable(parts),
+       points = List.unmodifiable(points),
+       super(type);
 
   final double minX;
   final double minY;
@@ -40,11 +55,31 @@ class Polyline extends Record {
 }
 
 class PolylineM extends Polyline {
-  PolylineM({required BoundsM super.bounds, required super.parts, required super.points, required List<double> arrayM})
+  PolylineM({required BoundsM bounds, required super.parts, required super.points, required List<double> arrayM})
     : minM = bounds.minM,
       maxM = bounds.maxM,
-      arrayM = List.unmodifiable(arrayM) {
-    type = ShapeType.shapePOLYLINEM;
+      arrayM = List.unmodifiable(arrayM),
+      super.protected(bounds: bounds, type: ShapeType.shapePOLYLINEM) {
+    if (bounds.minM == 0.0 && bounds.maxM == 0.0) {
+      throw ArgumentError('PolylineM requires bounds with M values set (minM and maxM cannot both be 0.0)');
+    }
+  }
+
+  // Internal constructor for subclasses
+  @protected
+  PolylineM.protected({
+    required BoundsM bounds,
+    required super.parts,
+    required super.points,
+    required List<double> arrayM,
+    required super.type,
+  }) : minM = bounds.minM,
+       maxM = bounds.maxM,
+       arrayM = List.unmodifiable(arrayM),
+       super.protected(bounds: bounds) {
+    if (bounds.minM == 0.0 && bounds.maxM == 0.0) {
+      throw ArgumentError('PolylineM requires bounds with M values set (minM and maxM cannot both be 0.0)');
+    }
   }
 
   final double minM;
@@ -67,9 +102,21 @@ class PolylineZ extends PolylineM {
     required List<double> arrayZ,
   }) : minZ = bounds.minZ,
        maxZ = bounds.maxZ,
-       arrayZ = List.unmodifiable(arrayZ) {
-    type = ShapeType.shapePOLYLINEZ;
-  }
+       arrayZ = List.unmodifiable(arrayZ),
+       super.protected(type: ShapeType.shapePOLYLINEZ);
+
+  @protected
+  PolylineZ.protected({
+    required BoundsZ super.bounds,
+    required super.parts,
+    required super.points,
+    required super.arrayM,
+    required List<double> arrayZ,
+    required super.type,
+  }) : minZ = bounds.minZ,
+       maxZ = bounds.maxZ,
+       arrayZ = List.unmodifiable(arrayZ),
+       super.protected();
 
   final double minZ;
   final double maxZ;
