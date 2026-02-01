@@ -59,11 +59,7 @@ class PolylineM extends Polyline {
     : minM = bounds.minM,
       maxM = bounds.maxM,
       arrayM = List.unmodifiable(arrayM),
-      super.protected(bounds: bounds, type: ShapeType.shapePOLYLINEM) {
-    if (bounds.minM == 0.0 && bounds.maxM == 0.0) {
-      throw ArgumentError('PolylineM requires bounds with M values set (minM and maxM cannot both be 0.0)');
-    }
-  }
+      super.protected(bounds: bounds, type: ShapeType.shapePOLYLINEM);
 
   // Internal constructor for subclasses
   @protected
@@ -76,11 +72,7 @@ class PolylineM extends Polyline {
   }) : minM = bounds.minM,
        maxM = bounds.maxM,
        arrayM = List.unmodifiable(arrayM),
-       super.protected(bounds: bounds) {
-    if (bounds.minM == 0.0 && bounds.maxM == 0.0) {
-      throw ArgumentError('PolylineM requires bounds with M values set (minM and maxM cannot both be 0.0)');
-    }
-  }
+       super.protected(bounds: bounds);
 
   final double minM;
   final double maxM;

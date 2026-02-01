@@ -50,13 +50,11 @@ class PointM extends Point {
   /// - [x]: X coordinate
   /// - [y]: Y coordinate
   /// - [m]: Measure value
-  PointM(double x, double y, this.m)
-    : super.protected(x, y, ShapeType.shapePOINTM);
+  PointM(double x, double y, this.m) : super.protected(x, y, ShapeType.shapePOINTM);
 
   /// Internal constructor for subclasses
   @protected
-  const PointM.protected(double x, double y, this.m, ShapeType type)
-    : super.protected(x, y, type);
+  const PointM.protected(double x, double y, this.m, ShapeType type) : super.protected(x, y, type);
 
   @override
   List<double> toList() => [...super.toList(), m];
@@ -85,8 +83,7 @@ class PointZ extends PointM {
   /// - [y]: Y coordinate
   /// - [z]: Z coordinate (elevation)
   /// - [m]: Measure value
-  PointZ(double x, double y, this.z, double m)
-    : super.protected(x, y, m, ShapeType.shapePOINTZ);
+  PointZ(double x, double y, this.z, double m) : super.protected(x, y, m, ShapeType.shapePOINTZ);
 
   @override
   List<double> toList() => [...super.toList(), z];
@@ -105,16 +102,13 @@ class MultiPoint extends Record {
       super(ShapeType.shapeMULTIPOINT);
 
   @protected
-  MultiPoint.protected({
-    required List<Point> points,
-    required Bounds bounds,
-    required ShapeType type,
-  }) : points = List.unmodifiable(points),
-       minX = bounds.minX,
-       minY = bounds.minY,
-       maxX = bounds.maxX,
-       maxY = bounds.maxY,
-       super(type);
+  MultiPoint.protected({required List<Point> points, required Bounds bounds, required ShapeType type})
+    : points = List.unmodifiable(points),
+      minX = bounds.minX,
+      minY = bounds.minY,
+      maxX = bounds.maxX,
+      maxY = bounds.maxY,
+      super(type);
 
   final double minX;
   final double minY;
@@ -140,14 +134,11 @@ class MultiPoint extends Record {
 }
 
 class MultiPointM extends MultiPoint {
-  MultiPointM({
-    required super.points,
-    required List<double> arrayM,
-    required BoundsM super.bounds,
-  }) : arrayM = List.unmodifiable(arrayM),
-       minM = bounds.minM,
-       maxM = bounds.maxM,
-       super.protected(type: ShapeType.shapeMULTIPOINTM);
+  MultiPointM({required super.points, required List<double> arrayM, required BoundsM super.bounds})
+    : arrayM = List.unmodifiable(arrayM),
+      minM = bounds.minM,
+      maxM = bounds.maxM,
+      super.protected(type: ShapeType.shapeMULTIPOINTM);
 
   @protected
   MultiPointM.protected({
@@ -168,8 +159,7 @@ class MultiPointM extends MultiPoint {
   List<Object> toList() => [...super.toList(), minM, maxM, arrayM];
 
   @override
-  String toString() =>
-      '{($minX, $minY, $maxX, $maxY), $numPoints, $points, $minM, $maxM, $arrayM}';
+  String toString() => '{($minX, $minY, $maxX, $maxY), $numPoints, $points, $minM, $maxM, $arrayM}';
 }
 
 class MultiPointZ extends MultiPointM {
@@ -191,6 +181,5 @@ class MultiPointZ extends MultiPointM {
   List<Object> toList() => [...super.toList(), minZ, maxZ, arrayZ];
 
   @override
-  String toString() =>
-      '{($minX, $minY, $maxX, $maxY), $numPoints, $points, $minM, $maxZ, $arrayZ, $maxM, $arrayM}';
+  String toString() => '{($minX, $minY, $maxX, $maxY), $numPoints, $points, $minM, $maxZ, $arrayZ, $maxM, $arrayM}';
 }
