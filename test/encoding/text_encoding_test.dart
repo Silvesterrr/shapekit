@@ -28,7 +28,7 @@ void main() {
         ['Test UTF-8', 'Hello World! 你好世界'],
       ];
 
-      shapefile.writerEntirety(
+      shapefile.writeComplete(
         filePath,
         ShapeType.shapePOINT,
         records,
@@ -42,7 +42,7 @@ void main() {
 
       // Read it back with UTF-8
       final readShapefile = Shapefile(isUtf8: true);
-      readShapefile.reader(filePath);
+      readShapefile.read(filePath);
 
       expect(readShapefile.attributeRecords[0][0].toString().trim(), equals('Test UTF-8'));
       expect(readShapefile.attributeRecords[0][1].toString().contains('Hello World'), isTrue);
@@ -62,7 +62,7 @@ void main() {
         ['Math: ∑∫∂∇'],
       ];
 
-      shapefile.writerEntirety(
+      shapefile.writeComplete(
         filePath,
         ShapeType.shapePOINT,
         records,
@@ -75,7 +75,7 @@ void main() {
       );
 
       final readShapefile = Shapefile(isUtf8: true);
-      readShapefile.reader(filePath);
+      readShapefile.read(filePath);
 
       expect(readShapefile.attributeRecords[0][0].toString().contains('English'), isTrue);
       // Note: Emoji and special chars may have encoding limitations in DBF format
@@ -91,7 +91,7 @@ void main() {
         [''],
       ];
 
-      shapefile.writerEntirety(
+      shapefile.writeComplete(
         filePath,
         ShapeType.shapePOINT,
         records,
@@ -104,7 +104,7 @@ void main() {
       );
 
       final readShapefile = Shapefile(isUtf8: true);
-      readShapefile.reader(filePath);
+      readShapefile.read(filePath);
 
       expect(readShapefile.attributeRecords[0][0].toString().trim(), equals(''));
     });
@@ -123,7 +123,7 @@ void main() {
         ['서울', 'Seoul'],
       ];
 
-      shapefile.writerEntirety(
+      shapefile.writeComplete(
         filePath,
         ShapeType.shapePOINT,
         records,
@@ -137,7 +137,7 @@ void main() {
 
       // Read it back with CP949
       final readShapefile = Shapefile(isCp949: true);
-      readShapefile.reader(filePath);
+      readShapefile.read(filePath);
 
       expect(readShapefile.attributeRecords[0][0].toString().contains('서울'), isTrue);
       expect(readShapefile.attributeRecords[0][1].toString().trim(), equals('Seoul'));
@@ -157,7 +157,7 @@ void main() {
         ['인천'],
       ];
 
-      shapefile.writerEntirety(
+      shapefile.writeComplete(
         filePath,
         ShapeType.shapePOINT,
         records,
@@ -170,7 +170,7 @@ void main() {
       );
 
       final readShapefile = Shapefile(isCp949: true);
-      readShapefile.reader(filePath);
+      readShapefile.read(filePath);
 
       expect(readShapefile.attributeRecords.length, equals(3));
       expect(readShapefile.attributeRecords[0][0].toString().contains('서울'), isTrue);
@@ -192,7 +192,7 @@ void main() {
         ['Simple ASCII Text'],
       ];
 
-      shapefile.writerEntirety(
+      shapefile.writeComplete(
         filePath,
         ShapeType.shapePOINT,
         records,
@@ -205,7 +205,7 @@ void main() {
       );
 
       final readShapefile = Shapefile();
-      readShapefile.reader(filePath);
+      readShapefile.read(filePath);
 
       expect(readShapefile.attributeRecords[0][0].toString().trim(), equals('Simple ASCII Text'));
     });
@@ -221,7 +221,7 @@ void main() {
         ['Test123!@#\$%^&*()_+-=[]{}|;:,.<>?'],
       ];
 
-      shapefile.writerEntirety(
+      shapefile.writeComplete(
         filePath,
         ShapeType.shapePOINT,
         records,
@@ -234,7 +234,7 @@ void main() {
       );
 
       final readShapefile = Shapefile();
-      readShapefile.reader(filePath);
+      readShapefile.read(filePath);
 
       expect(readShapefile.attributeRecords[0][0].toString().contains('Test123'), isTrue);
     });
@@ -261,7 +261,7 @@ void main() {
         [longText],
       ];
 
-      shapefile.writerEntirety(
+      shapefile.writeComplete(
         filePath,
         ShapeType.shapePOINT,
         records,
@@ -274,7 +274,7 @@ void main() {
       );
 
       final readShapefile = Shapefile(isUtf8: true);
-      readShapefile.reader(filePath);
+      readShapefile.read(filePath);
 
       expect(readShapefile.attributeRecords[0][0].toString().length, greaterThan(100));
     });

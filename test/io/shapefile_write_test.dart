@@ -24,7 +24,7 @@ void main() {
 
       final records = [Point(126.9780, 37.5665), Point(129.0756, 35.1796)];
 
-      shapefile.writerEntirety(
+      shapefile.writeComplete(
         filePath,
         ShapeType.shapePOINT,
         records,
@@ -52,7 +52,7 @@ void main() {
         ['Point B', 200],
       ];
 
-      shapefile.writerEntirety(
+      shapefile.writeComplete(
         filePath,
         ShapeType.shapePOINT,
         records,
@@ -82,15 +82,7 @@ void main() {
         ),
       ];
 
-      shapefile.writerEntirety(
-        filePath,
-        ShapeType.shapePOLYLINE,
-        records,
-        minX: 0.0,
-        minY: 0.0,
-        maxX: 10.0,
-        maxY: 10.0,
-      );
+      shapefile.writeComplete(filePath, ShapeType.shapePOLYLINE, records, minX: 0.0, minY: 0.0, maxX: 10.0, maxY: 10.0);
 
       expect(File(filePath).existsSync(), isTrue);
     });
@@ -107,7 +99,7 @@ void main() {
         ),
       ];
 
-      shapefile.writerEntirety(filePath, ShapeType.shapePOLYGON, records, minX: 0.0, minY: 0.0, maxX: 10.0, maxY: 10.0);
+      shapefile.writeComplete(filePath, ShapeType.shapePOLYGON, records, minX: 0.0, minY: 0.0, maxX: 10.0, maxY: 10.0);
 
       expect(File(filePath).existsSync(), isTrue);
     });
@@ -118,7 +110,7 @@ void main() {
 
       final records = List.generate(100, (i) => Point(i.toDouble(), i.toDouble()));
 
-      shapefile.writerEntirety(filePath, ShapeType.shapePOINT, records, minX: 0.0, minY: 0.0, maxX: 99.0, maxY: 99.0);
+      shapefile.writeComplete(filePath, ShapeType.shapePOINT, records, minX: 0.0, minY: 0.0, maxX: 99.0, maxY: 99.0);
 
       expect(File(filePath).existsSync(), isTrue);
     });
@@ -129,7 +121,7 @@ void main() {
 
       final records = [PointZ(126.9780, 37.5665, 42.5, 123.4), PointZ(129.0756, 35.1796, 50.0, 200.0)];
 
-      shapefile.writerEntirety(
+      shapefile.writeComplete(
         filePath,
         ShapeType.shapePOINTZ,
         records,
@@ -150,7 +142,7 @@ void main() {
       final filePath = '${tempDir.path}/test_empty.shp';
       final shapefile = Shapefile();
 
-      shapefile.writerEntirety(filePath, ShapeType.shapePOINT, [], minX: 0.0, minY: 0.0, maxX: 0.0, maxY: 0.0);
+      shapefile.writeComplete(filePath, ShapeType.shapePOINT, [], minX: 0.0, minY: 0.0, maxX: 0.0, maxY: 0.0);
 
       expect(File(filePath).existsSync(), isTrue);
     });
@@ -165,9 +157,8 @@ void main() {
       shapefile.setHeaderBound(0.0, 0.0, 10.0, 10.0);
       shapefile.setRecords([Point(5.0, 5.0)]);
 
-      final result = shapefile.writer(filePath);
+      shapefile.write(filePath);
 
-      expect(result, isTrue);
       expect(File(filePath).existsSync(), isTrue);
     });
 
@@ -183,9 +174,8 @@ void main() {
         ['Test Point'],
       ]);
 
-      final result = shapefile.writer(filePath);
+      shapefile.write(filePath);
 
-      expect(result, isTrue);
       expect(File('${tempDir.path}/test_stepbystep_attrs.dbf').existsSync(), isTrue);
     });
   });
@@ -195,7 +185,7 @@ void main() {
       final filePath = '${tempDir.path}/test_close.shp';
       final shapefile = Shapefile();
 
-      shapefile.writerEntirety(
+      shapefile.writeComplete(
         filePath,
         ShapeType.shapePOINT,
         [Point(0.0, 0.0)],

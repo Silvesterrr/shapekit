@@ -13,9 +13,11 @@
 ///
 /// // Read a shapefile
 /// final shapefile = Shapefile();
-/// shapefile.open('path/to/file.shp');
-/// if (shapefile.reader('path/to/file.shp')) {
+/// try {
+///   shapefile.read('path/to/file.shp');
 ///   print('Records: ${shapefile.records.length}');
+/// } on ShapefileException catch (e) {
+///   print('Error: ${e.message}');
 /// }
 /// ```
 library;

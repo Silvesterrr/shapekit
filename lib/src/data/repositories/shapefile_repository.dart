@@ -29,20 +29,23 @@ import 'package:shapekit/src/domain/entities/dbase_field.dart';
 /// ### Reading a shapefile:
 /// ```dart
 /// final shapefile = Shapefile();
-/// if (shapefile.reader('path/to/file.shp')) {
+/// try {
+///   shapefile.read('path/to/file.shp');
 ///   print('Loaded ${shapefile.records.length} records');
 ///   for (final record in shapefile.records) {
 ///     if (record is Point) {
 ///       print('Point: ${record.x}, ${record.y}');
 ///     }
 ///   }
+/// } on ShapefileException catch (e) {
+///   print('Error: ${e.message}');
 /// }
 /// ```
 ///
 /// ### Writing a shapefile:
 /// ```dart
 /// final shapefile = Shapefile();
-/// shapefile.writerEntirety(
+/// shapefile.writeComplete(
 ///   'output.shp',
 ///   ShapeType.shapePOINT,
 ///   [Point(10.0, 20.0), Point(30.0, 40.0)],
@@ -119,8 +122,13 @@ class Shapefile {
     _fNamePRJ = '$name.prj';
   }
 
-  bool readSHX() {
-    if (null == _fNameSHX) {
+  /// Reads the SHX index file
+  ///
+  /// Throws [FileNotFoundException] if file not specified.
+  /// Throws [ShapefileIOException] on read errors.
+  /// Throws [InvalidHeaderException] if file format is invalid.
+  void readSHX() {
+    if (_fNameSHX == null) {
       throw const FileNotFoundException('SHX file not specified');
     }
 
@@ -184,11 +192,17 @@ class Shapefile {
       }
     }
     // debugPrint('SHX file position: $pos / ${headerSHX.fileLength}');
-    return true;
   }
 
-  bool readSHP() {
-    if (null == _fNameSHP) {
+  /// Reads the SHP geometry file
+  ///
+  /// Throws [FileNotFoundException] if file not specified.
+  /// Throws [ShapefileIOException] on read errors.
+  /// Throws [InvalidHeaderException] if file format is invalid.
+  /// Throws [CorruptedDataException] if record data is invalid.
+  /// Throws [UnsupportedTypeException] if geometry type is not supported.
+  void readSHP() {
+    if (_fNameSHP == null) {
       throw const FileNotFoundException('SHP file not specified');
     }
 
@@ -340,35 +354,50 @@ class Shapefile {
       // debugPrint('next: $totalCount, $count');
     }
     // debugPrint('SHP file position: $workPosition / ${headerSHP.fileLength}');
-    return true;
   }
 
-  bool readPRJ() {
-    if (null == _fNamePRJ) return false;
-    if (!File(_fNamePRJ!).existsSync()) return false;
+  /// Reads the PRJ projection file if it exists
+  ///
+  /// Does nothing if the file doesn't exist.
+  /// Throws [ShapefileIOException] if file exists but cannot be read.
+  void readPRJ() {
+    if (_fNamePRJ == null) return;
+    if (!File(_fNamePRJ!).existsSync()) return;
 
     _prj = CShapeProjectionFile();
-    _prj!.open(_fNamePRJ!);
-    bool result = _prj!.readPrj();
-    _prj!.close();
-
+    try {
+      _prj!.open(_fNamePRJ!);
+      _prj!.readPrj();
+    } finally {
+      _prj!.close();
+    }
     // debugPrint('projectionType: ${_prj!.projectionType}');
-    return result;
   }
 
-  bool readDBF() {
-    if (null == _fNameDBF) return false;
-    if (!File(_fNameDBF!).existsSync()) return false;
+  /// Reads the DBF attribute file if it exists
+  ///
+  /// Does nothing if the file doesn't exist.
+  /// Throws [ShapefileIOException] if file exists but cannot be read.
+  /// Throws [CorruptedDataException] if record data is invalid.
+  void readDBF() {
+    if (_fNameDBF == null) return;
+    if (!File(_fNameDBF!).existsSync()) return;
 
     _dbase = DbaseFile(isUtf8: isUtf8, isCp949: isCp949);
-    _dbase!.open(_fNameDBF!);
-    bool result = _dbase!.readDBF();
-    _dbase!.close();
-    return result;
+    try {
+      _dbase!.open(_fNameDBF!);
+      _dbase!.readDBF();
+    } finally {
+      _dbase!.close();
+    }
   }
 
-  bool writeSHX() {
-    if (null == _fNameSHX) {
+  /// Writes the SHX index file
+  ///
+  /// Throws [FileNotFoundException] if file not specified.
+  /// Throws [ShapefileIOException] on write errors.
+  void writeSHX() {
+    if (_fNameSHX == null) {
       throw const FileNotFoundException('SHX file not specified for writing');
     }
 
@@ -444,19 +473,25 @@ class Shapefile {
         filePosition += pos;
         // debugPrint('file position: $filePosition');
       } catch (e) {
-        throw ShapefileIOException('Error saving DBF file', filePath: _fNameDBF, details: e.toString());
+        throw ShapefileIOException('Error saving SHX file', filePath: _fNameSHX, details: e.toString());
       }
     }
     // debugPrint('SHX file position: $filePosition / ${headerSHX.fileLength}');
-    return true;
   }
 
-  bool writeSHP() {
-    if (null == _fNameSHP) {
+  /// Writes the SHP geometry file
+  ///
+  /// Throws [FileNotFoundException] if file not specified.
+  /// Throws [ShapefileIOException] on write errors.
+  /// Throws [InvalidHeaderException] if shape type not set.
+  /// Throws [InvalidBoundsException] if bounds not set.
+  /// Throws [UnsupportedTypeException] if geometry type is not supported.
+  void writeSHP() {
+    if (_fNameSHP == null) {
       throw const FileNotFoundException('SHP file not specified for writing');
     }
-    if (0 == headerSHP.length) {
-      if (!analysis()) return false;
+    if (headerSHP.length == 0) {
+      analyze();
     }
 
     // ignore: unused_local_variable
@@ -592,26 +627,31 @@ class Shapefile {
       }
     }
     // debugPrint('SHP file position: $workPosition / ${headerSHP.fileLength}');
-    return true;
   }
 
-  bool writeDBF() {
-    if (null == _fNameDBF) return false;
-    if (null == _dbase) return false;
+  /// Writes the DBF attribute file
+  ///
+  /// Does nothing if no DBF data is set.
+  /// Throws [ShapefileIOException] on write errors.
+  void writeDBF() {
+    if (_fNameDBF == null) return;
+    if (_dbase == null) return;
 
-    _dbase!.open(_fNameDBF!);
-    bool result = _dbase!.writeDBF();
-    _dbase!.close();
-    return result;
+    try {
+      _dbase!.open(_fNameDBF!);
+      _dbase!.writeDBF();
+    } finally {
+      _dbase!.close();
+    }
   }
 
   void close() {
     _fileSHX = null;
-    _rafSHX?.close();
+    _rafSHX?.closeSync();
     _rafSHX = null;
 
     _fileSHP = null;
-    _rafSHP?.close();
+    _rafSHP?.closeSync();
     _rafSHP = null;
 
     _dbase?.close();
@@ -632,30 +672,31 @@ class Shapefile {
   /// Parameters:
   /// - [shpFile]: Path to the .shp file (other files are auto-detected)
   ///
-  /// Returns true if reading was successful, false otherwise.
-  ///
-  /// Throws [ShapefileException] if files cannot be read or are invalid.
+  /// Throws [FileNotFoundException] if required files are missing.
+  /// Throws [ShapefileIOException] on read errors.
+  /// Throws [InvalidHeaderException] if file format is invalid.
+  /// Throws [CorruptedDataException] if record data is invalid.
+  /// Throws [UnsupportedTypeException] if geometry type is not supported.
   ///
   /// Example:
   /// ```dart
   /// final shapefile = Shapefile();
-  /// if (shapefile.reader('data.shp')) {
+  /// try {
+  ///   shapefile.read('data.shp');
   ///   print('Loaded ${shapefile.records.length} records');
+  /// } on ShapefileException catch (e) {
+  ///   print('Error: ${e.message}');
   /// }
   /// ```
-  bool reader(String shpFile) {
+  void read(String shpFile) {
     try {
       open(shpFile);
-      bool result = readSHX();
-      if (result) result = readSHP();
-      if (result && File(_fNameDBF!).existsSync()) {
-        result = readDBF();
-      }
+      readSHX();
+      readSHP();
+      readDBF();
+      readPRJ();
+    } finally {
       close();
-      return result;
-    } on ShapefileException {
-      close();
-      return false;
     }
   }
 
@@ -667,20 +708,23 @@ class Shapefile {
   /// Parameters:
   /// - [shpFile]: Path to the output .shp file
   ///
-  /// Returns true if writing was successful, false otherwise.
+  /// Throws [InvalidHeaderException] if shape type not set.
+  /// Throws [InvalidBoundsException] if bounds not set.
+  /// Throws [ShapefileIOException] on write errors.
+  /// Throws [UnsupportedTypeException] if geometry type is not supported.
   ///
   /// Note: This method requires that the shapefile structure has already
-  /// been set up (via [reader] or manual configuration).
-  bool writer(String shpFile) {
-    if (!analysis()) return false;
-    open(shpFile);
-    bool result = writeSHX();
-    if (result) result = writeSHP();
-    if (result && _dbase != null) {
-      result = writeDBF();
+  /// been set up (via [read] or manual configuration).
+  void write(String shpFile) {
+    try {
+      analyze();
+      open(shpFile);
+      writeSHX();
+      writeSHP();
+      writeDBF();
+    } finally {
+      close();
     }
-    close();
-    return result;
   }
 
   /// Sets the shapefile geometry type
@@ -767,12 +811,15 @@ class Shapefile {
   /// - [attributeFields]: Optional list of attribute field definitions
   /// - [attributeRecords]: Optional list of attribute data records
   ///
-  /// Returns true if the shapefile was created successfully, false otherwise.
+  /// Throws [InvalidHeaderException] if shape type not set.
+  /// Throws [InvalidBoundsException] if bounds not set.
+  /// Throws [ShapefileIOException] on write errors.
+  /// Throws [CorruptedDataException] if records don't match expected types.
   ///
   /// Example:
   /// ```dart
   /// final shapefile = Shapefile();
-  /// shapefile.writerEntirety(
+  /// shapefile.writeComplete(
   ///   'cities.shp',
   ///   ShapeType.shapePOINT,
   ///   [Point(126.97, 37.56), Point(129.07, 35.17)],
@@ -782,7 +829,7 @@ class Shapefile {
   ///   attributeRecords: [['Seoul'], ['Busan']],
   /// );
   /// ```
-  bool writerEntirety(
+  void writeComplete(
     String filename,
     ShapeType type,
     List<Record> records, {
@@ -826,10 +873,16 @@ class Shapefile {
       _dbase = null;
     }
 
-    return writer(filename);
+    write(filename);
   }
 
-  bool analysis() {
+  /// Analyzes records and prepares offsets for writing
+  ///
+  /// Throws [InvalidHeaderException] if shape type not set.
+  /// Throws [InvalidBoundsException] if bounds not set.
+  /// Throws [CorruptedDataException] if records don't match expected types.
+  /// Throws [UnsupportedTypeException] if geometry type is not supported.
+  void analyze() {
     if (headerSHP.type == ShapeType.shapeUNDEFINED) {
       throw InvalidHeaderException(
         'Shape file type is not set',
@@ -1005,10 +1058,8 @@ class Shapefile {
     headerSHP.fileLength = pos;
     headerSHP.length = pos ~/ lenWord;
 
-    if (null != _dbase) {
-      if (!_dbase!.analysis()) return false;
+    if (_dbase != null) {
+      _dbase!.analyze();
     }
-
-    return true;
   }
 }

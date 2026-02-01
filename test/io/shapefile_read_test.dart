@@ -23,7 +23,7 @@ void main() {
 
       final records = [Point(126.9780, 37.5665), Point(129.0756, 35.1796)];
 
-      writeShapefile.writerEntirety(
+      writeShapefile.writeComplete(
         filePath,
         ShapeType.shapePOINT,
         records,
@@ -35,9 +35,8 @@ void main() {
 
       // Now read it back
       final readShapefile = Shapefile();
-      final success = readShapefile.reader(filePath);
+      readShapefile.read(filePath);
 
-      expect(success, isTrue);
       expect(readShapefile.records.length, equals(2));
       expect(readShapefile.records[0], isA<Point>());
       expect(readShapefile.records[1], isA<Point>());
@@ -64,7 +63,7 @@ void main() {
         ['Point B', 200],
       ];
 
-      writeShapefile.writerEntirety(
+      writeShapefile.writeComplete(
         filePath,
         ShapeType.shapePOINT,
         records,
@@ -78,9 +77,8 @@ void main() {
 
       // Read it back
       final readShapefile = Shapefile();
-      final success = readShapefile.reader(filePath);
+      readShapefile.read(filePath);
 
-      expect(success, isTrue);
       expect(readShapefile.attributeFields.length, equals(2));
       expect(readShapefile.attributeRecords.length, equals(2));
 
@@ -105,7 +103,7 @@ void main() {
         ),
       ];
 
-      writeShapefile.writerEntirety(
+      writeShapefile.writeComplete(
         filePath,
         ShapeType.shapePOLYLINE,
         records,
@@ -117,9 +115,8 @@ void main() {
 
       // Read it back
       final readShapefile = Shapefile();
-      final success = readShapefile.reader(filePath);
+      readShapefile.read(filePath);
 
-      expect(success, isTrue);
       expect(readShapefile.records.length, equals(1));
       expect(readShapefile.records[0], isA<Polyline>());
 
@@ -140,7 +137,7 @@ void main() {
         ),
       ];
 
-      writeShapefile.writerEntirety(
+      writeShapefile.writeComplete(
         filePath,
         ShapeType.shapePOLYGON,
         records,
@@ -152,9 +149,8 @@ void main() {
 
       // Read it back
       final readShapefile = Shapefile();
-      final success = readShapefile.reader(filePath);
+      readShapefile.read(filePath);
 
-      expect(success, isTrue);
       expect(readShapefile.records.length, equals(1));
       expect(readShapefile.records[0], isA<Polygon>());
 
@@ -169,7 +165,7 @@ void main() {
 
       final records = [PointZ(126.9780, 37.5665, 42.5, 123.4)];
 
-      writeShapefile.writerEntirety(
+      writeShapefile.writeComplete(
         filePath,
         ShapeType.shapePOINTZ,
         records,
@@ -185,9 +181,8 @@ void main() {
 
       // Read it back
       final readShapefile = Shapefile();
-      final success = readShapefile.reader(filePath);
+      readShapefile.read(filePath);
 
-      expect(success, isTrue);
       expect(readShapefile.records[0], isA<PointZ>());
 
       final point = readShapefile.records[0] as PointZ;
@@ -203,7 +198,7 @@ void main() {
 
       final records = List.generate(50, (i) => Point(i.toDouble(), i.toDouble()));
 
-      writeShapefile.writerEntirety(
+      writeShapefile.writeComplete(
         filePath,
         ShapeType.shapePOINT,
         records,
@@ -215,9 +210,8 @@ void main() {
 
       // Read it back
       final readShapefile = Shapefile();
-      final success = readShapefile.reader(filePath);
+      readShapefile.read(filePath);
 
-      expect(success, isTrue);
       expect(readShapefile.records.length, equals(50));
 
       for (var i = 0; i < 50; i++) {
@@ -227,18 +221,17 @@ void main() {
       }
     });
 
-    test('returns false for non-existent file', () {
+    test('throws exception for non-existent file', () {
       final readShapefile = Shapefile();
-      final success = readShapefile.reader('${tempDir.path}/nonexistent.shp');
 
-      expect(success, isFalse);
+      expect(() => readShapefile.read('${tempDir.path}/nonexistent.shp'), throwsA(isA<ShapefileException>()));
     });
 
     test('reads header information correctly', () {
       final filePath = '${tempDir.path}/test_header.shp';
       final writeShapefile = Shapefile();
 
-      writeShapefile.writerEntirety(
+      writeShapefile.writeComplete(
         filePath,
         ShapeType.shapePOINT,
         [Point(5.0, 10.0)],
@@ -249,7 +242,7 @@ void main() {
       );
 
       final readShapefile = Shapefile();
-      readShapefile.reader(filePath);
+      readShapefile.read(filePath);
 
       expect(readShapefile.headerSHP.type, equals(ShapeType.shapePOINT));
       expect(readShapefile.headerSHP.bounds.minX, closeTo(0.0, 0.0001));
@@ -265,7 +258,7 @@ void main() {
 
       // Create test file
       final writeShapefile = Shapefile();
-      writeShapefile.writerEntirety(
+      writeShapefile.writeComplete(
         filePath,
         ShapeType.shapePOINT,
         [Point(5.0, 5.0)],

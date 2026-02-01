@@ -23,6 +23,7 @@ enum ShapeProjectionType {
   final String epsgCode;
 }
 
+/// Handles reading projection information from .prj files
 class CShapeProjectionFile {
   CShapeProjectionFile();
 
@@ -33,8 +34,11 @@ class CShapeProjectionFile {
 
   ShapeProjectionType projectionType = ShapeProjectionType.none;
 
-  bool readPrj() {
-    if (null != _filePRJ) close();
+  /// Reads and parses the projection file
+  ///
+  /// Throws [ShapefileIOException] if the file cannot be opened or read.
+  void readPrj() {
+    if (_filePRJ != null) close();
 
     try {
       _filePRJ = File(_fNamePRJ!);
@@ -42,21 +46,42 @@ class CShapeProjectionFile {
     } catch (e) {
       throw ShapefileIOException('Error opening/reading PRJ file', filePath: _fNamePRJ, details: e.toString());
     }
+
     final prjFileContent = _filePRJ!.readAsStringSync();
 
     final matches = RegExp(r'AUTHORITY\["EPSG","(\d+)"\]').allMatches(prjFileContent);
-    String epsg = matches.isNotEmpty
+    final epsg = matches.isNotEmpty
         ? matches.last.group(1) ?? ShapeProjectionType.wgs84.epsgCode
         : ShapeProjectionType.wgs84.epsgCode;
 
-    for (final projectionType in ShapeProjectionType.values) {
-      if (projectionType.epsgCode.contains(epsg)) {
-        this.projectionType = projectionType;
+    for (final type in ShapeProjectionType.values) {
+      if (type.epsgCode.contains(epsg)) {
+        projectionType = type;
         break;
       }
     }
+  }
 
-    return true;
+  /// Reads a projection file
+  ///
+  /// Parameters:
+  /// - [prjFile]: Path to the .prj file
+  ///
+  /// Throws [ShapefileIOException] if the file cannot be read.
+  ///
+  /// Example:
+  /// ```dart
+  /// final prj = CShapeProjectionFile();
+  /// prj.read('data.prj');
+  /// print('Projection: ${prj.projectionType.name}');
+  /// ```
+  void read(String prjFile) {
+    try {
+      open(prjFile);
+      readPrj();
+    } finally {
+      close();
+    }
   }
 
   void open(String prjFile) {
@@ -66,7 +91,7 @@ class CShapeProjectionFile {
 
   void close() {
     _filePRJ = null;
-    _rafPRJ?.close();
+    _rafPRJ?.closeSync();
     _rafPRJ = null;
   }
 

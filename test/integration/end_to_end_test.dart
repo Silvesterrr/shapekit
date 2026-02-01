@@ -41,7 +41,7 @@ void main() {
         ['Incheon', 2954000, 1062.60],
       ];
 
-      writeShapefile.writerEntirety(
+      writeShapefile.writeComplete(
         filePath,
         ShapeType.shapePOINT,
         records,
@@ -60,9 +60,7 @@ void main() {
 
       // Step 3: Read shapefile back
       final readShapefile = Shapefile();
-      final success = readShapefile.reader(filePath);
-
-      expect(success, isTrue);
+      readShapefile.read(filePath);
 
       // Step 4: Verify geometry
       expect(readShapefile.records.length, equals(3));
@@ -113,7 +111,7 @@ void main() {
         ['Oak Avenue', 2],
       ];
 
-      writeShapefile.writerEntirety(
+      writeShapefile.writeComplete(
         filePath,
         ShapeType.shapePOLYLINE,
         records,
@@ -127,7 +125,7 @@ void main() {
 
       // Read and verify
       final readShapefile = Shapefile();
-      readShapefile.reader(filePath);
+      readShapefile.read(filePath);
 
       expect(readShapefile.records.length, equals(2));
       expect(readShapefile.records[0], isA<Polyline>());
@@ -164,7 +162,7 @@ void main() {
         ['John Doe', 100.00, true],
       ];
 
-      writeShapefile.writerEntirety(
+      writeShapefile.writeComplete(
         filePath,
         ShapeType.shapePOLYGON,
         records,
@@ -178,7 +176,7 @@ void main() {
 
       // Read and verify
       final readShapefile = Shapefile();
-      readShapefile.reader(filePath);
+      readShapefile.read(filePath);
 
       expect(readShapefile.records[0], isA<Polygon>());
 
@@ -195,7 +193,7 @@ void main() {
 
       // Create initial shapefile
       final shapefile1 = Shapefile();
-      shapefile1.writerEntirety(
+      shapefile1.writeComplete(
         filePath,
         ShapeType.shapePOINT,
         [Point(0.0, 0.0)],
@@ -211,7 +209,7 @@ void main() {
 
       // Read it
       final shapefile2 = Shapefile();
-      shapefile2.reader(filePath);
+      shapefile2.read(filePath);
 
       expect(shapefile2.records.length, equals(1));
 
@@ -223,11 +221,11 @@ void main() {
         ['New Point'],
       ]);
 
-      shapefile2.writer(newFilePath);
+      shapefile2.write(newFilePath);
 
       // Read modified file
       final shapefile3 = Shapefile();
-      shapefile3.reader(newFilePath);
+      shapefile3.read(newFilePath);
 
       expect(shapefile3.records.length, equals(2));
       expect(shapefile3.attributeRecords.length, equals(2));
@@ -244,7 +242,7 @@ void main() {
       final attributes = List.generate(1000, (i) => [i, 'Point_$i']);
 
       final writeShapefile = Shapefile();
-      writeShapefile.writerEntirety(
+      writeShapefile.writeComplete(
         filePath,
         ShapeType.shapePOINT,
         records,
@@ -258,7 +256,7 @@ void main() {
 
       // Read and verify
       final readShapefile = Shapefile();
-      readShapefile.reader(filePath);
+      readShapefile.read(filePath);
 
       expect(readShapefile.records.length, equals(1000));
       expect(readShapefile.attributeRecords.length, equals(1000));
@@ -274,7 +272,7 @@ void main() {
 
       final writeShapefile = Shapefile(isUtf8: true);
 
-      writeShapefile.writerEntirety(
+      writeShapefile.writeComplete(
         filePath,
         ShapeType.shapePOINT,
         [Point(0.0, 0.0)],
@@ -289,7 +287,7 @@ void main() {
       );
 
       final readShapefile = Shapefile(isUtf8: true);
-      readShapefile.reader(filePath);
+      readShapefile.read(filePath);
 
       expect(readShapefile.attributeRecords[0][0].toString().contains('Hello'), isTrue);
     });
@@ -299,7 +297,7 @@ void main() {
 
       final writeShapefile = Shapefile(isCp949: true);
 
-      writeShapefile.writerEntirety(
+      writeShapefile.writeComplete(
         filePath,
         ShapeType.shapePOINT,
         [Point(126.9780, 37.5665)],
@@ -314,7 +312,7 @@ void main() {
       );
 
       final readShapefile = Shapefile(isCp949: true);
-      readShapefile.reader(filePath);
+      readShapefile.read(filePath);
 
       expect(readShapefile.attributeRecords[0][0].toString().contains('서울'), isTrue);
     });
@@ -328,11 +326,11 @@ void main() {
       final records = [Point(0.0, 0.0), Point(5.0, 5.0), Point(10.0, 10.0), Point(15.0, 15.0), Point(20.0, 20.0)];
 
       final shapefile = Shapefile();
-      shapefile.writerEntirety(filePath, ShapeType.shapePOINT, records, minX: 0.0, minY: 0.0, maxX: 20.0, maxY: 20.0);
+      shapefile.writeComplete(filePath, ShapeType.shapePOINT, records, minX: 0.0, minY: 0.0, maxX: 20.0, maxY: 20.0);
 
       // Read and filter
       final readShapefile = Shapefile();
-      readShapefile.reader(filePath);
+      readShapefile.read(filePath);
 
       // Find points within bounds (5, 5) to (15, 15)
       final filtered = readShapefile.records.where((record) {
@@ -351,7 +349,7 @@ void main() {
 
       // Create source data
       final sourceShapefile = Shapefile();
-      sourceShapefile.writerEntirety(
+      sourceShapefile.writeComplete(
         sourcePath,
         ShapeType.shapePOINT,
         [Point(0.0, 0.0), Point(10.0, 10.0)],
@@ -368,7 +366,7 @@ void main() {
 
       // Read source
       final migrationShapefile = Shapefile();
-      migrationShapefile.reader(sourcePath);
+      migrationShapefile.read(sourcePath);
 
       // Transform data (rename field)
       final newFields = [DbaseField.fieldC('NEW_NAME', 50)];
@@ -377,11 +375,11 @@ void main() {
       // Write to target
       migrationShapefile.setAttributeField(newFields);
       migrationShapefile.setAttributeRecord(newRecords);
-      migrationShapefile.writer(targetPath);
+      migrationShapefile.write(targetPath);
 
       // Verify migration
       final verifyShapefile = Shapefile();
-      verifyShapefile.reader(targetPath);
+      verifyShapefile.read(targetPath);
 
       expect(verifyShapefile.attributeFields[0].name, equals('NEW_NAME'));
       expect(verifyShapefile.records.length, equals(2));

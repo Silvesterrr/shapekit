@@ -39,20 +39,24 @@ void writeShapefileExample() {
   ];
 
   // Write the shapefile with all components
-  shapefile.writerEntirety(
-    'cities.shp',
-    ShapeType.shapePOINT,
-    records,
-    minX: 126.7052,
-    minY: 35.1796,
-    maxX: 129.0756,
-    maxY: 37.5665,
-    attributeFields: fields,
-    attributeRecords: attributes,
-  );
+  try {
+    shapefile.writeComplete(
+      'cities.shp',
+      ShapeType.shapePOINT,
+      records,
+      minX: 126.7052,
+      minY: 35.1796,
+      maxX: 129.0756,
+      maxY: 37.5665,
+      attributeFields: fields,
+      attributeRecords: attributes,
+    );
 
-  print('✓ Created cities.shp with ${records.length} points');
-  print('✓ Included .shp, .shx, and .dbf files\n');
+    print('✓ Created cities.shp with ${records.length} points');
+    print('✓ Included .shp, .shx, and .dbf files\n');
+  } on ShapefileException catch (e) {
+    print('✗ Error writing shapefile: $e');
+  }
 }
 
 /// Example: Read an existing shapefile
@@ -61,8 +65,10 @@ void readShapefileExample() {
 
   final shapefile = Shapefile();
 
-  // Read the shapefile (automatically reads .shp, .shx, .dbf, and .prj if available)
-  if (shapefile.reader('cities.shp')) {
+  try {
+    // Read the shapefile (automatically reads .shp, .shx, .dbf, and .prj if available)
+    shapefile.read('cities.shp');
+
     print('✓ Successfully loaded shapefile');
     print('  Records: ${shapefile.records.length}');
     print('  Attributes: ${shapefile.attributeRecords.length}\n');
@@ -102,11 +108,11 @@ void readShapefileExample() {
     if (shapefile.projectionType != ShapeProjectionType.none) {
       print('\nProjection: ${shapefile.projectionType}');
     }
-
+  } on ShapefileException catch (e) {
+    print('✗ Failed to read shapefile: $e');
+  } finally {
     // Clean up
     shapefile.dispose();
-  } else {
-    print('✗ Failed to read shapefile');
   }
 }
 
@@ -124,7 +130,7 @@ void advancedGeometryExample() {
     ),
   ];
 
-  polylineShapefile.writerEntirety(
+  polylineShapefile.writeComplete(
     'roads.shp',
     ShapeType.shapePOLYLINE,
     polylineRecords,
@@ -152,7 +158,7 @@ void advancedGeometryExample() {
     ),
   ];
 
-  polygonShapefile.writerEntirety(
+  polygonShapefile.writeComplete(
     'parcels.shp',
     ShapeType.shapePOLYGON,
     polygonRecords,
@@ -183,7 +189,7 @@ void koreanTextExample() {
     ['서울', 'Seoul'],
   ];
 
-  shapefile.writerEntirety(
+  shapefile.writeComplete(
     'cities_kr.shp',
     ShapeType.shapePOINT,
     records,
@@ -204,7 +210,7 @@ void errorHandlingExample() {
 
   try {
     final shapefile = Shapefile();
-    shapefile.reader('nonexistent.shp');
+    shapefile.read('nonexistent.shp');
   } on FileNotFoundException catch (e) {
     print('✗ File not found: ${e.filePath}');
   } on InvalidHeaderException catch (e) {

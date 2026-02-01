@@ -47,8 +47,14 @@ class DbaseFile {
     _fNameDBF = dbfFile;
   }
 
-  bool readDBF() {
-    if (null != _fileDBF) close();
+  /// Reads the DBF file content
+  ///
+  /// Throws [ShapefileIOException] if the file cannot be opened or read.
+  /// Throws [InvalidFormatException] if the file version is not supported.
+  /// Throws [CorruptedDataException] if record data is invalid.
+  /// Throws [UnsupportedTypeException] if a field type is not supported.
+  void readDBF() {
+    if (_fileDBF != null) close();
     // ignore: unused_local_variable
     int filePosition = 0;
 
@@ -265,13 +271,15 @@ class DbaseFile {
     }
     // last end of file (0x1A)
     filePosition++;
-
     // debugPrint('file position: $filePosition / $_fileLength');
-    return true;
   }
 
-  bool writeDBF() {
-    if (null != _fileDBF) close();
+  /// Writes the DBF file content
+  ///
+  /// Throws [ShapefileIOException] if the file cannot be opened or written.
+  /// Throws [UnsupportedTypeException] if a field type is not supported.
+  void writeDBF() {
+    if (_fileDBF != null) close();
 
     // ignore: unused_local_variable
     int filePosition = 0;
@@ -449,9 +457,7 @@ class DbaseFile {
     // end of record
     _rafDBF!.writeByteSync(0x1A);
     filePosition++;
-
     // debugPrint('file position: $filePosition / $_fileLength');
-    return true;
   }
 
   /// Reads a dBASE file
@@ -459,21 +465,24 @@ class DbaseFile {
   /// Parameters:
   /// - [filename]: Path to the .dbf file
   ///
-  /// Returns true if reading was successful, false otherwise.
+  /// Throws [ShapefileIOException] if the file cannot be read.
+  /// Throws [InvalidFormatException] if the file version is not supported.
+  /// Throws [CorruptedDataException] if record data is invalid.
   ///
   /// Example:
   /// ```dart
   /// final dbf = DbaseFile(isUtf8: true);
-  /// if (dbf.reader('data.dbf')) {
-  ///   print('Fields: ${dbf.fields.length}');
-  ///   print('Records: ${dbf.records.length}');
-  /// }
+  /// dbf.read('data.dbf');
+  /// print('Fields: ${dbf.fields.length}');
+  /// print('Records: ${dbf.records.length}');
   /// ```
-  bool reader(String filename) {
-    open(filename);
-    bool result = readDBF();
-    close();
-    return result;
+  void read(String filename) {
+    try {
+      open(filename);
+      readDBF();
+    } finally {
+      close();
+    }
   }
 
   /// Writes a dBASE file
@@ -481,12 +490,15 @@ class DbaseFile {
   /// Parameters:
   /// - [filename]: Path to the output .dbf file
   ///
-  /// Returns true if writing was successful, false otherwise.
-  bool writer(String filename) {
-    open(filename);
-    bool result = writeDBF();
-    close();
-    return result;
+  /// Throws [ShapefileIOException] if the file cannot be written.
+  /// Throws [UnsupportedTypeException] if a field type is not supported.
+  void write(String filename) {
+    try {
+      open(filename);
+      writeDBF();
+    } finally {
+      close();
+    }
   }
 
   /// Creates a complete dBASE file from scratch
@@ -496,27 +508,30 @@ class DbaseFile {
   /// - [fields]: List of field definitions
   /// - [records]: List of data records
   ///
-  /// Returns true if the file was created successfully, false otherwise.
+  /// Throws [CorruptedDataException] if data doesn't match field definitions.
+  /// Throws [ShapefileIOException] if the file cannot be written.
   ///
   /// Example:
   /// ```dart
   /// final dbf = DbaseFile(isUtf8: true);
-  /// dbf.writerEntirety(
+  /// dbf.writeComplete(
   ///   'output.dbf',
   ///   [DbaseField.fieldC('NAME', 50), DbaseField.fieldN('AGE', 3)],
   ///   [['Alice', 30], ['Bob', 25]],
   /// );
   /// ```
-  bool writerEntirety(String filename, List<DbaseField> fields, List<List<dynamic>> records) {
+  void writeComplete(String filename, List<DbaseField> fields, List<List<dynamic>> records) {
     this.fields = fields;
     this.records = records;
-    if (analysis()) {
-      return writer(filename);
-    }
-    return false;
+    analyze();
+    write(filename);
   }
 
-  bool analysis() {
+  /// Analyzes and validates the field and record data
+  ///
+  /// Throws [CorruptedDataException] if data doesn't match field definitions.
+  /// Throws [UnsupportedTypeException] if a field type is not supported.
+  void analyze() {
     for (int n = 0; n < records.length; ++n) {
       var list = records[n];
       if (fields.length != list.length) {
@@ -601,12 +616,11 @@ class DbaseFile {
         }
       }
     }
-    return true;
   }
 
   void close() {
     _fileDBF = null;
-    _rafDBF?.close();
+    _rafDBF?.closeSync();
     _rafDBF = null;
     _recordCount = 0;
     _headerLength = 0;

@@ -28,13 +28,12 @@ void main() {
         ['Charlie', 'Incheon'],
       ];
 
-      dbf.writerEntirety(filePath, fields, records);
+      dbf.writeComplete(filePath, fields, records);
 
       // Read it back
       final readDbf = DbaseFile();
-      final success = readDbf.reader(filePath);
+      readDbf.read(filePath);
 
-      expect(success, isTrue);
       expect(readDbf.fields.length, equals(2));
       expect(readDbf.records.length, equals(3));
 
@@ -59,11 +58,11 @@ void main() {
         [150, 24.50],
       ];
 
-      dbf.writerEntirety(filePath, fields, records);
+      dbf.writeComplete(filePath, fields, records);
 
       // Read it back
       final readDbf = DbaseFile();
-      readDbf.reader(filePath);
+      readDbf.read(filePath);
 
       expect(readDbf.fields[0].type, equals('N'));
       expect(readDbf.fields[1].type, equals('N'));
@@ -85,11 +84,11 @@ void main() {
         ['Item C', true],
       ];
 
-      dbf.writerEntirety(filePath, fields, records);
+      dbf.writeComplete(filePath, fields, records);
 
       // Read it back
       final readDbf = DbaseFile();
-      readDbf.reader(filePath);
+      readDbf.read(filePath);
 
       expect(readDbf.fields[1].type, equals('L'));
       expect(readDbf.records[0][1], isTrue);
@@ -107,11 +106,11 @@ void main() {
         ['Event 2', DateTime(2026, 2, 1)],
       ];
 
-      dbf.writerEntirety(filePath, fields, records);
+      dbf.writeComplete(filePath, fields, records);
 
       // Read it back
       final readDbf = DbaseFile();
-      readDbf.reader(filePath);
+      readDbf.read(filePath);
 
       expect(readDbf.fields.length, equals(2));
       expect(readDbf.fields[1].name, equals('DATE'));
@@ -128,10 +127,10 @@ void main() {
 
       final fields = [DbaseField.fieldC('NAME', 50)];
 
-      dbf.writerEntirety(filePath, fields, []);
+      dbf.writeComplete(filePath, fields, []);
 
       final readDbf = DbaseFile();
-      readDbf.reader(filePath);
+      readDbf.read(filePath);
 
       expect(readDbf.fields.length, equals(1));
       expect(readDbf.records.length, equals(0));
@@ -145,10 +144,10 @@ void main() {
 
       final records = List.generate(1000, (i) => [i, 'Value $i']);
 
-      dbf.writerEntirety(filePath, fields, records);
+      dbf.writeComplete(filePath, fields, records);
 
       final readDbf = DbaseFile();
-      readDbf.reader(filePath);
+      readDbf.read(filePath);
 
       expect(readDbf.records.length, equals(1000));
       expect(readDbf.records[500][0], equals(500));
@@ -167,10 +166,10 @@ void main() {
         [longText],
       ];
 
-      dbf.writerEntirety(filePath, fields, records);
+      dbf.writeComplete(filePath, fields, records);
 
       final readDbf = DbaseFile();
-      readDbf.reader(filePath);
+      readDbf.read(filePath);
 
       expect(readDbf.records[0][0].toString().trim().length, equals(254));
     });
@@ -192,10 +191,10 @@ void main() {
         ['Bob', 25, 45000.00, false, DateTime(2021, 3, 20)],
       ];
 
-      dbf.writerEntirety(filePath, fields, records);
+      dbf.writeComplete(filePath, fields, records);
 
       final readDbf = DbaseFile();
-      readDbf.reader(filePath);
+      readDbf.read(filePath);
 
       expect(readDbf.fields.length, equals(5));
       expect(readDbf.records.length, equals(2));

@@ -183,24 +183,21 @@ void main() {
   });
 
   group('Error Handling Integration', () {
-    test('reader returns false instead of throwing for missing file', () {
+    test('read throws exception for missing file', () {
       final shapefile = Shapefile();
-      final result = shapefile.reader('${tempDir.path}/missing.shp');
 
-      expect(result, isFalse);
+      expect(() => shapefile.read('${tempDir.path}/missing.shp'), throwsA(isA<ShapefileException>()));
     });
 
-    test('handles write errors gracefully', () {
-      // Try to write to a read-only location (if possible)
+    test('write succeeds with valid configuration', () {
       final shapefile = Shapefile();
 
       shapefile.setHeaderType(ShapeType.shapePOINT);
       shapefile.setHeaderBound(0.0, 0.0, 10.0, 10.0);
       shapefile.setRecords([Point(5.0, 5.0)]);
 
-      // This should either succeed or return false
-      final result = shapefile.writer('${tempDir.path}/test.shp');
-      expect(result, isA<bool>());
+      // This should succeed without throwing
+      expect(() => shapefile.write('${tempDir.path}/test.shp'), returnsNormally);
     });
 
     test('multiple errors can be caught separately', () {
