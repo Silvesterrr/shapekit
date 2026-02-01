@@ -22,7 +22,7 @@ Add this to your package's `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  shapekit: ^0.1.0
+  shapekit: ^0.2.0
 ```
 
 Then run:
