@@ -138,7 +138,7 @@ void main() {
 
       final records = [
         PolylineZ(
-          bounds: BoundsZ(0.0, 0.0, 10.0, 10.0, 0.0, 14.142, 100.0, 200.0),
+          bounds: BoundsZ(0.0, 0.0, 10.0, 10.0, 100.0, 200.0, 0.0, 14.142),
           parts: [0],
           points: [Point(0.0, 0.0), Point(5.0, 5.0), Point(10.0, 10.0)],
           arrayZ: [100.0, 150.0, 200.0],
@@ -197,7 +197,7 @@ void main() {
 
       final records = [
         PolygonZ(
-          bounds: BoundsZ(0.0, 0.0, 10.0, 10.0, 0.0, 40.0, 100.0, 150.0),
+          bounds: BoundsZ(0.0, 0.0, 10.0, 10.0, 100.0, 150.0, 0.0, 40.0),
           parts: [0],
           points: [Point(0.0, 0.0), Point(10.0, 0.0), Point(10.0, 10.0), Point(0.0, 10.0), Point(0.0, 0.0)],
           arrayZ: [100.0, 100.0, 150.0, 150.0, 100.0],
@@ -345,7 +345,7 @@ void main() {
           points: [Point(0.0, 0.0), Point(10.0, 10.0)],
           arrayZ: [100.0, 200.0],
           arrayM: [1.0, 2.0],
-          bounds: BoundsZ(0.0, 0.0, 10.0, 10.0, 1.0, 2.0, 100.0, 200.0),
+          bounds: BoundsZ(0.0, 0.0, 10.0, 10.0, 100.0, 200.0, 1.0, 2.0),
         ),
       ];
 

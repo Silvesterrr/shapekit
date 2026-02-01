@@ -120,14 +120,14 @@ void main() {
 | PointM | `PointM` | Point with measure value (X, Y, M) |
 | PointZ | `PointZ` | Point with Z and M values (X, Y, Z, M) |
 | Polyline | `Polyline` | Line or multi-line (parts, points) |
-| PolylineM | `PolylineM` | Polyline with measure values |
-| PolylineZ | `PolylineZ` | Polyline with Z and M values |
+| PolylineM | `PolylineM` | Polyline with optional M values |
+| PolylineZ | `PolylineZ` | Polyline with Z and optional M values |
 | Polygon | `Polygon` | Polygon or multi-polygon (parts, points) |
-| PolygonM | `PolygonM` | Polygon with measure values |
-| PolygonZ | `PolygonZ` | Polygon with Z and M values |
+| PolygonM | `PolygonM` | Polygon with optional M values |
+| PolygonZ | `PolygonZ` | Polygon with Z and optional M values |
 | MultiPoint | `MultiPoint` | Collection of points |
-| MultiPointM | `MultiPointM` | MultiPoint with measure values |
-| MultiPointZ | `MultiPointZ` | MultiPoint with Z and M values |
+| MultiPointM | `MultiPointM` | MultiPoint with optional M values |
+| MultiPointZ | `MultiPointZ` | MultiPoint with Z and optional M values |
 | MultiPatch | `MultiPatch` | 3D surface ❌ *not yet implemented* |
 
 ## Text Encoding

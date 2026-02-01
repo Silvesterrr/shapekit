@@ -194,8 +194,9 @@ void main() {
       final polyline = readShapefile.records[0] as PolylineM;
       expect(polyline.numParts, equals(1));
       expect(polyline.numPoints, equals(3));
-      expect(polyline.arrayM[0], closeTo(0.0, 0.0001));
-      expect(polyline.arrayM[2], closeTo(14.142, 0.0001));
+      expect(polyline.hasM, isTrue);
+      expect(polyline.arrayM![0], closeTo(0.0, 0.0001));
+      expect(polyline.arrayM![2], closeTo(14.142, 0.0001));
     });
 
     test('reads a polylineZ shapefile', () {
@@ -204,7 +205,7 @@ void main() {
 
       final records = [
         PolylineZ(
-          bounds: BoundsZ(0.0, 0.0, 10.0, 10.0, 0.0, 14.142, 100.0, 200.0),
+          bounds: BoundsZ(0.0, 0.0, 10.0, 10.0, 100.0, 200.0, 0.0, 14.142),
           parts: [0],
           points: [Point(0.0, 0.0), Point(5.0, 5.0), Point(10.0, 10.0)],
           arrayZ: [100.0, 150.0, 200.0],
@@ -238,7 +239,8 @@ void main() {
       expect(polyline.numPoints, equals(3));
       expect(polyline.arrayZ[0], closeTo(100.0, 0.0001));
       expect(polyline.arrayZ[2], closeTo(200.0, 0.0001));
-      expect(polyline.arrayM[0], closeTo(0.0, 0.0001));
+      expect(polyline.hasM, isTrue);
+      expect(polyline.arrayM![0], closeTo(0.0, 0.0001));
     });
 
     test('reads a polygonM shapefile', () {
@@ -276,8 +278,9 @@ void main() {
       final polygon = readShapefile.records[0] as PolygonM;
       expect(polygon.numParts, equals(1));
       expect(polygon.numPoints, equals(5));
-      expect(polygon.arrayM[0], closeTo(0.0, 0.0001));
-      expect(polygon.arrayM[4], closeTo(40.0, 0.0001));
+      expect(polygon.hasM, isTrue);
+      expect(polygon.arrayM![0], closeTo(0.0, 0.0001));
+      expect(polygon.arrayM![4], closeTo(40.0, 0.0001));
     });
 
     test('reads a polygonZ shapefile', () {
@@ -286,7 +289,7 @@ void main() {
 
       final records = [
         PolygonZ(
-          bounds: BoundsZ(0.0, 0.0, 10.0, 10.0, 0.0, 40.0, 100.0, 150.0),
+          bounds: BoundsZ(0.0, 0.0, 10.0, 10.0, 100.0, 150.0, 0.0, 40.0),
           parts: [0],
           points: [Point(0.0, 0.0), Point(10.0, 0.0), Point(10.0, 10.0), Point(0.0, 10.0), Point(0.0, 0.0)],
           arrayZ: [100.0, 100.0, 150.0, 150.0, 100.0],
@@ -320,7 +323,8 @@ void main() {
       expect(polygon.numPoints, equals(5));
       expect(polygon.arrayZ[0], closeTo(100.0, 0.0001));
       expect(polygon.arrayZ[2], closeTo(150.0, 0.0001));
-      expect(polygon.arrayM[4], closeTo(40.0, 0.0001));
+      expect(polygon.hasM, isTrue);
+      expect(polygon.arrayM![4], closeTo(40.0, 0.0001));
     });
 
     test('reads shapefile with M values', () {
@@ -492,8 +496,9 @@ void main() {
 
       final mp = readShapefile.records[0] as MultiPointM;
       expect(mp.numPoints, equals(2));
-      expect(mp.arrayM[0], closeTo(1.0, 0.0001));
-      expect(mp.arrayM[1], closeTo(2.0, 0.0001));
+      expect(mp.hasM, isTrue);
+      expect(mp.arrayM![0], closeTo(1.0, 0.0001));
+      expect(mp.arrayM![1], closeTo(2.0, 0.0001));
     });
 
     test('reads a multipointZ shapefile', () {
@@ -505,7 +510,7 @@ void main() {
           points: [Point(0.0, 0.0), Point(10.0, 10.0)],
           arrayZ: [100.0, 200.0],
           arrayM: [1.0, 2.0],
-          bounds: BoundsZ(0.0, 0.0, 10.0, 10.0, 1.0, 2.0, 100.0, 200.0),
+          bounds: BoundsZ(0.0, 0.0, 10.0, 10.0, 100.0, 200.0, 1.0, 2.0),
         ),
       ];
 
@@ -534,8 +539,9 @@ void main() {
       expect(mp.numPoints, equals(2));
       expect(mp.arrayZ[0], closeTo(100.0, 0.0001));
       expect(mp.arrayZ[1], closeTo(200.0, 0.0001));
-      expect(mp.arrayM[0], closeTo(1.0, 0.0001));
-      expect(mp.arrayM[1], closeTo(2.0, 0.0001));
+      expect(mp.hasM, isTrue);
+      expect(mp.arrayM![0], closeTo(1.0, 0.0001));
+      expect(mp.arrayM![1], closeTo(2.0, 0.0001));
     });
 
     test('reads header information correctly', () {

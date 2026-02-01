@@ -51,25 +51,49 @@ class Bounds {
   String toString() => 'minX($minX), minY($minY), maxX($maxX), maxY($maxY)';
 }
 
+/// Bounding box with optional M (measure) values
+///
+/// M values are optional per ESRI spec.
 class BoundsM extends Bounds {
-  const BoundsM(super.minX, super.minY, super.maxX, super.maxY, this.minM, this.maxM);
+  const BoundsM(super.minX, super.minY, super.maxX, super.maxY, [this.minM, this.maxM]);
 
-  final double minM;
+  /// Minimum M value (optional - null if not present in shapefile)
+  final double? minM;
 
-  final double maxM;
+  /// Maximum M value (optional - null if not present in shapefile)
+  final double? maxM;
+
+  /// Whether M values are present
+  bool get hasM => minM != null && maxM != null;
 
   @override
-  String toString() => 'minX($minX), minY($minY), maxX($maxX), maxY($maxY), minM($minM), maxM($maxM)';
+  String toString() {
+    final mPart = hasM ? ', minM($minM), maxM($maxM)' : '';
+    return 'minX($minX), minY($minY), maxX($maxX), maxY($maxY)$mPart';
+  }
 }
 
-class BoundsZ extends BoundsM {
-  const BoundsZ(super.minX, super.minY, super.maxX, super.maxY, super.minM, super.maxM, this.minZ, this.maxZ);
+/// Bounding box with Z coordinates and optional M values
+///
+/// Z values are always present. M values are optional per ESRI spec.
+class BoundsZ extends Bounds {
+  const BoundsZ(super.minX, super.minY, super.maxX, super.maxY, this.minZ, this.maxZ, [this.minM, this.maxM]);
 
   final double minZ;
-
   final double maxZ;
 
+  /// Minimum M value (optional - null if not present in shapefile)
+  final double? minM;
+
+  /// Maximum M value (optional - null if not present in shapefile)
+  final double? maxM;
+
+  /// Whether M values are present
+  bool get hasM => minM != null && maxM != null;
+
   @override
-  String toString() =>
-      'minX($minX), minY($minY), maxX($maxX), maxY($maxY), minM($minM), maxM($maxM), minZ($minZ), maxZ($maxZ)';
+  String toString() {
+    final mPart = hasM ? ', minM($minM), maxM($maxM)' : '';
+    return 'minX($minX), minY($minY), maxX($maxX), maxY($maxY), minZ($minZ), maxZ($maxZ)$mPart';
+  }
 }

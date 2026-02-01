@@ -54,11 +54,12 @@ class Polyline extends Record {
   String toString() => '{($minX, $minY, $maxX, $maxY)\n$numParts, $parts\n$numPoints, $points}';
 }
 
+/// PolylineM has optional M values per ESRI spec
 class PolylineM extends Polyline {
-  PolylineM({required BoundsM bounds, required super.parts, required super.points, required List<double> arrayM})
+  PolylineM({required BoundsM bounds, required super.parts, required super.points, List<double>? arrayM})
     : minM = bounds.minM,
       maxM = bounds.maxM,
-      arrayM = List.unmodifiable(arrayM),
+      arrayM = arrayM != null ? List.unmodifiable(arrayM) : null,
       super.protected(bounds: bounds, type: ShapeType.shapePOLYLINEM);
 
   // Internal constructor for subclasses
@@ -67,57 +68,91 @@ class PolylineM extends Polyline {
     required BoundsM bounds,
     required super.parts,
     required super.points,
-    required List<double> arrayM,
+    List<double>? arrayM,
     required super.type,
   }) : minM = bounds.minM,
        maxM = bounds.maxM,
-       arrayM = List.unmodifiable(arrayM),
+       arrayM = arrayM != null ? List.unmodifiable(arrayM) : null,
        super.protected(bounds: bounds);
 
-  final double minM;
-  final double maxM;
-  final List<double> arrayM;
+  final double? minM;
+  final double? maxM;
+  final List<double>? arrayM;
+
+  /// Whether M values are present
+  bool get hasM => arrayM != null;
 
   @override
-  List<Object> toList() => [...super.toList(), minM, maxM, arrayM];
+  List<Object> toList() {
+    final base = super.toList();
+    if (hasM) {
+      base.addAll([minM!, maxM!, arrayM!]);
+    }
+    return base;
+  }
 
   @override
-  String toString() => '{($minX, $minY, $maxX, $maxY)\n$numParts, $parts\n$numPoints, $points\n$minM, $maxM, $arrayM}';
+  String toString() {
+    final mPart = hasM ? '\n$minM, $maxM, $arrayM' : '';
+    return '{($minX, $minY, $maxX, $maxY)\n$numParts, $parts\n$numPoints, $points$mPart}';
+  }
 }
 
-class PolylineZ extends PolylineM {
+/// PolylineZ has required Z values and optional M values per ESRI spec
+class PolylineZ extends Polyline {
   PolylineZ({
-    required BoundsZ super.bounds,
+    required BoundsZ bounds,
     required super.parts,
     required super.points,
-    required super.arrayM,
     required List<double> arrayZ,
+    List<double>? arrayM,
   }) : minZ = bounds.minZ,
        maxZ = bounds.maxZ,
+       minM = bounds.minM,
+       maxM = bounds.maxM,
        arrayZ = List.unmodifiable(arrayZ),
-       super.protected(type: ShapeType.shapePOLYLINEZ);
+       arrayM = arrayM != null ? List.unmodifiable(arrayM) : null,
+       super.protected(bounds: bounds, type: ShapeType.shapePOLYLINEZ);
 
   @protected
   PolylineZ.protected({
-    required BoundsZ super.bounds,
+    required BoundsZ bounds,
     required super.parts,
     required super.points,
-    required super.arrayM,
     required List<double> arrayZ,
+    List<double>? arrayM,
     required super.type,
   }) : minZ = bounds.minZ,
        maxZ = bounds.maxZ,
+       minM = bounds.minM,
+       maxM = bounds.maxM,
        arrayZ = List.unmodifiable(arrayZ),
-       super.protected();
+       arrayM = arrayM != null ? List.unmodifiable(arrayM) : null,
+       super.protected(bounds: bounds);
 
   final double minZ;
   final double maxZ;
   final List<double> arrayZ;
 
-  @override
-  List<Object> toList() => [...super.toList(), minZ, maxZ, arrayZ];
+  final double? minM;
+  final double? maxM;
+  final List<double>? arrayM;
+
+  /// Whether M values are present
+  bool get hasM => arrayM != null;
 
   @override
-  String toString() =>
-      '{($minX, $minY, $maxX, $maxY)\n$numParts, $parts\n$numPoints, $points\n$minZ, $maxZ, $arrayZ\n$minM, $maxM, $arrayM}';
+  List<Object> toList() {
+    final base = [...super.toList(), minZ, maxZ, arrayZ];
+    if (hasM) {
+      base.addAll([minM!, maxM!, arrayM!]);
+    }
+    return base;
+  }
+
+  @override
+  String toString() {
+    final mPart = hasM ? '\n$minM, $maxM, $arrayM' : '';
+    return '{($minX, $minY, $maxX, $maxY)\n$numParts, $parts\n$numPoints, $points\n$minZ, $maxZ, $arrayZ$mPart}';
+  }
 }

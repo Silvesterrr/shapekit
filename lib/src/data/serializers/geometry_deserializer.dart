@@ -167,9 +167,12 @@ class GeometryDeserializer {
   /// Reads a PolylineM geometry from binary data
   ///
   /// Same as Polyline plus:
-  /// - M range (2 doubles: minM, maxM)
-  /// - M array (NumPoints doubles)
-  static PolylineM readPolylineM(ByteData data, int offset) {
+  /// - M range (2 doubles: minM, maxM) - optional
+  /// - M array (NumPoints doubles) - optional
+  ///
+  /// [contentLength] is the record content length in bytes.
+  /// If not provided, M values will be read if there's enough data in the buffer.
+  static PolylineM readPolylineM(ByteData data, int offset, {int? contentLength}) {
     final baseBounds = _readBounds(data, offset + 4);
     final numParts = data.getInt32(offset + 36, Endian.little);
     final numPoints = data.getInt32(offset + 40, Endian.little);
@@ -178,20 +181,29 @@ class GeometryDeserializer {
     final posPointStart = offset + 44 + numParts * lenInteger;
     final points = _readPoints(data, posPointStart, numPoints);
 
-    // Read M values
+    // Calculate position where M values would start
     final posMMin = posPointStart + numPoints * lenPoint;
-    final mValues = _readMValues(data, posMMin, numPoints);
 
-    final bounds = BoundsM(
-      baseBounds.minX,
-      baseBounds.minY,
-      baseBounds.maxX,
-      baseBounds.maxY,
-      mValues.minM,
-      mValues.maxM,
-    );
+    // Check if M values are present (optional in PolylineM)
+    final mValuesSize = 2 * lenDouble + numPoints * lenDouble;
+    final hasMValues = contentLength != null
+        ? (contentLength >= posMMin - offset + mValuesSize)
+        : (posMMin + mValuesSize <= data.lengthInBytes);
 
-    return PolylineM(bounds: bounds, parts: parts, points: points, arrayM: mValues.arrayM);
+    double? minM;
+    double? maxM;
+    List<double>? arrayM;
+
+    if (hasMValues) {
+      final mValues = _readMValues(data, posMMin, numPoints);
+      minM = mValues.minM;
+      maxM = mValues.maxM;
+      arrayM = mValues.arrayM;
+    }
+
+    final bounds = BoundsM(baseBounds.minX, baseBounds.minY, baseBounds.maxX, baseBounds.maxY, minM, maxM);
+
+    return PolylineM(bounds: bounds, parts: parts, points: points, arrayM: arrayM);
   }
 
   /// Reads a PolylineZ geometry from binary data
@@ -201,7 +213,10 @@ class GeometryDeserializer {
   /// - Z array (NumPoints doubles)
   /// - M range (2 doubles: minM, maxM) - optional
   /// - M array (NumPoints doubles) - optional
-  static PolylineZ readPolylineZ(ByteData data, int offset) {
+  ///
+  /// [contentLength] is the record content length in bytes (excluding the 8-byte record header).
+  /// If not provided, M values will be read if there's enough data in the buffer.
+  static PolylineZ readPolylineZ(ByteData data, int offset, {int? contentLength}) {
     final baseBounds = _readBounds(data, offset + 4);
     final numParts = data.getInt32(offset + 36, Endian.little);
     final numPoints = data.getInt32(offset + 40, Endian.little);
@@ -214,22 +229,39 @@ class GeometryDeserializer {
     final posZMin = posPointStart + numPoints * lenPoint;
     final zValues = _readZValues(data, posZMin, numPoints);
 
-    // Read M values (optional)
+    // Calculate position where M values would start
     final posMMin = posZMin + 2 * lenDouble + numPoints * lenDouble;
-    final mValues = _readMValues(data, posMMin, numPoints);
+
+    // Check if M values are present (optional in PolylineZ)
+    // M values require: 2 doubles for range + numPoints doubles for array
+    final mValuesSize = 2 * lenDouble + numPoints * lenDouble;
+    final hasMValues = contentLength != null
+        ? (contentLength >= posMMin - offset + mValuesSize)
+        : (posMMin + mValuesSize <= data.lengthInBytes);
+
+    double? minM;
+    double? maxM;
+    List<double>? arrayM;
+
+    if (hasMValues) {
+      final mValues = _readMValues(data, posMMin, numPoints);
+      minM = mValues.minM;
+      maxM = mValues.maxM;
+      arrayM = mValues.arrayM;
+    }
 
     final bounds = BoundsZ(
       baseBounds.minX,
       baseBounds.minY,
       baseBounds.maxX,
       baseBounds.maxY,
-      mValues.minM,
-      mValues.maxM,
       zValues.minZ,
       zValues.maxZ,
+      minM,
+      maxM,
     );
 
-    return PolylineZ(bounds: bounds, parts: parts, points: points, arrayM: mValues.arrayM, arrayZ: zValues.arrayZ);
+    return PolylineZ(bounds: bounds, parts: parts, points: points, arrayZ: zValues.arrayZ, arrayM: arrayM);
   }
 
   // ========== Polygon Geometry Readers ==========
@@ -250,8 +282,11 @@ class GeometryDeserializer {
 
   /// Reads a PolygonM geometry from binary data
   ///
-  /// Same format as PolylineM
-  static PolygonM readPolygonM(ByteData data, int offset) {
+  /// Same format as PolylineM (M values are optional)
+  ///
+  /// [contentLength] is the record content length in bytes.
+  /// If not provided, M values will be read if there's enough data in the buffer.
+  static PolygonM readPolygonM(ByteData data, int offset, {int? contentLength}) {
     final baseBounds = _readBounds(data, offset + 4);
     final numParts = data.getInt32(offset + 36, Endian.little);
     final numPoints = data.getInt32(offset + 40, Endian.little);
@@ -260,26 +295,38 @@ class GeometryDeserializer {
     final posPointStart = offset + 44 + numParts * lenInteger;
     final points = _readPoints(data, posPointStart, numPoints);
 
-    // Read M values
+    // Calculate position where M values would start
     final posMMin = posPointStart + numPoints * lenPoint;
-    final mValues = _readMValues(data, posMMin, numPoints);
 
-    final bounds = BoundsM(
-      baseBounds.minX,
-      baseBounds.minY,
-      baseBounds.maxX,
-      baseBounds.maxY,
-      mValues.minM,
-      mValues.maxM,
-    );
+    // Check if M values are present (optional in PolygonM)
+    final mValuesSize = 2 * lenDouble + numPoints * lenDouble;
+    final hasMValues = contentLength != null
+        ? (contentLength >= posMMin - offset + mValuesSize)
+        : (posMMin + mValuesSize <= data.lengthInBytes);
 
-    return PolygonM(bounds: bounds, parts: parts, points: points, arrayM: mValues.arrayM);
+    double? minM;
+    double? maxM;
+    List<double>? arrayM;
+
+    if (hasMValues) {
+      final mValues = _readMValues(data, posMMin, numPoints);
+      minM = mValues.minM;
+      maxM = mValues.maxM;
+      arrayM = mValues.arrayM;
+    }
+
+    final bounds = BoundsM(baseBounds.minX, baseBounds.minY, baseBounds.maxX, baseBounds.maxY, minM, maxM);
+
+    return PolygonM(bounds: bounds, parts: parts, points: points, arrayM: arrayM);
   }
 
   /// Reads a PolygonZ geometry from binary data
   ///
   /// Same format as PolylineZ
-  static PolygonZ readPolygonZ(ByteData data, int offset) {
+  ///
+  /// [contentLength] is the record content length in bytes (excluding the 8-byte record header).
+  /// If not provided, M values will be read if there's enough data in the buffer.
+  static PolygonZ readPolygonZ(ByteData data, int offset, {int? contentLength}) {
     final baseBounds = _readBounds(data, offset + 4);
     final numParts = data.getInt32(offset + 36, Endian.little);
     final numPoints = data.getInt32(offset + 40, Endian.little);
@@ -292,22 +339,38 @@ class GeometryDeserializer {
     final posZMin = posPointStart + numPoints * lenPoint;
     final zValues = _readZValues(data, posZMin, numPoints);
 
-    // Read M values (optional)
+    // Calculate position where M values would start
     final posMMin = posZMin + 2 * lenDouble + numPoints * lenDouble;
-    final mValues = _readMValues(data, posMMin, numPoints);
+
+    // Check if M values are present (optional in PolygonZ)
+    final mValuesSize = 2 * lenDouble + numPoints * lenDouble;
+    final hasMValues = contentLength != null
+        ? (contentLength >= posMMin - offset + mValuesSize)
+        : (posMMin + mValuesSize <= data.lengthInBytes);
+
+    double? minM;
+    double? maxM;
+    List<double>? arrayM;
+
+    if (hasMValues) {
+      final mValues = _readMValues(data, posMMin, numPoints);
+      minM = mValues.minM;
+      maxM = mValues.maxM;
+      arrayM = mValues.arrayM;
+    }
 
     final bounds = BoundsZ(
       baseBounds.minX,
       baseBounds.minY,
       baseBounds.maxX,
       baseBounds.maxY,
-      mValues.minM,
-      mValues.maxM,
       zValues.minZ,
       zValues.maxZ,
+      minM,
+      maxM,
     );
 
-    return PolygonZ(bounds: bounds, parts: parts, points: points, arrayM: mValues.arrayM, arrayZ: zValues.arrayZ);
+    return PolygonZ(bounds: bounds, parts: parts, points: points, arrayZ: zValues.arrayZ, arrayM: arrayM);
   }
 
   // ========== MultiPoint Geometry Readers ==========
@@ -329,34 +392,49 @@ class GeometryDeserializer {
 
   /// Reads a MultiPointM geometry from binary data
   ///
-  /// Same as MultiPoint plus M values
-  static MultiPointM readMultiPointM(ByteData data, int offset) {
+  /// Same as MultiPoint plus optional M values
+  ///
+  /// [contentLength] is the record content length in bytes.
+  /// If not provided, M values will be read if there's enough data in the buffer.
+  static MultiPointM readMultiPointM(ByteData data, int offset, {int? contentLength}) {
     final baseBounds = _readBounds(data, offset + 4);
     final numPoints = data.getInt32(offset + 36, Endian.little);
 
     final posPointStart = offset + 40;
     final points = _readPoints(data, posPointStart, numPoints);
 
-    // Read M values
+    // Calculate position where M values would start
     final posMMin = posPointStart + numPoints * lenPoint;
-    final mValues = _readMValues(data, posMMin, numPoints);
 
-    final bounds = BoundsM(
-      baseBounds.minX,
-      baseBounds.minY,
-      baseBounds.maxX,
-      baseBounds.maxY,
-      mValues.minM,
-      mValues.maxM,
-    );
+    // Check if M values are present (optional in MultiPointM)
+    final mValuesSize = 2 * lenDouble + numPoints * lenDouble;
+    final hasMValues = contentLength != null
+        ? (contentLength >= posMMin - offset + mValuesSize)
+        : (posMMin + mValuesSize <= data.lengthInBytes);
 
-    return MultiPointM(bounds: bounds, points: points, arrayM: mValues.arrayM);
+    double? minM;
+    double? maxM;
+    List<double>? arrayM;
+
+    if (hasMValues) {
+      final mValues = _readMValues(data, posMMin, numPoints);
+      minM = mValues.minM;
+      maxM = mValues.maxM;
+      arrayM = mValues.arrayM;
+    }
+
+    final bounds = BoundsM(baseBounds.minX, baseBounds.minY, baseBounds.maxX, baseBounds.maxY, minM, maxM);
+
+    return MultiPointM(bounds: bounds, points: points, arrayM: arrayM);
   }
 
   /// Reads a MultiPointZ geometry from binary data
   ///
   /// Same as MultiPoint plus Z and M values
-  static MultiPointZ readMultiPointZ(ByteData data, int offset) {
+  ///
+  /// [contentLength] is the record content length in bytes (excluding the 8-byte record header).
+  /// If not provided, M values will be read if there's enough data in the buffer.
+  static MultiPointZ readMultiPointZ(ByteData data, int offset, {int? contentLength}) {
     final baseBounds = _readBounds(data, offset + 4);
     final numPoints = data.getInt32(offset + 36, Endian.little);
 
@@ -367,21 +445,37 @@ class GeometryDeserializer {
     final posZMin = posPointStart + numPoints * lenPoint;
     final zValues = _readZValues(data, posZMin, numPoints);
 
-    // Read M values (optional)
+    // Calculate position where M values would start
     final posMMin = posZMin + 2 * lenDouble + numPoints * lenDouble;
-    final mValues = _readMValues(data, posMMin, numPoints);
+
+    // Check if M values are present (optional in MultiPointZ)
+    final mValuesSize = 2 * lenDouble + numPoints * lenDouble;
+    final hasMValues = contentLength != null
+        ? (contentLength >= posMMin - offset + mValuesSize)
+        : (posMMin + mValuesSize <= data.lengthInBytes);
+
+    double? minM;
+    double? maxM;
+    List<double>? arrayM;
+
+    if (hasMValues) {
+      final mValues = _readMValues(data, posMMin, numPoints);
+      minM = mValues.minM;
+      maxM = mValues.maxM;
+      arrayM = mValues.arrayM;
+    }
 
     final bounds = BoundsZ(
       baseBounds.minX,
       baseBounds.minY,
       baseBounds.maxX,
       baseBounds.maxY,
-      mValues.minM,
-      mValues.maxM,
       zValues.minZ,
       zValues.maxZ,
+      minM,
+      maxM,
     );
 
-    return MultiPointZ(bounds: bounds, points: points, arrayZ: zValues.arrayZ, arrayM: mValues.arrayM);
+    return MultiPointZ(bounds: bounds, points: points, arrayZ: zValues.arrayZ, arrayM: arrayM);
   }
 }

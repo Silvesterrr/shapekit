@@ -318,28 +318,36 @@ class Shapefile {
             records.add(GeometryDeserializer.readPolyline(dataSHP, pos));
             break;
           case ShapeType.shapePOLYLINEM:
-            records.add(GeometryDeserializer.readPolylineM(dataSHP, pos));
+            records.add(
+              GeometryDeserializer.readPolylineM(dataSHP, pos, contentLength: offsets[totalCount + n].length),
+            );
             break;
           case ShapeType.shapePOLYLINEZ:
-            records.add(GeometryDeserializer.readPolylineZ(dataSHP, pos));
+            records.add(
+              GeometryDeserializer.readPolylineZ(dataSHP, pos, contentLength: offsets[totalCount + n].length),
+            );
             break;
           case ShapeType.shapePOLYGON:
             records.add(GeometryDeserializer.readPolygon(dataSHP, pos));
             break;
           case ShapeType.shapePOLYGONM:
-            records.add(GeometryDeserializer.readPolygonM(dataSHP, pos));
+            records.add(GeometryDeserializer.readPolygonM(dataSHP, pos, contentLength: offsets[totalCount + n].length));
             break;
           case ShapeType.shapePOLYGONZ:
-            records.add(GeometryDeserializer.readPolygonZ(dataSHP, pos));
+            records.add(GeometryDeserializer.readPolygonZ(dataSHP, pos, contentLength: offsets[totalCount + n].length));
             break;
           case ShapeType.shapeMULTIPOINT:
             records.add(GeometryDeserializer.readMultiPoint(dataSHP, pos));
             break;
           case ShapeType.shapeMULTIPOINTM:
-            records.add(GeometryDeserializer.readMultiPointM(dataSHP, pos));
+            records.add(
+              GeometryDeserializer.readMultiPointM(dataSHP, pos, contentLength: offsets[totalCount + n].length),
+            );
             break;
           case ShapeType.shapeMULTIPOINTZ:
-            records.add(GeometryDeserializer.readMultiPointZ(dataSHP, pos));
+            records.add(
+              GeometryDeserializer.readMultiPointZ(dataSHP, pos, contentLength: offsets[totalCount + n].length),
+            );
             break;
           default:
             throw UnsupportedTypeException(headerSHP.type.toString(), filePath: _fNameSHP);
@@ -427,8 +435,16 @@ class Shapefile {
 
     dataSHX.setFloat64(68, headerSHX.bounds is BoundsZ ? (headerSHX.bounds as BoundsZ).minZ : 0.0, Endian.little);
     dataSHX.setFloat64(76, headerSHX.bounds is BoundsZ ? (headerSHX.bounds as BoundsZ).maxZ : 0.0, Endian.little);
-    dataSHX.setFloat64(84, headerSHX.bounds is BoundsM ? (headerSHX.bounds as BoundsM).minM : 0.0, Endian.little);
-    dataSHX.setFloat64(92, headerSHX.bounds is BoundsM ? (headerSHX.bounds as BoundsM).maxM : 0.0, Endian.little);
+    dataSHX.setFloat64(
+      84,
+      headerSHX.bounds is BoundsM ? (headerSHX.bounds as BoundsM).minM ?? 0.0 : 0.0,
+      Endian.little,
+    );
+    dataSHX.setFloat64(
+      92,
+      headerSHX.bounds is BoundsM ? (headerSHX.bounds as BoundsM).maxM ?? 0.0 : 0.0,
+      Endian.little,
+    );
 
     // debugPrint('header $headerSHX');
 
@@ -520,8 +536,16 @@ class Shapefile {
 
     dataSHP.setFloat64(68, headerSHP.bounds is BoundsZ ? (headerSHP.bounds as BoundsZ).minZ : 0.0, Endian.little);
     dataSHP.setFloat64(76, headerSHP.bounds is BoundsZ ? (headerSHP.bounds as BoundsZ).maxZ : 0.0, Endian.little);
-    dataSHP.setFloat64(84, headerSHP.bounds is BoundsM ? (headerSHP.bounds as BoundsM).minM : 0.0, Endian.little);
-    dataSHP.setFloat64(92, headerSHP.bounds is BoundsM ? (headerSHP.bounds as BoundsM).maxM : 0.0, Endian.little);
+    dataSHP.setFloat64(
+      84,
+      headerSHP.bounds is BoundsM ? (headerSHP.bounds as BoundsM).minM ?? 0.0 : 0.0,
+      Endian.little,
+    );
+    dataSHP.setFloat64(
+      92,
+      headerSHP.bounds is BoundsM ? (headerSHP.bounds as BoundsM).maxM ?? 0.0 : 0.0,
+      Endian.little,
+    );
 
     workPosition += lenHeader;
 
@@ -920,6 +944,7 @@ class Shapefile {
               details: 'Record $n is not a PointM',
             );
           }
+          // ShapeType(4) + X(8) + Y(8) + M(8)
           length = 4 + 8 + 8 + 8;
           pos += (lenRecordHeader + length);
           break;
@@ -931,6 +956,7 @@ class Shapefile {
               details: 'Record $n is not a PointZ',
             );
           }
+          // ShapeType(4) + X(8) + Y(8) + Z(8) + M(8)
           length = 4 + 8 + 8 + 8 + 8;
           pos += (lenRecordHeader + length);
           break;
@@ -957,8 +983,11 @@ class Shapefile {
             );
           }
           final polylineM = records[n] as PolylineM;
-          length =
-              4 + 32 + 4 + 4 + polylineM.numParts * 4 + polylineM.numPoints * 16 + 8 + 8 + polylineM.arrayM.length * 8;
+          // ShapeType(4) + Box(32) + NumParts(4) + NumPoints(4) + Parts + Points + optional M
+          length = 4 + 32 + 4 + 4 + polylineM.numParts * 4 + polylineM.numPoints * 16;
+          if (polylineM.hasM) {
+            length += 16 + polylineM.numPoints * 8; // Mmin/Mmax(16) + Marray
+          }
           pos += (lenRecordHeader + length);
           break;
         case ShapeType.shapePOLYLINEZ:
@@ -970,17 +999,11 @@ class Shapefile {
             );
           }
           final polylineZ = records[n] as PolylineZ;
-          length =
-              4 +
-              32 +
-              4 +
-              4 +
-              polylineZ.numParts * 4 +
-              polylineZ.numPoints * 16 +
-              16 +
-              polylineZ.numPoints * 8 +
-              16 +
-              polylineZ.numPoints * 8;
+          // ShapeType(4) + Box(32) + NumParts(4) + NumPoints(4) + Parts + Points + Zmin/Zmax(16) + Zarray + optional M
+          length = 4 + 32 + 4 + 4 + polylineZ.numParts * 4 + polylineZ.numPoints * 16 + 16 + polylineZ.numPoints * 8;
+          if (polylineZ.hasM) {
+            length += 16 + polylineZ.numPoints * 8; // Mmin/Mmax(16) + Marray
+          }
           pos += (lenRecordHeader + length);
           break;
 
@@ -1006,7 +1029,11 @@ class Shapefile {
             );
           }
           final polygonM = records[n] as PolygonM;
-          length = 4 + 32 + 4 + 4 + polygonM.numParts * 4 + polygonM.numPoints * 16 + 16 + polygonM.numPoints * 8;
+          // ShapeType(4) + Box(32) + NumParts(4) + NumPoints(4) + Parts + Points + optional M
+          length = 4 + 32 + 4 + 4 + polygonM.numParts * 4 + polygonM.numPoints * 16;
+          if (polygonM.hasM) {
+            length += 16 + polygonM.numPoints * 8; // Mmin/Mmax(16) + Marray
+          }
           pos += (lenRecordHeader + length);
           break;
         case ShapeType.shapePOLYGONZ:
@@ -1018,17 +1045,11 @@ class Shapefile {
             );
           }
           final polygonZ = records[n] as PolygonZ;
-          length =
-              4 +
-              32 +
-              4 +
-              4 +
-              polygonZ.numParts * 4 +
-              polygonZ.numPoints * 16 +
-              16 +
-              polygonZ.numPoints * 8 +
-              16 +
-              polygonZ.numPoints * 8;
+          // ShapeType(4) + Box(32) + NumParts(4) + NumPoints(4) + Parts + Points + Zmin/Zmax(16) + Zarray + optional M
+          length = 4 + 32 + 4 + 4 + polygonZ.numParts * 4 + polygonZ.numPoints * 16 + 16 + polygonZ.numPoints * 8;
+          if (polygonZ.hasM) {
+            length += 16 + polygonZ.numPoints * 8; // Mmin/Mmax(16) + Marray
+          }
           pos += (lenRecordHeader + length);
           break;
 
@@ -1055,8 +1076,11 @@ class Shapefile {
             );
           }
           final multiPointM = records[n] as MultiPointM;
-          // ShapeType(4) + Box(32) + NumPoints(4) + Points(NumPoints * 16) + Mmin(8) + Mmax(8) + Marray(NumPoints * 8)
-          length = 4 + 32 + 4 + multiPointM.numPoints * 16 + 16 + multiPointM.numPoints * 8;
+          // ShapeType(4) + Box(32) + NumPoints(4) + Points + optional M
+          length = 4 + 32 + 4 + multiPointM.numPoints * 16;
+          if (multiPointM.hasM) {
+            length += 16 + multiPointM.numPoints * 8; // Mmin/Mmax(16) + Marray
+          }
           pos += (lenRecordHeader + length);
           break;
         case ShapeType.shapeMULTIPOINTZ:
@@ -1068,9 +1092,11 @@ class Shapefile {
             );
           }
           final multiPointZ = records[n] as MultiPointZ;
-          // ShapeType(4) + Box(32) + NumPoints(4) + Points(NumPoints * 16) + Zmin/Zmax(16) + Zarray(NumPoints * 8) + Mmin/Mmax(16) + Marray(NumPoints * 8)
-          length =
-              4 + 32 + 4 + multiPointZ.numPoints * 16 + 16 + multiPointZ.numPoints * 8 + 16 + multiPointZ.numPoints * 8;
+          // ShapeType(4) + Box(32) + NumPoints(4) + Points + Zmin/Zmax(16) + Zarray + optional M
+          length = 4 + 32 + 4 + multiPointZ.numPoints * 16 + 16 + multiPointZ.numPoints * 8;
+          if (multiPointZ.hasM) {
+            length += 16 + multiPointZ.numPoints * 8; // Mmin/Mmax(16) + Marray
+          }
           pos += (lenRecordHeader + length);
           break;
 

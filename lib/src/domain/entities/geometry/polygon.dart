@@ -7,18 +7,13 @@ class Polygon extends Polyline {
 }
 
 class PolygonM extends PolylineM {
-  PolygonM({required super.bounds, required super.parts, required super.points, required super.arrayM})
+  PolygonM({required super.bounds, required super.parts, required super.points, super.arrayM})
     : super.protected(type: ShapeType.shapePOLYGONM);
 }
 
 class PolygonZ extends PolylineZ {
-  PolygonZ({
-    required super.bounds,
-    required super.parts,
-    required super.points,
-    required super.arrayM,
-    required super.arrayZ,
-  }) : super.protected(type: ShapeType.shapePOLYGONZ);
+  PolygonZ({required super.bounds, required super.parts, required super.points, required super.arrayZ, super.arrayM})
+    : super.protected(type: ShapeType.shapePOLYGONZ);
 }
 
 class MultiPatch extends PolylineZ {
@@ -26,8 +21,8 @@ class MultiPatch extends PolylineZ {
     required super.bounds,
     required super.parts,
     required super.points,
-    required super.arrayM,
     required super.arrayZ,
+    super.arrayM,
     required List<int> partTypes,
   }) : partTypes = List.unmodifiable(partTypes),
        super.protected(type: ShapeType.shapeMULTIPATCH);
@@ -38,6 +33,8 @@ class MultiPatch extends PolylineZ {
   List<Object> toList() => [...super.toList(), partTypes];
 
   @override
-  String toString() =>
-      '{($minX, $minY, $maxX, $maxY)\n$numParts, $parts, $partTypes\n$numPoints, $points\n$minZ, $maxZ, $arrayZ\n$minM, $maxM, $arrayM}';
+  String toString() {
+    final mPart = hasM ? '\n$minM, $maxM, $arrayM' : '';
+    return '{($minX, $minY, $maxX, $maxY)\n$numParts, $parts, $partTypes\n$numPoints, $points\n$minZ, $maxZ, $arrayZ$mPart}';
+  }
 }

@@ -133,9 +133,10 @@ class MultiPoint extends Record {
   String toString() => '{($minX, $minY, $maxX, $maxY), $numPoints, $points}';
 }
 
+/// MultiPointM has optional M values per ESRI spec
 class MultiPointM extends MultiPoint {
-  MultiPointM({required super.points, required List<double> arrayM, required BoundsM super.bounds})
-    : arrayM = List.unmodifiable(arrayM),
+  MultiPointM({required super.points, List<double>? arrayM, required BoundsM super.bounds})
+    : arrayM = arrayM != null ? List.unmodifiable(arrayM) : null,
       minM = bounds.minM,
       maxM = bounds.maxM,
       super.protected(type: ShapeType.shapeMULTIPOINTM);
@@ -143,43 +144,71 @@ class MultiPointM extends MultiPoint {
   @protected
   MultiPointM.protected({
     required super.points,
-    required List<double> arrayM,
+    List<double>? arrayM,
     required BoundsM super.bounds,
     required super.type,
-  }) : arrayM = List.unmodifiable(arrayM),
+  }) : arrayM = arrayM != null ? List.unmodifiable(arrayM) : null,
        minM = bounds.minM,
        maxM = bounds.maxM,
        super.protected();
 
-  final double minM;
-  final double maxM;
-  final List<double> arrayM;
+  final double? minM;
+  final double? maxM;
+  final List<double>? arrayM;
+
+  /// Whether M values are present
+  bool get hasM => arrayM != null;
 
   @override
-  List<Object> toList() => [...super.toList(), minM, maxM, arrayM];
+  List<Object> toList() {
+    final base = super.toList();
+    if (hasM) {
+      base.addAll([minM!, maxM!, arrayM!]);
+    }
+    return base;
+  }
 
   @override
-  String toString() => '{($minX, $minY, $maxX, $maxY), $numPoints, $points, $minM, $maxM, $arrayM}';
+  String toString() {
+    final mPart = hasM ? ', $minM, $maxM, $arrayM' : '';
+    return '{($minX, $minY, $maxX, $maxY), $numPoints, $points$mPart}';
+  }
 }
 
-class MultiPointZ extends MultiPointM {
-  MultiPointZ({
-    required super.points,
-    required super.arrayM,
-    required List<double> arrayZ,
-    required BoundsZ super.bounds,
-  }) : arrayZ = List.unmodifiable(arrayZ),
-       minZ = bounds.minZ,
-       maxZ = bounds.maxZ,
-       super.protected(type: ShapeType.shapeMULTIPOINTZ);
+/// MultiPointZ has required Z values and optional M values per ESRI spec
+class MultiPointZ extends MultiPoint {
+  MultiPointZ({required super.points, required List<double> arrayZ, required BoundsZ bounds, List<double>? arrayM})
+    : arrayZ = List.unmodifiable(arrayZ),
+      minZ = bounds.minZ,
+      maxZ = bounds.maxZ,
+      minM = bounds.minM,
+      maxM = bounds.maxM,
+      arrayM = arrayM != null ? List.unmodifiable(arrayM) : null,
+      super.protected(bounds: bounds, type: ShapeType.shapeMULTIPOINTZ);
 
   final double minZ;
   final double maxZ;
   final List<double> arrayZ;
 
-  @override
-  List<Object> toList() => [...super.toList(), minZ, maxZ, arrayZ];
+  final double? minM;
+  final double? maxM;
+  final List<double>? arrayM;
+
+  /// Whether M values are present
+  bool get hasM => arrayM != null;
 
   @override
-  String toString() => '{($minX, $minY, $maxX, $maxY), $numPoints, $points, $minM, $maxZ, $arrayZ, $maxM, $arrayM}';
+  List<Object> toList() {
+    final base = [...super.toList(), minZ, maxZ, arrayZ];
+    if (hasM) {
+      base.addAll([minM!, maxM!, arrayM!]);
+    }
+    return base;
+  }
+
+  @override
+  String toString() {
+    final mPart = hasM ? ', $minM, $maxM, $arrayM' : '';
+    return '{($minX, $minY, $maxX, $maxY), $numPoints, $points, $minZ, $maxZ, $arrayZ$mPart}';
+  }
 }

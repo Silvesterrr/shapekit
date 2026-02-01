@@ -1,11 +1,78 @@
 import 'package:shapekit/shapekit.dart';
 
-void main() {
-  // Example 1: Writing a shapefile
-  writeShapefileExample();
+void main(List<String> args) {
+  if (args.isEmpty) {
+    // No arguments: run default examples
+    print('Usage: dart run example/shapekit_example.dart <path_to_shp_file>');
+    print('       Or run without arguments to see default examples.\n');
 
-  // Example 2: Reading a shapefile
-  readShapefileExample();
+    // Example 1: Writing a shapefile
+    writeShapefileExample();
+
+    // Example 2: Reading a shapefile
+    readShapefileExample();
+  } else {
+    // Join all arguments to handle paths with spaces
+    final path = args.join(' ');
+    readShapefileFromPath(path);
+  }
+}
+
+/// Read a shapefile from a given path
+void readShapefileFromPath(String path) {
+  print('=== Reading Shapefile: $path ===\n');
+
+  final shapefile = Shapefile();
+
+  try {
+    // Read the shapefile (automatically reads .shp, .shx, .dbf, and .prj if available)
+    shapefile.read(path);
+
+    print('✓ Successfully loaded shapefile');
+    print('  Records: ${shapefile.records.length}');
+    print('  Attributes: ${shapefile.attributeRecords.length}\n');
+
+    // Iterate through geometry records
+    print('Geometry Data:');
+    for (var i = 0; i < shapefile.records.length; i++) {
+      final record = shapefile.records[i];
+
+      if (record is Point) {
+        print('  Point $i: (${record.x}, ${record.y})');
+      } else if (record is Polyline) {
+        print('  Polyline $i: ${record.numParts} parts, ${record.numPoints} points');
+      } else if (record is Polygon) {
+        print('  Polygon $i: ${record.numParts} parts, ${record.numPoints} points');
+      }
+    }
+
+    // Display attribute data
+    if (shapefile.attributeRecords.isNotEmpty) {
+      print('\nAttribute Data:');
+      for (var i = 0; i < shapefile.attributeRecords.length; i++) {
+        final attrs = shapefile.attributeRecords[i];
+        print('  Record $i: $attrs');
+      }
+    }
+
+    // Display field definitions
+    if (shapefile.attributeFields.isNotEmpty) {
+      print('\nField Definitions:');
+      for (final field in shapefile.attributeFields) {
+        print('  ${field.name} (${field.type}): length=${field.length}');
+      }
+    }
+
+    // Display projection info if available
+    if (shapefile.projectionType != ShapeProjectionType.none) {
+      print('\nProjection: ${shapefile.projectionType}');
+    }
+  } on ShapefileException catch (e) {
+    print('✗ Failed to read shapefile: $e');
+  } finally {
+    // Clean up
+    shapefile.dispose();
+  }
 }
 
 /// Example: Create and write a new shapefile with points

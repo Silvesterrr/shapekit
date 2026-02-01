@@ -160,8 +160,8 @@ class GeometrySerializer {
   /// Writes a PolylineM geometry to binary data
   ///
   /// Same as Polyline plus:
-  /// - M range (2 doubles: minM, maxM)
-  /// - M array (NumPoints doubles)
+  /// - M range (2 doubles: minM, maxM) - optional
+  /// - M array (NumPoints doubles) - optional
   static int writePolylineM(ByteData data, int offset, PolylineM polyline, int shapeTypeId) {
     data.setInt32(offset, shapeTypeId, Endian.little);
     _writeBounds(data, offset + 4, polyline.minX, polyline.minY, polyline.maxX, polyline.maxY);
@@ -173,7 +173,9 @@ class GeometrySerializer {
     pos += polyline.numParts * lenInteger;
     _writePoints(data, pos, polyline.points);
     pos += polyline.numPoints * lenPoint;
-    pos += _writeMValues(data, pos, polyline.minM, polyline.maxM, polyline.arrayM);
+    if (polyline.hasM) {
+      pos += _writeMValues(data, pos, polyline.minM!, polyline.maxM!, polyline.arrayM!);
+    }
 
     return pos - offset;
   }
@@ -183,8 +185,8 @@ class GeometrySerializer {
   /// Same as Polyline plus:
   /// - Z range (2 doubles: minZ, maxZ)
   /// - Z array (NumPoints doubles)
-  /// - M range (2 doubles: minM, maxM)
-  /// - M array (NumPoints doubles)
+  /// - M range (2 doubles: minM, maxM) - optional
+  /// - M array (NumPoints doubles) - optional
   static int writePolylineZ(ByteData data, int offset, PolylineZ polyline, int shapeTypeId) {
     data.setInt32(offset, shapeTypeId, Endian.little);
     _writeBounds(data, offset + 4, polyline.minX, polyline.minY, polyline.maxX, polyline.maxY);
@@ -197,7 +199,9 @@ class GeometrySerializer {
     _writePoints(data, pos, polyline.points);
     pos += polyline.numPoints * lenPoint;
     pos += _writeZValues(data, pos, polyline.minZ, polyline.maxZ, polyline.arrayZ);
-    pos += _writeMValues(data, pos, polyline.minM, polyline.maxM, polyline.arrayM);
+    if (polyline.hasM) {
+      pos += _writeMValues(data, pos, polyline.minM!, polyline.maxM!, polyline.arrayM!);
+    }
 
     return pos - offset;
   }
@@ -224,7 +228,7 @@ class GeometrySerializer {
 
   /// Writes a PolygonM geometry to binary data
   ///
-  /// Same format as PolylineM
+  /// Same format as PolylineM (M values are optional)
   static int writePolygonM(ByteData data, int offset, PolygonM polygon, int shapeTypeId) {
     data.setInt32(offset, shapeTypeId, Endian.little);
     _writeBounds(data, offset + 4, polygon.minX, polygon.minY, polygon.maxX, polygon.maxY);
@@ -236,14 +240,16 @@ class GeometrySerializer {
     pos += polygon.numParts * lenInteger;
     _writePoints(data, pos, polygon.points);
     pos += polygon.numPoints * lenPoint;
-    pos += _writeMValues(data, pos, polygon.minM, polygon.maxM, polygon.arrayM);
+    if (polygon.hasM) {
+      pos += _writeMValues(data, pos, polygon.minM!, polygon.maxM!, polygon.arrayM!);
+    }
 
     return pos - offset;
   }
 
   /// Writes a PolygonZ geometry to binary data
   ///
-  /// Same format as PolylineZ
+  /// Same format as PolylineZ (M values are optional)
   static int writePolygonZ(ByteData data, int offset, PolygonZ polygon, int shapeTypeId) {
     data.setInt32(offset, shapeTypeId, Endian.little);
     _writeBounds(data, offset + 4, polygon.minX, polygon.minY, polygon.maxX, polygon.maxY);
@@ -256,7 +262,9 @@ class GeometrySerializer {
     _writePoints(data, pos, polygon.points);
     pos += polygon.numPoints * lenPoint;
     pos += _writeZValues(data, pos, polygon.minZ, polygon.maxZ, polygon.arrayZ);
-    pos += _writeMValues(data, pos, polygon.minM, polygon.maxM, polygon.arrayM);
+    if (polygon.hasM) {
+      pos += _writeMValues(data, pos, polygon.minM!, polygon.maxM!, polygon.arrayM!);
+    }
 
     return pos - offset;
   }
@@ -284,7 +292,7 @@ class GeometrySerializer {
 
   /// Writes a MultiPointM geometry to binary data
   ///
-  /// Same as MultiPoint plus M values
+  /// Same as MultiPoint plus optional M values
   static int writeMultiPointM(ByteData data, int offset, MultiPointM multiPoint, int shapeTypeId) {
     data.setInt32(offset, shapeTypeId, Endian.little);
     _writeBounds(data, offset + 4, multiPoint.minX, multiPoint.minY, multiPoint.maxX, multiPoint.maxY);
@@ -293,14 +301,16 @@ class GeometrySerializer {
     int pos = offset + 40;
     _writePoints(data, pos, multiPoint.points);
     pos += multiPoint.numPoints * lenPoint;
-    pos += _writeMValues(data, pos, multiPoint.minM, multiPoint.maxM, multiPoint.arrayM);
+    if (multiPoint.hasM) {
+      pos += _writeMValues(data, pos, multiPoint.minM!, multiPoint.maxM!, multiPoint.arrayM!);
+    }
 
     return pos - offset;
   }
 
   /// Writes a MultiPointZ geometry to binary data
   ///
-  /// Same as MultiPoint plus Z and M values
+  /// Same as MultiPoint plus Z values and optional M values
   static int writeMultiPointZ(ByteData data, int offset, MultiPointZ multiPoint, int shapeTypeId) {
     data.setInt32(offset, shapeTypeId, Endian.little);
     _writeBounds(data, offset + 4, multiPoint.minX, multiPoint.minY, multiPoint.maxX, multiPoint.maxY);
@@ -310,7 +320,9 @@ class GeometrySerializer {
     _writePoints(data, pos, multiPoint.points);
     pos += multiPoint.numPoints * lenPoint;
     pos += _writeZValues(data, pos, multiPoint.minZ, multiPoint.maxZ, multiPoint.arrayZ);
-    pos += _writeMValues(data, pos, multiPoint.minM, multiPoint.maxM, multiPoint.arrayM);
+    if (multiPoint.hasM) {
+      pos += _writeMValues(data, pos, multiPoint.minM!, multiPoint.maxM!, multiPoint.arrayM!);
+    }
 
     return pos - offset;
   }

@@ -184,7 +184,7 @@ void main() {
 
       final multiPoint = MultiPointM(points: points, arrayM: arrayM, bounds: BoundsM(0.0, 0.0, 10.0, 10.0, 1.0, 2.0));
 
-      expect(() => multiPoint.arrayM.add(3.0), throwsUnsupportedError);
+      expect(() => multiPoint.arrayM?.add(3.0), throwsUnsupportedError);
     });
   });
 
@@ -194,11 +194,12 @@ void main() {
       final arrayZ = [100.0, 200.0];
       final arrayM = [1.0, 2.0];
 
+      // BoundsZ order: minX, minY, maxX, maxY, minZ, maxZ, [minM, maxM]
       final multiPoint = MultiPointZ(
         points: points,
         arrayZ: arrayZ,
         arrayM: arrayM,
-        bounds: BoundsZ(0.0, 0.0, 10.0, 10.0, 1.0, 2.0, 100.0, 200.0),
+        bounds: BoundsZ(0.0, 0.0, 10.0, 10.0, 100.0, 200.0, 1.0, 2.0),
       );
 
       expect(multiPoint.minZ, equals(100.0));

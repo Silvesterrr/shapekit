@@ -103,7 +103,7 @@ void main() {
         arrayM: arrayM,
       );
 
-      expect(() => polyline.arrayM.add(5.0), throwsUnsupportedError);
+      expect(() => polyline.arrayM?.add(5.0), throwsUnsupportedError);
     });
 
     test('toList includes M values', () {
@@ -139,7 +139,7 @@ void main() {
       final arrayM = [0.0, 14.142]; // Distance
 
       final polyline = PolylineZ(
-        bounds: BoundsZ(0.0, 0.0, 10.0, 10.0, 0.0, 14.142, 100.0, 200.0),
+        bounds: BoundsZ(0.0, 0.0, 10.0, 10.0, 100.0, 200.0, 0.0, 14.142),
         parts: [0],
         points: points,
         arrayZ: arrayZ,
@@ -161,7 +161,7 @@ void main() {
       final arrayM = [0.0, 10.0];
 
       final polyline = PolylineZ(
-        bounds: BoundsZ(0.0, 0.0, 10.0, 10.0, 0.0, 10.0, 100.0, 200.0),
+        bounds: BoundsZ(0.0, 0.0, 10.0, 10.0, 100.0, 200.0, 0.0, 10.0),
         parts: [0],
         points: points,
         arrayZ: arrayZ,
@@ -169,7 +169,7 @@ void main() {
       );
 
       expect(() => polyline.arrayZ.add(150.0), throwsUnsupportedError);
-      expect(() => polyline.arrayM.add(5.0), throwsUnsupportedError);
+      expect(() => polyline.arrayM?.add(5.0), throwsUnsupportedError);
     });
 
     test('handles elevation profile', () {
@@ -179,7 +179,7 @@ void main() {
       final arrayM = [0.0, 1.414, 2.828, 4.242]; // Distance in km
 
       final polyline = PolylineZ(
-        bounds: BoundsZ(0.0, 0.0, 3.0, 3.0, 0.0, 4.242, 100.0, 180.0),
+        bounds: BoundsZ(0.0, 0.0, 3.0, 3.0, 100.0, 180.0, 0.0, 4.242),
         parts: [0],
         points: points,
         arrayZ: arrayZ,
@@ -188,7 +188,7 @@ void main() {
 
       expect(polyline.numPoints, equals(4));
       expect(polyline.arrayZ.length, equals(4));
-      expect(polyline.arrayM.length, equals(4));
+      expect(polyline.arrayM?.length, equals(4));
     });
 
     test('toList includes Z and M values', () {
@@ -197,7 +197,7 @@ void main() {
       final arrayM = [0.0, 10.0];
 
       final polyline = PolylineZ(
-        bounds: BoundsZ(0.0, 0.0, 10.0, 10.0, 0.0, 10.0, 100.0, 200.0),
+        bounds: BoundsZ(0.0, 0.0, 10.0, 10.0, 100.0, 200.0, 0.0, 10.0),
         parts: [0],
         points: points,
         arrayZ: arrayZ,
@@ -211,10 +211,10 @@ void main() {
       expect(list[1], equals(0.0)); // minY
       expect(list[2], equals(10.0)); // maxX
       expect(list[3], equals(10.0)); // maxY
-      expect(list[6], equals(0.0)); // minM
-      expect(list[7], equals(10.0)); // maxM
-      expect(list[9], equals(100.0)); // minZ
-      expect(list[10], equals(200.0)); // maxZ
+      expect(list[6], equals(100.0)); // minZ
+      expect(list[7], equals(200.0)); // maxZ
+      expect(list[9], equals(0.0)); // minM
+      expect(list[10], equals(10.0)); // maxM
     });
   });
 }

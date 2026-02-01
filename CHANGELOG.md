@@ -1,5 +1,17 @@
 ## 0.2.1
 
+### Breaking Changes
+- **Optional M values**: M (measure) values are now optional per ESRI shapefile spec
+  - `BoundsM`: `minM` and `maxM` are now nullable (`double?`)
+  - `BoundsZ`: `minM` and `maxM` are now nullable (`double?`)
+  - `PolylineM`, `PolygonM`, `MultiPointM`: `arrayM` is now nullable (`List<double>?`)
+  - `PolylineZ`, `PolygonZ`, `MultiPointZ`: `arrayM` is now nullable (`List<double>?`)
+  - Added `hasM` getter to check if M values are present
+  - Note: `PointM` and `PointZ` still require M values (not optional for single points)
+- **BoundsZ constructor order changed**: Z values now come before optional M values
+  - Old: `BoundsZ(minX, minY, maxX, maxY, minM, maxM, minZ, maxZ)`
+  - New: `BoundsZ(minX, minY, maxX, maxY, minZ, maxZ, [minM, maxM])`
+
 ### Fixes
 - Relaxed `meta` dependency constraint (`^1.15.0`) for Flutter SDK compatibility
 - Updated README examples to use new API (`read()`, `writeComplete()`)

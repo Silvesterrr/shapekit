@@ -131,7 +131,7 @@ void main() {
         arrayM: arrayM,
       );
 
-      expect(() => polygon.arrayM.add(40.0), throwsUnsupportedError);
+      expect(() => polygon.arrayM?.add(40.0), throwsUnsupportedError);
     });
   });
 
@@ -142,7 +142,7 @@ void main() {
       final arrayM = [0.0, 10.0, 20.0, 30.0, 40.0]; // Distance
 
       final polygon = PolygonZ(
-        bounds: BoundsZ(0.0, 0.0, 10.0, 10.0, 0.0, 40.0, 100.0, 150.0),
+        bounds: BoundsZ(0.0, 0.0, 10.0, 10.0, 100.0, 150.0, 0.0, 40.0),
         parts: [0],
         points: points,
         arrayZ: arrayZ,
@@ -154,7 +154,7 @@ void main() {
       expect(polygon.minM, equals(0.0));
       expect(polygon.maxM, equals(40.0));
       expect(polygon.arrayZ.length, equals(5));
-      expect(polygon.arrayM.length, equals(5));
+      expect(polygon.arrayM?.length, equals(5));
       expect(polygon.type, equals(ShapeType.shapePOLYGONZ));
     });
 
@@ -164,7 +164,7 @@ void main() {
       final arrayM = [0.0, 10.0, 20.0];
 
       final polygon = PolygonZ(
-        bounds: BoundsZ(0.0, 0.0, 10.0, 0.0, 0.0, 20.0, 100.0, 150.0),
+        bounds: BoundsZ(0.0, 0.0, 10.0, 0.0, 100.0, 150.0, 0.0, 20.0),
         parts: [0],
         points: points,
         arrayZ: arrayZ,
@@ -172,7 +172,7 @@ void main() {
       );
 
       expect(() => polygon.arrayZ.add(125.0), throwsUnsupportedError);
-      expect(() => polygon.arrayM.add(15.0), throwsUnsupportedError);
+      expect(() => polygon.arrayM?.add(15.0), throwsUnsupportedError);
     });
 
     test('handles 3D building footprint', () {
@@ -182,7 +182,7 @@ void main() {
       final arrayM = [0.0, 20.0, 40.0, 60.0, 80.0]; // Perimeter distance
 
       final polygon = PolygonZ(
-        bounds: BoundsZ(0.0, 0.0, 20.0, 20.0, 0.0, 80.0, 0.0, 50.0),
+        bounds: BoundsZ(0.0, 0.0, 20.0, 20.0, 0.0, 50.0, 0.0, 80.0),
         parts: [0],
         points: points,
         arrayZ: arrayZ,
@@ -203,7 +203,7 @@ void main() {
       final partTypes = [0]; // Triangle strip
 
       final multiPatch = MultiPatch(
-        bounds: BoundsZ(0.0, 0.0, 10.0, 10.0, 0.0, 30.0, 0.0, 10.0),
+        bounds: BoundsZ(0.0, 0.0, 10.0, 10.0, 0.0, 10.0, 0.0, 30.0),
         parts: [0],
         points: points,
         arrayZ: arrayZ,
@@ -222,7 +222,7 @@ void main() {
       final partTypes = [0];
 
       final multiPatch = MultiPatch(
-        bounds: BoundsZ(0.0, 0.0, 10.0, 0.0, 0.0, 20.0, 0.0, 10.0),
+        bounds: BoundsZ(0.0, 0.0, 10.0, 0.0, 0.0, 10.0, 0.0, 20.0),
         parts: [0],
         points: points,
         arrayZ: arrayZ,
@@ -240,7 +240,7 @@ void main() {
       final partTypes = [0];
 
       final multiPatch = MultiPatch(
-        bounds: BoundsZ(0.0, 0.0, 10.0, 0.0, 0.0, 20.0, 0.0, 10.0),
+        bounds: BoundsZ(0.0, 0.0, 10.0, 0.0, 0.0, 10.0, 0.0, 20.0),
         parts: [0],
         points: points,
         arrayZ: arrayZ,
