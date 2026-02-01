@@ -19,7 +19,7 @@ environment:
 
 dependencies:
   cp949_codec: ^1.0.2
-  meta: ^1.18.1
+  meta: ^1.15.0
 
 
 dev_dependencies:
