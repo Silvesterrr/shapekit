@@ -146,6 +146,86 @@ void main() {
 
       expect(File(filePath).existsSync(), isTrue);
     });
+
+    test('writes a multipoint shapefile', () {
+      final filePath = '${tempDir.path}/test_multipoint.shp';
+      final shapefile = Shapefile();
+
+      final records = [
+        MultiPoint(points: [Point(0.0, 0.0), Point(5.0, 5.0), Point(10.0, 10.0)], bounds: Bounds(0.0, 0.0, 10.0, 10.0)),
+        MultiPoint(points: [Point(20.0, 20.0), Point(25.0, 25.0)], bounds: Bounds(20.0, 20.0, 25.0, 25.0)),
+      ];
+
+      shapefile.writeComplete(
+        filePath,
+        ShapeType.shapeMULTIPOINT,
+        records,
+        minX: 0.0,
+        minY: 0.0,
+        maxX: 25.0,
+        maxY: 25.0,
+      );
+
+      expect(File(filePath).existsSync(), isTrue);
+      expect(File('${tempDir.path}/test_multipoint.shx').existsSync(), isTrue);
+    });
+
+    test('writes a multipointM shapefile', () {
+      final filePath = '${tempDir.path}/test_multipointm.shp';
+      final shapefile = Shapefile();
+
+      final records = [
+        MultiPointM(
+          points: [Point(0.0, 0.0), Point(10.0, 10.0)],
+          arrayM: [1.0, 2.0],
+          bounds: BoundsM(0.0, 0.0, 10.0, 10.0, 1.0, 2.0),
+        ),
+      ];
+
+      shapefile.writeComplete(
+        filePath,
+        ShapeType.shapeMULTIPOINTM,
+        records,
+        minX: 0.0,
+        minY: 0.0,
+        maxX: 10.0,
+        maxY: 10.0,
+        minM: 1.0,
+        maxM: 2.0,
+      );
+
+      expect(File(filePath).existsSync(), isTrue);
+    });
+
+    test('writes a multipointZ shapefile', () {
+      final filePath = '${tempDir.path}/test_multipointz.shp';
+      final shapefile = Shapefile();
+
+      final records = [
+        MultiPointZ(
+          points: [Point(0.0, 0.0), Point(10.0, 10.0)],
+          arrayZ: [100.0, 200.0],
+          arrayM: [1.0, 2.0],
+          bounds: BoundsZ(0.0, 0.0, 10.0, 10.0, 1.0, 2.0, 100.0, 200.0),
+        ),
+      ];
+
+      shapefile.writeComplete(
+        filePath,
+        ShapeType.shapeMULTIPOINTZ,
+        records,
+        minX: 0.0,
+        minY: 0.0,
+        maxX: 10.0,
+        maxY: 10.0,
+        minZ: 100.0,
+        maxZ: 200.0,
+        minM: 1.0,
+        maxM: 2.0,
+      );
+
+      expect(File(filePath).existsSync(), isTrue);
+    });
   });
 
   group('Shapefile Writing - Step by Step', () {

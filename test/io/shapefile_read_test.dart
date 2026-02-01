@@ -227,6 +227,123 @@ void main() {
       expect(() => readShapefile.read('${tempDir.path}/nonexistent.shp'), throwsA(isA<ShapefileException>()));
     });
 
+    test('reads a multipoint shapefile', () {
+      final filePath = '${tempDir.path}/test_read_multipoint.shp';
+      final writeShapefile = Shapefile();
+
+      final records = [
+        MultiPoint(points: [Point(0.0, 0.0), Point(5.0, 5.0), Point(10.0, 10.0)], bounds: Bounds(0.0, 0.0, 10.0, 10.0)),
+        MultiPoint(points: [Point(20.0, 20.0), Point(25.0, 25.0)], bounds: Bounds(20.0, 20.0, 25.0, 25.0)),
+      ];
+
+      writeShapefile.writeComplete(
+        filePath,
+        ShapeType.shapeMULTIPOINT,
+        records,
+        minX: 0.0,
+        minY: 0.0,
+        maxX: 25.0,
+        maxY: 25.0,
+      );
+
+      // Read it back
+      final readShapefile = Shapefile();
+      readShapefile.read(filePath);
+
+      expect(readShapefile.records.length, equals(2));
+      expect(readShapefile.records[0], isA<MultiPoint>());
+      expect(readShapefile.records[1], isA<MultiPoint>());
+
+      final mp1 = readShapefile.records[0] as MultiPoint;
+      final mp2 = readShapefile.records[1] as MultiPoint;
+
+      expect(mp1.numPoints, equals(3));
+      expect(mp2.numPoints, equals(2));
+
+      expect(mp1.points[0].x, closeTo(0.0, 0.0001));
+      expect(mp1.points[1].x, closeTo(5.0, 0.0001));
+      expect(mp1.points[2].x, closeTo(10.0, 0.0001));
+    });
+
+    test('reads a multipointM shapefile', () {
+      final filePath = '${tempDir.path}/test_read_multipointm.shp';
+      final writeShapefile = Shapefile();
+
+      final records = [
+        MultiPointM(
+          points: [Point(0.0, 0.0), Point(10.0, 10.0)],
+          arrayM: [1.0, 2.0],
+          bounds: BoundsM(0.0, 0.0, 10.0, 10.0, 1.0, 2.0),
+        ),
+      ];
+
+      writeShapefile.writeComplete(
+        filePath,
+        ShapeType.shapeMULTIPOINTM,
+        records,
+        minX: 0.0,
+        minY: 0.0,
+        maxX: 10.0,
+        maxY: 10.0,
+        minM: 1.0,
+        maxM: 2.0,
+      );
+
+      // Read it back
+      final readShapefile = Shapefile();
+      readShapefile.read(filePath);
+
+      expect(readShapefile.records.length, equals(1));
+      expect(readShapefile.records[0], isA<MultiPointM>());
+
+      final mp = readShapefile.records[0] as MultiPointM;
+      expect(mp.numPoints, equals(2));
+      expect(mp.arrayM[0], closeTo(1.0, 0.0001));
+      expect(mp.arrayM[1], closeTo(2.0, 0.0001));
+    });
+
+    test('reads a multipointZ shapefile', () {
+      final filePath = '${tempDir.path}/test_read_multipointz.shp';
+      final writeShapefile = Shapefile();
+
+      final records = [
+        MultiPointZ(
+          points: [Point(0.0, 0.0), Point(10.0, 10.0)],
+          arrayZ: [100.0, 200.0],
+          arrayM: [1.0, 2.0],
+          bounds: BoundsZ(0.0, 0.0, 10.0, 10.0, 1.0, 2.0, 100.0, 200.0),
+        ),
+      ];
+
+      writeShapefile.writeComplete(
+        filePath,
+        ShapeType.shapeMULTIPOINTZ,
+        records,
+        minX: 0.0,
+        minY: 0.0,
+        maxX: 10.0,
+        maxY: 10.0,
+        minZ: 100.0,
+        maxZ: 200.0,
+        minM: 1.0,
+        maxM: 2.0,
+      );
+
+      // Read it back
+      final readShapefile = Shapefile();
+      readShapefile.read(filePath);
+
+      expect(readShapefile.records.length, equals(1));
+      expect(readShapefile.records[0], isA<MultiPointZ>());
+
+      final mp = readShapefile.records[0] as MultiPointZ;
+      expect(mp.numPoints, equals(2));
+      expect(mp.arrayZ[0], closeTo(100.0, 0.0001));
+      expect(mp.arrayZ[1], closeTo(200.0, 0.0001));
+      expect(mp.arrayM[0], closeTo(1.0, 0.0001));
+      expect(mp.arrayM[1], closeTo(2.0, 0.0001));
+    });
+
     test('reads header information correctly', () {
       final filePath = '${tempDir.path}/test_header.shp';
       final writeShapefile = Shapefile();

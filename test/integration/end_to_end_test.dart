@@ -316,6 +316,85 @@ void main() {
 
       expect(readShapefile.attributeRecords[0][0].toString().contains('서울'), isTrue);
     });
+
+    test('complete multipoint shapefile workflow', () {
+      final filePath = '${tempDir.path}/locations.shp';
+
+      // Step 1: Create multipoint shapefile with attributes
+      final writeShapefile = Shapefile();
+
+      final records = [
+        MultiPoint(
+          points: [
+            Point(126.9780, 37.5665), // Seoul
+            Point(127.0276, 37.4979), // Gangnam
+            Point(126.9784, 37.5796), // Bukhansan
+          ],
+          bounds: Bounds(126.9780, 37.4979, 127.0276, 37.5796),
+        ),
+        MultiPoint(
+          points: [
+            Point(129.0756, 35.1796), // Busan
+            Point(129.0403, 35.1028), // Haeundae
+          ],
+          bounds: Bounds(129.0403, 35.1028, 129.0756, 35.1796),
+        ),
+      ];
+
+      final fields = [DbaseField.fieldC('REGION', 50), DbaseField.fieldN('NUM_POINTS', 5)];
+
+      final attributes = [
+        ['Seoul Area', 3],
+        ['Busan Area', 2],
+      ];
+
+      writeShapefile.writeComplete(
+        filePath,
+        ShapeType.shapeMULTIPOINT,
+        records,
+        minX: 126.9780,
+        minY: 35.1028,
+        maxX: 129.0756,
+        maxY: 37.5796,
+        attributeFields: fields,
+        attributeRecords: attributes,
+      );
+
+      // Step 2: Verify files exist
+      expect(File(filePath).existsSync(), isTrue);
+      expect(File('${tempDir.path}/locations.shx').existsSync(), isTrue);
+      expect(File('${tempDir.path}/locations.dbf').existsSync(), isTrue);
+
+      // Step 3: Read shapefile back
+      final readShapefile = Shapefile();
+      readShapefile.read(filePath);
+
+      // Step 4: Verify geometry
+      expect(readShapefile.records.length, equals(2));
+      expect(readShapefile.records[0], isA<MultiPoint>());
+      expect(readShapefile.records[1], isA<MultiPoint>());
+
+      final seoul = readShapefile.records[0] as MultiPoint;
+      expect(seoul.numPoints, equals(3));
+      expect(seoul.points[0].x, closeTo(126.9780, 0.0001));
+      expect(seoul.points[0].y, closeTo(37.5665, 0.0001));
+
+      final busan = readShapefile.records[1] as MultiPoint;
+      expect(busan.numPoints, equals(2));
+
+      // Step 5: Verify attributes
+      expect(readShapefile.attributeRecords.length, equals(2));
+      expect(readShapefile.attributeRecords[0][0].toString().trim(), equals('Seoul Area'));
+      expect(readShapefile.attributeRecords[0][1], equals(3));
+      expect(readShapefile.attributeRecords[1][0].toString().trim(), equals('Busan Area'));
+      expect(readShapefile.attributeRecords[1][1], equals(2));
+
+      // Step 6: Verify header
+      expect(readShapefile.headerSHP.type, equals(ShapeType.shapeMULTIPOINT));
+
+      // Step 7: Clean up
+      readShapefile.dispose();
+    });
   });
 
   group('Real-World Scenarios', () {

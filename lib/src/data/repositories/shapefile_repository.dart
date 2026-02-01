@@ -900,11 +900,8 @@ class Shapefile {
       int offset = pos;
       int length = 0;
       switch (headerSHP.type) {
+        // Point types
         case ShapeType.shapePOINT:
-          if (records[n] is Point) {
-            length = 4 + 8 + 8;
-            pos += (lenRecordHeader + length);
-          }
           if (records[n] is! Point) {
             throw CorruptedDataException(
               'Data does not contain Point information',
@@ -912,13 +909,34 @@ class Shapefile {
               details: 'Record $n is not a Point',
             );
           }
+          length = 4 + 8 + 8;
+          pos += (lenRecordHeader + length);
           break;
-        case ShapeType.shapePOLYLINE:
-          if (records[n] is Polyline) {
-            Polyline polyline = records[n] as Polyline;
-            length = 4 + 32 + 4 + 4 + polyline.numParts * 4 + polyline.numPoints * 16;
-            pos += (lenRecordHeader + length);
+        case ShapeType.shapePOINTM:
+          if (records[n] is! PointM) {
+            throw CorruptedDataException(
+              'Data does not contain PointM information',
+              filePath: _fNameSHP,
+              details: 'Record $n is not a PointM',
+            );
           }
+          length = 4 + 8 + 8 + 8;
+          pos += (lenRecordHeader + length);
+          break;
+        case ShapeType.shapePOINTZ:
+          if (records[n] is! PointZ) {
+            throw CorruptedDataException(
+              'Data does not contain PointZ information',
+              filePath: _fNameSHP,
+              details: 'Record $n is not a PointZ',
+            );
+          }
+          length = 4 + 8 + 8 + 8 + 8;
+          pos += (lenRecordHeader + length);
+          break;
+
+        // Polyline types
+        case ShapeType.shapePOLYLINE:
           if (records[n] is! Polyline) {
             throw CorruptedDataException(
               'Data does not contain Polyline information',
@@ -926,14 +944,11 @@ class Shapefile {
               details: 'Record $n is not a Polyline',
             );
           }
+          final polyline = records[n] as Polyline;
+          length = 4 + 32 + 4 + 4 + polyline.numParts * 4 + polyline.numPoints * 16;
+          pos += (lenRecordHeader + length);
           break;
         case ShapeType.shapePOLYLINEM:
-          if (records[n] is PolylineM) {
-            PolylineM polyline = records[n] as PolylineM;
-            length =
-                4 + 32 + 4 + 4 + polyline.numParts * 4 + polyline.numPoints * 16 + 8 + 8 + polyline.arrayM.length * 8;
-            pos += (lenRecordHeader + length);
-          }
           if (records[n] is! PolylineM) {
             throw CorruptedDataException(
               'Data does not contain PolylineM information',
@@ -941,115 +956,124 @@ class Shapefile {
               details: 'Record $n is not a PolylineM',
             );
           }
-          break;
-        case ShapeType.shapePOINTM:
-          if (records[n] is PointM) {
-            length = 4 + 8 + 8 + 8;
-            pos += (lenRecordHeader + length);
-          } else if (records[n] is! PointM) {
-            throw CorruptedDataException(
-              'Data does not contain PointM information',
-              filePath: _fNameSHP,
-              details: 'Record $n is not a PointM',
-            );
-          }
-          break;
-        case ShapeType.shapePOINTZ:
-          if (records[n] is PointZ) {
-            length = 4 + 8 + 8 + 8 + 8;
-            pos += (lenRecordHeader + length);
-          } else if (records[n] is! PointZ) {
-            throw CorruptedDataException(
-              'Data does not contain PointZ information',
-              filePath: _fNameSHP,
-              details: 'Record $n is not a PointZ',
-            );
-          }
+          final polylineM = records[n] as PolylineM;
+          length =
+              4 + 32 + 4 + 4 + polylineM.numParts * 4 + polylineM.numPoints * 16 + 8 + 8 + polylineM.arrayM.length * 8;
+          pos += (lenRecordHeader + length);
           break;
         case ShapeType.shapePOLYLINEZ:
-          if (records[n] is PolylineZ) {
-            PolylineZ polyline = records[n] as PolylineZ;
-            length =
-                4 +
-                32 +
-                4 +
-                4 +
-                polyline.numParts * 4 +
-                polyline.numPoints * 16 +
-                16 +
-                polyline.numPoints * 8 +
-                16 +
-                polyline.numPoints * 8;
-            pos += (lenRecordHeader + length);
-          } else if (records[n] is! PolylineZ) {
+          if (records[n] is! PolylineZ) {
             throw CorruptedDataException(
               'Data does not contain PolylineZ information',
               filePath: _fNameSHP,
               details: 'Record $n is not a PolylineZ',
             );
           }
+          final polylineZ = records[n] as PolylineZ;
+          length =
+              4 +
+              32 +
+              4 +
+              4 +
+              polylineZ.numParts * 4 +
+              polylineZ.numPoints * 16 +
+              16 +
+              polylineZ.numPoints * 8 +
+              16 +
+              polylineZ.numPoints * 8;
+          pos += (lenRecordHeader + length);
           break;
+
+        // Polygon types
         case ShapeType.shapePOLYGON:
-          if (records[n] is Polygon) {
-            Polygon polygon = records[n] as Polygon;
-            length = 4 + 32 + 4 + 4 + polygon.numParts * 4 + polygon.numPoints * 16;
-            pos += (lenRecordHeader + length);
-          } else if (records[n] is! Polygon) {
+          if (records[n] is! Polygon) {
             throw CorruptedDataException(
               'Data does not contain Polygon information',
               filePath: _fNameSHP,
               details: 'Record $n is not a Polygon',
             );
           }
+          final polygon = records[n] as Polygon;
+          length = 4 + 32 + 4 + 4 + polygon.numParts * 4 + polygon.numPoints * 16;
+          pos += (lenRecordHeader + length);
           break;
         case ShapeType.shapePOLYGONM:
-          if (records[n] is PolygonM) {
-            PolygonM polygon = records[n] as PolygonM;
-            length = 4 + 32 + 4 + 4 + polygon.numParts * 4 + polygon.numPoints * 16 + 16 + polygon.numPoints * 8;
-            pos += (lenRecordHeader + length);
-          } else if (records[n] is! PolygonM) {
+          if (records[n] is! PolygonM) {
             throw CorruptedDataException(
               'Data does not contain PolygonM information',
               filePath: _fNameSHP,
               details: 'Record $n is not a PolygonM',
             );
           }
+          final polygonM = records[n] as PolygonM;
+          length = 4 + 32 + 4 + 4 + polygonM.numParts * 4 + polygonM.numPoints * 16 + 16 + polygonM.numPoints * 8;
+          pos += (lenRecordHeader + length);
           break;
         case ShapeType.shapePOLYGONZ:
-          if (records[n] is PolygonZ) {
-            PolygonZ polygon = records[n] as PolygonZ;
-            length =
-                4 +
-                32 +
-                4 +
-                4 +
-                polygon.numParts * 4 +
-                polygon.numPoints * 16 +
-                16 +
-                polygon.numPoints * 8 +
-                16 +
-                polygon.numPoints * 8;
-            pos += (lenRecordHeader + length);
-          } else if (records[n] is! PolygonZ) {
+          if (records[n] is! PolygonZ) {
             throw CorruptedDataException(
               'Data does not contain PolygonZ information',
               filePath: _fNameSHP,
               details: 'Record $n is not a PolygonZ',
             );
           }
+          final polygonZ = records[n] as PolygonZ;
+          length =
+              4 +
+              32 +
+              4 +
+              4 +
+              polygonZ.numParts * 4 +
+              polygonZ.numPoints * 16 +
+              16 +
+              polygonZ.numPoints * 8 +
+              16 +
+              polygonZ.numPoints * 8;
+          pos += (lenRecordHeader + length);
           break;
+
+        // MultiPoint types
         case ShapeType.shapeMULTIPOINT:
-          //TODO: implement it
-          // Not checking MultiPoint structure in detail here but using general MultiPoint logic if present, or assume records are compatible
-          // Assuming MultiPoint class exists
-          // Using simple length if we assume Point list inside.
-          // However MultiPoint is not fully visible.
-          // Leaving MultiPoint aside if not critically needed or implementing consistently.
-          // Implementing MultiPoint if class exists.
-          // Assuming MultiPoint uses numPoints.
-          length = 0;
-          // TODO: Implement MultiPoint check
+          if (records[n] is! MultiPoint) {
+            throw CorruptedDataException(
+              'Data does not contain MultiPoint information',
+              filePath: _fNameSHP,
+              details: 'Record $n is not a MultiPoint',
+            );
+          }
+          final multiPoint = records[n] as MultiPoint;
+          // ShapeType(4) + Box(32) + NumPoints(4) + Points(NumPoints * 16)
+          length = 4 + 32 + 4 + multiPoint.numPoints * 16;
+          pos += (lenRecordHeader + length);
           break;
+        case ShapeType.shapeMULTIPOINTM:
+          if (records[n] is! MultiPointM) {
+            throw CorruptedDataException(
+              'Data does not contain MultiPointM information',
+              filePath: _fNameSHP,
+              details: 'Record $n is not a MultiPointM',
+            );
+          }
+          final multiPointM = records[n] as MultiPointM;
+          // ShapeType(4) + Box(32) + NumPoints(4) + Points(NumPoints * 16) + Mmin(8) + Mmax(8) + Marray(NumPoints * 8)
+          length = 4 + 32 + 4 + multiPointM.numPoints * 16 + 16 + multiPointM.numPoints * 8;
+          pos += (lenRecordHeader + length);
+          break;
+        case ShapeType.shapeMULTIPOINTZ:
+          if (records[n] is! MultiPointZ) {
+            throw CorruptedDataException(
+              'Data does not contain MultiPointZ information',
+              filePath: _fNameSHP,
+              details: 'Record $n is not a MultiPointZ',
+            );
+          }
+          final multiPointZ = records[n] as MultiPointZ;
+          // ShapeType(4) + Box(32) + NumPoints(4) + Points(NumPoints * 16) + Zmin/Zmax(16) + Zarray(NumPoints * 8) + Mmin/Mmax(16) + Marray(NumPoints * 8)
+          length =
+              4 + 32 + 4 + multiPointZ.numPoints * 16 + 16 + multiPointZ.numPoints * 8 + 16 + multiPointZ.numPoints * 8;
+          pos += (lenRecordHeader + length);
+          break;
+
         default:
           throw UnsupportedTypeException(headerSHP.type.toString(), filePath: _fNameSHP);
       }
