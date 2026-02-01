@@ -1,3 +1,10 @@
+## 0.2.1
+
+### Fixes
+- Relaxed `meta` dependency constraint (`^1.15.0`) for Flutter SDK compatibility
+- Updated README examples to use new API (`read()`, `writeComplete()`)
+- Clarified MultiPatch is not yet implemented
+
 ## 0.2.0
 
 ### Breaking Changes

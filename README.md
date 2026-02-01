@@ -8,7 +8,7 @@ A comprehensive Dart library for reading and writing ESRI Shapefiles with suppor
 ## Features
 
 - ✅ **Complete Shapefile Support** - Read and write .shp, .shx, .dbf, and .prj files
-- ✅ **All 13 Geometry Types** - Point, PointM, PointZ, Polyline, PolylineM, PolylineZ, Polygon, PolygonM, PolygonZ, MultiPoint, MultiPointM, MultiPointZ, and MultiPatch
+- ✅ **12 Geometry Types** - Point, PointM, PointZ, Polyline, PolylineM, PolylineZ, Polygon, PolygonM, PolygonZ, MultiPoint, MultiPointM, MultiPointZ
 - ✅ **Attribute Support** - Full dBASE III+ (.dbf) file support for feature attributes
 - ✅ **Projection Support** - Read projection information from .prj files
 - ✅ **Korean Text Support** - CP949 encoding for Korean text in attributes
@@ -22,7 +22,7 @@ Add this to your package's `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  shapekit: ^0.2.0
+  shapekit: ^0.2.1
 ```
 
 Then run:
@@ -41,7 +41,8 @@ import 'package:shapekit/shapekit.dart';
 void main() {
   final shapefile = Shapefile();
   
-  if (shapefile.reader('path/to/file.shp')) {
+  try {
+    shapefile.read('path/to/file.shp');
     print('Loaded ${shapefile.records.length} records');
     
     // Access geometry
@@ -62,6 +63,8 @@ void main() {
     
     // Access projection (if .prj file exists)
     print('Projection: ${shapefile.projectionType}');
+  } on ShapefileException catch (e) {
+    print('Error reading shapefile: ${e.message}');
   }
 }
 ```
@@ -93,7 +96,7 @@ void main() {
   ];
   
   // Write shapefile
-  shapefile.writerEntirety(
+  shapefile.writeComplete(
     'cities.shp',
     ShapeType.shapePOINT,
     records,
@@ -125,7 +128,7 @@ void main() {
 | MultiPoint | `MultiPoint` | Collection of points |
 | MultiPointM | `MultiPointM` | MultiPoint with measure values |
 | MultiPointZ | `MultiPointZ` | MultiPoint with Z and M values |
-| MultiPatch | `MultiPatch` | 3D surface (experimental) |
+| MultiPatch | `MultiPatch` | 3D surface ❌ *not yet implemented* |
 
 ## Text Encoding
 
@@ -165,6 +168,7 @@ DbaseField.fieldNF('AREA', 20, 8)  // name, total digits, decimal places
 
 ## Limitations
 
+- **No MultiPatch support** - MultiPatch geometry type is not yet implemented
 - **No coordinate transformation** - The library reads projection information but does not transform coordinates
 - **Synchronous I/O** - All file operations are synchronous (blocking)
 - **No streaming** - Entire files are loaded into memory
@@ -176,7 +180,7 @@ The library uses typed exceptions for error handling:
 ```dart
 try {
   final shapefile = Shapefile();
-  shapefile.reader('data.shp');
+  shapefile.read('data.shp');
 } on FileNotFoundException catch (e) {
   print('File not found: ${e.filePath}');
 } on InvalidHeaderException catch (e) {
