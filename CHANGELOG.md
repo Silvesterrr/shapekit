@@ -1,4 +1,4 @@
-## 0.2.1
+## 0.2.2
 
 ### Breaking Changes
 - **Optional M values**: M (measure) values are now optional per ESRI shapefile spec
@@ -12,7 +12,7 @@
   - Old: `BoundsZ(minX, minY, maxX, maxY, minM, maxM, minZ, maxZ)`
   - New: `BoundsZ(minX, minY, maxX, maxY, minZ, maxZ, [minM, maxM])`
 
-### Fixes
+## 0.2.1
 - Relaxed `meta` dependency constraint (`^1.15.0`) for Flutter SDK compatibility
 - Updated README examples to use new API (`read()`, `writeComplete()`)
 - Clarified MultiPatch is not yet implemented
