@@ -1,3 +1,5 @@
+## 0.2.4
+fix the incorrect meta package version
 ## 0.2.3
 
 ### Breaking Changes
