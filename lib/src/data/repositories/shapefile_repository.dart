@@ -111,7 +111,7 @@ class Shapefile {
   List<DbaseField> get attributeFields => _dbase == null ? [] : _dbase!.fields;
   List<List<dynamic>> get attributeRecords => _dbase == null ? [] : _dbase!.records;
 
-  ShapeProjectionType get projectionType => _prj?.projectionType ?? ShapeProjectionType.none;
+  int? get epsgCode => _prj?.epsgCode;
 
   void open(String shpFile) {
     close();

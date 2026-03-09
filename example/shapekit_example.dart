@@ -64,8 +64,8 @@ void readShapefileFromPath(String path) {
     }
 
     // Display projection info if available
-    if (shapefile.projectionType != ShapeProjectionType.none) {
-      print('\nProjection: ${shapefile.projectionType}');
+    if (shapefile.epsgCode != null) {
+      print('\nProjection EPSG: ${shapefile.epsgCode}');
     }
   } on ShapefileException catch (e) {
     print('✗ Failed to read shapefile: $e');
@@ -172,8 +172,8 @@ void readShapefileExample() {
     }
 
     // Display projection info if available
-    if (shapefile.projectionType != ShapeProjectionType.none) {
-      print('\nProjection: ${shapefile.projectionType}');
+    if (shapefile.epsgCode != null) {
+      print('\nProjection EPSG: ${shapefile.epsgCode}');
     }
   } on ShapefileException catch (e) {
     print('✗ Failed to read shapefile: $e');

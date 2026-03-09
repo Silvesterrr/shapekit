@@ -22,7 +22,7 @@ Add this to your package's `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  shapekit: ^0.2.1
+  shapekit: ^0.2.3
 ```
 
 Then run:
@@ -61,8 +61,10 @@ void main() {
       print('Record $i attributes: ${shapefile.attributeRecords[i]}');
     }
     
-    // Access projection (if .prj file exists)
-    print('Projection: ${shapefile.projectionType}');
+    // Access projection EPSG code (if .prj file exists)
+    if (shapefile.epsgCode != null) {
+      print('Projection EPSG: ${shapefile.epsgCode}');
+    }
   } on ShapefileException catch (e) {
     print('Error reading shapefile: ${e.message}');
   }
