@@ -1,3 +1,27 @@
+## 0.2.3
+
+### Breaking Changes
+- **`ShapeProjectionType` enum removed** — the enum hard-coded a handful of EPSG codes and silently returned `none` for any unrecognised CRS
+- **`Shapefile.projectionType` removed**, replaced by `Shapefile.epsgCode` (`int?`) — `null` means no `AUTHORITY` tag was found in the .prj file
+- **`CShapeProjectionFile.projectionType` removed**, replaced by `CShapeProjectionFile.epsgCode` (`int?`)
+
+### Bug Fixes
+- `readPrj()` no longer defaults to WGS84 (EPSG:4326) when no `AUTHORITY` tag is present; it now correctly returns `null`
+- `readPrj()` now uses the **last** `AUTHORITY["EPSG","…"]` match, which is the coordinate system authority per the WKT CRS spec
+
+### Migration Guide
+```dart
+// Before (0.2.2)
+if (shapefile.projectionType != ShapeProjectionType.none) {
+  print(shapefile.projectionType.epsgCode); // String
+}
+
+// After (0.2.3)
+if (shapefile.epsgCode != null) {
+  print(shapefile.epsgCode); // int
+}
+```
+
 ## 0.2.2
 
 ### Breaking Changes
