@@ -52,11 +52,16 @@ class ShapefileException implements Exception {
   }
 }
 
-/// Exception thrown when a file cannot be found or accessed
-class FileNotFoundException extends ShapefileException {
-  /// Creates a file not found exception
-  const FileNotFoundException(String filePath)
-    : super('File not found or cannot be accessed', filePath: filePath, type: ShapefileErrorType.fileNotFound);
+/// Exception thrown when a file cannot be found or accessed.
+///
+/// Format-agnostic — does not extend [ShapefileException].
+class FileNotFoundException implements Exception {
+  final String? path;
+
+  const FileNotFoundException([this.path]);
+
+  @override
+  String toString() => path != null ? 'FileNotFoundException: $path' : 'FileNotFoundException: file not found';
 }
 
 /// Exception thrown when file format is invalid

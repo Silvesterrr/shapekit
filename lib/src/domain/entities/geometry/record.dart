@@ -55,6 +55,15 @@ class ShapeType {
   /// Returns true if this is a MultiPoint-type geometry (MultiPoint, MultiPointM, MultiPointZ)
   bool isMultiPointType() => id % 10 == 8;
 
+  /// Convenience getter — alias for [isPointType]
+  bool get isPoint => isPointType();
+
+  /// Convenience getter — alias for [isLineType]
+  bool get isLine => isLineType();
+
+  /// Convenience getter — alias for [isPolygonType]
+  bool get isPolygon => isPolygonType();
+
   /// Converts a numeric type ID to a ShapeType constant
   ///
   /// Parameters:

@@ -109,14 +109,14 @@ void main() {
             Point(127.0276, 37.4979), // Gangnam
             Point(126.9784, 37.5796), // Bukhansan
           ],
-          bounds: Bounds(126.9780, 37.4979, 127.0276, 37.5796),
+          bounds: Envelope(126.9780, 37.4979, 127.0276, 37.5796),
         ),
         MultiPoint(
           points: [
             Point(129.0756, 35.1796), // Busan
             Point(129.0403, 35.1028), // Haeundae
           ],
-          bounds: Bounds(129.0403, 35.1028, 129.0756, 35.1796),
+          bounds: Envelope(129.0403, 35.1028, 129.0756, 35.1796),
         ),
       ];
 

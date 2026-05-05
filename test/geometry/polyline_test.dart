@@ -6,7 +6,7 @@ void main() {
     test('creates a polyline with single part', () {
       final points = [Point(0.0, 0.0), Point(5.0, 5.0), Point(10.0, 10.0)];
 
-      final polyline = Polyline(bounds: Bounds(0.0, 0.0, 10.0, 10.0), parts: [0], points: points);
+      final polyline = Polyline(bounds: Envelope(0.0, 0.0, 10.0, 10.0), parts: [0], points: points);
 
       expect(polyline.minX, equals(0.0));
       expect(polyline.minY, equals(0.0));
@@ -21,7 +21,7 @@ void main() {
       final points = [Point(0.0, 0.0), Point(5.0, 5.0), Point(10.0, 10.0), Point(0.0, 10.0), Point(10.0, 0.0)];
 
       final polyline = Polyline(
-        bounds: Bounds(0.0, 0.0, 10.0, 10.0),
+        bounds: Envelope(0.0, 0.0, 10.0, 10.0),
         parts: [0, 3], // Two parts: first starts at 0, second at 3
         points: points,
       );
@@ -33,7 +33,7 @@ void main() {
 
     test('parts and points are immutable', () {
       final points = [Point(0.0, 0.0), Point(10.0, 10.0)];
-      final polyline = Polyline(bounds: Bounds(0.0, 0.0, 10.0, 10.0), parts: [0], points: points);
+      final polyline = Polyline(bounds: Envelope(0.0, 0.0, 10.0, 10.0), parts: [0], points: points);
 
       expect(() => polyline.parts.add(1), throwsUnsupportedError);
       expect(() => polyline.points.add(Point(5.0, 5.0)), throwsUnsupportedError);
@@ -41,7 +41,7 @@ void main() {
 
     test('toList returns correct structure', () {
       final points = [Point(1.0, 2.0), Point(3.0, 4.0)];
-      final polyline = Polyline(bounds: Bounds(1.0, 2.0, 3.0, 4.0), parts: [0], points: points);
+      final polyline = Polyline(bounds: Envelope(1.0, 2.0, 3.0, 4.0), parts: [0], points: points);
 
       final list = polyline.toList();
       expect(list[0], equals(1.0)); // minX
@@ -55,7 +55,7 @@ void main() {
     test('handles complex multi-part polyline', () {
       final points = List.generate(20, (i) => Point(i.toDouble(), i.toDouble()));
       final polyline = Polyline(
-        bounds: Bounds(0.0, 0.0, 19.0, 19.0),
+        bounds: Envelope(0.0, 0.0, 19.0, 19.0),
         parts: [0, 5, 10, 15], // Four parts
         points: points,
       );
@@ -66,7 +66,7 @@ void main() {
 
     test('toString returns formatted string', () {
       final points = [Point(0.0, 0.0), Point(10.0, 10.0)];
-      final polyline = Polyline(bounds: Bounds(0.0, 0.0, 10.0, 10.0), parts: [0], points: points);
+      final polyline = Polyline(bounds: Envelope(0.0, 0.0, 10.0, 10.0), parts: [0], points: points);
 
       final str = polyline.toString();
       expect(str, contains('0.0'));
@@ -80,7 +80,7 @@ void main() {
       final arrayM = [0.0, 14.142]; // Distance along line
 
       final polyline = PolylineM(
-        bounds: BoundsM(0.0, 0.0, 10.0, 10.0, 0.0, 14.142),
+        bounds: EnvelopeM(0.0, 0.0, 10.0, 10.0, 0.0, 14.142),
         parts: [0],
         points: points,
         arrayM: arrayM,
@@ -97,7 +97,7 @@ void main() {
       final arrayM = [0.0, 10.0];
 
       final polyline = PolylineM(
-        bounds: BoundsM(0.0, 0.0, 10.0, 10.0, 0.0, 10.0),
+        bounds: EnvelopeM(0.0, 0.0, 10.0, 10.0, 0.0, 10.0),
         parts: [0],
         points: points,
         arrayM: arrayM,
@@ -111,7 +111,7 @@ void main() {
       final arrayM = [0.0, 10.0];
 
       final polyline = PolylineM(
-        bounds: BoundsM(0.0, 0.0, 10.0, 10.0, 0.0, 10.0),
+        bounds: EnvelopeM(0.0, 0.0, 10.0, 10.0, 0.0, 10.0),
         parts: [0],
         points: points,
         arrayM: arrayM,
@@ -139,7 +139,7 @@ void main() {
       final arrayM = [0.0, 14.142]; // Distance
 
       final polyline = PolylineZ(
-        bounds: BoundsZ(0.0, 0.0, 10.0, 10.0, 100.0, 200.0, 0.0, 14.142),
+        bounds: EnvelopeZ(0.0, 0.0, 10.0, 10.0, 100.0, 200.0, 0.0, 14.142),
         parts: [0],
         points: points,
         arrayZ: arrayZ,
@@ -161,7 +161,7 @@ void main() {
       final arrayM = [0.0, 10.0];
 
       final polyline = PolylineZ(
-        bounds: BoundsZ(0.0, 0.0, 10.0, 10.0, 100.0, 200.0, 0.0, 10.0),
+        bounds: EnvelopeZ(0.0, 0.0, 10.0, 10.0, 100.0, 200.0, 0.0, 10.0),
         parts: [0],
         points: points,
         arrayZ: arrayZ,
@@ -179,7 +179,7 @@ void main() {
       final arrayM = [0.0, 1.414, 2.828, 4.242]; // Distance in km
 
       final polyline = PolylineZ(
-        bounds: BoundsZ(0.0, 0.0, 3.0, 3.0, 100.0, 180.0, 0.0, 4.242),
+        bounds: EnvelopeZ(0.0, 0.0, 3.0, 3.0, 100.0, 180.0, 0.0, 4.242),
         parts: [0],
         points: points,
         arrayZ: arrayZ,
@@ -197,7 +197,7 @@ void main() {
       final arrayM = [0.0, 10.0];
 
       final polyline = PolylineZ(
-        bounds: BoundsZ(0.0, 0.0, 10.0, 10.0, 100.0, 200.0, 0.0, 10.0),
+        bounds: EnvelopeZ(0.0, 0.0, 10.0, 10.0, 100.0, 200.0, 0.0, 10.0),
         parts: [0],
         points: points,
         arrayZ: arrayZ,

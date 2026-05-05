@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'package:shapekit/src/domain/entities/geometry/point.dart';
 import 'package:shapekit/src/domain/entities/geometry/polyline.dart';
 import 'package:shapekit/src/domain/entities/geometry/polygon.dart';
-import 'package:shapekit/src/domain/entities/shapefile_bounds.dart';
+import 'package:shapekit/src/domain/entities/geometry/envelope.dart';
 
 /// Deserializes shapefile binary data into geometry domain entities
 ///
@@ -27,12 +27,12 @@ class GeometryDeserializer {
   // ========== Private Helper Methods ==========
 
   /// Reads a bounding box (32 bytes: minX, minY, maxX, maxY)
-  static Bounds _readBounds(ByteData data, int offset) {
+  static Envelope _readEnvelope(ByteData data, int offset) {
     final minX = data.getFloat64(offset, Endian.little);
     final minY = data.getFloat64(offset + 8, Endian.little);
     final maxX = data.getFloat64(offset + 16, Endian.little);
     final maxY = data.getFloat64(offset + 24, Endian.little);
-    return Bounds(minX, minY, maxX, maxY);
+    return Envelope(minX, minY, maxX, maxY);
   }
 
   /// Reads a parts array (NumParts * 4 bytes)
@@ -154,7 +154,7 @@ class GeometryDeserializer {
   /// - Bytes 44+: Parts array (NumParts ints)
   /// - Bytes X+: Points array (NumPoints * 16 bytes)
   static Polyline readPolyline(ByteData data, int offset) {
-    final bounds = _readBounds(data, offset + 4);
+    final bounds = _readEnvelope(data, offset + 4);
     final numParts = data.getInt32(offset + 36, Endian.little);
     final numPoints = data.getInt32(offset + 40, Endian.little);
 
@@ -173,7 +173,7 @@ class GeometryDeserializer {
   /// [contentLength] is the record content length in bytes.
   /// If not provided, M values will be read if there's enough data in the buffer.
   static PolylineM readPolylineM(ByteData data, int offset, {int? contentLength}) {
-    final baseBounds = _readBounds(data, offset + 4);
+    final baseEnvelope = _readEnvelope(data, offset + 4);
     final numParts = data.getInt32(offset + 36, Endian.little);
     final numPoints = data.getInt32(offset + 40, Endian.little);
 
@@ -201,7 +201,7 @@ class GeometryDeserializer {
       arrayM = mValues.arrayM;
     }
 
-    final bounds = BoundsM(baseBounds.minX, baseBounds.minY, baseBounds.maxX, baseBounds.maxY, minM, maxM);
+    final bounds = EnvelopeM(baseEnvelope.minX, baseEnvelope.minY, baseEnvelope.maxX, baseEnvelope.maxY, minM, maxM);
 
     return PolylineM(bounds: bounds, parts: parts, points: points, arrayM: arrayM);
   }
@@ -217,7 +217,7 @@ class GeometryDeserializer {
   /// [contentLength] is the record content length in bytes (excluding the 8-byte record header).
   /// If not provided, M values will be read if there's enough data in the buffer.
   static PolylineZ readPolylineZ(ByteData data, int offset, {int? contentLength}) {
-    final baseBounds = _readBounds(data, offset + 4);
+    final baseEnvelope = _readEnvelope(data, offset + 4);
     final numParts = data.getInt32(offset + 36, Endian.little);
     final numPoints = data.getInt32(offset + 40, Endian.little);
 
@@ -250,11 +250,11 @@ class GeometryDeserializer {
       arrayM = mValues.arrayM;
     }
 
-    final bounds = BoundsZ(
-      baseBounds.minX,
-      baseBounds.minY,
-      baseBounds.maxX,
-      baseBounds.maxY,
+    final bounds = EnvelopeZ(
+      baseEnvelope.minX,
+      baseEnvelope.minY,
+      baseEnvelope.maxX,
+      baseEnvelope.maxY,
       zValues.minZ,
       zValues.maxZ,
       minM,
@@ -270,7 +270,7 @@ class GeometryDeserializer {
   ///
   /// Polygon has the same binary format as Polyline
   static Polygon readPolygon(ByteData data, int offset) {
-    final bounds = _readBounds(data, offset + 4);
+    final bounds = _readEnvelope(data, offset + 4);
     final numParts = data.getInt32(offset + 36, Endian.little);
     final numPoints = data.getInt32(offset + 40, Endian.little);
 
@@ -287,7 +287,7 @@ class GeometryDeserializer {
   /// [contentLength] is the record content length in bytes.
   /// If not provided, M values will be read if there's enough data in the buffer.
   static PolygonM readPolygonM(ByteData data, int offset, {int? contentLength}) {
-    final baseBounds = _readBounds(data, offset + 4);
+    final baseEnvelope = _readEnvelope(data, offset + 4);
     final numParts = data.getInt32(offset + 36, Endian.little);
     final numPoints = data.getInt32(offset + 40, Endian.little);
 
@@ -315,7 +315,7 @@ class GeometryDeserializer {
       arrayM = mValues.arrayM;
     }
 
-    final bounds = BoundsM(baseBounds.minX, baseBounds.minY, baseBounds.maxX, baseBounds.maxY, minM, maxM);
+    final bounds = EnvelopeM(baseEnvelope.minX, baseEnvelope.minY, baseEnvelope.maxX, baseEnvelope.maxY, minM, maxM);
 
     return PolygonM(bounds: bounds, parts: parts, points: points, arrayM: arrayM);
   }
@@ -327,7 +327,7 @@ class GeometryDeserializer {
   /// [contentLength] is the record content length in bytes (excluding the 8-byte record header).
   /// If not provided, M values will be read if there's enough data in the buffer.
   static PolygonZ readPolygonZ(ByteData data, int offset, {int? contentLength}) {
-    final baseBounds = _readBounds(data, offset + 4);
+    final baseEnvelope = _readEnvelope(data, offset + 4);
     final numParts = data.getInt32(offset + 36, Endian.little);
     final numPoints = data.getInt32(offset + 40, Endian.little);
 
@@ -359,11 +359,11 @@ class GeometryDeserializer {
       arrayM = mValues.arrayM;
     }
 
-    final bounds = BoundsZ(
-      baseBounds.minX,
-      baseBounds.minY,
-      baseBounds.maxX,
-      baseBounds.maxY,
+    final bounds = EnvelopeZ(
+      baseEnvelope.minX,
+      baseEnvelope.minY,
+      baseEnvelope.maxX,
+      baseEnvelope.maxY,
       zValues.minZ,
       zValues.maxZ,
       minM,
@@ -383,7 +383,7 @@ class GeometryDeserializer {
   /// - Bytes 36-39: NumPoints (int)
   /// - Bytes 40+: Points array (NumPoints * 16 bytes)
   static MultiPoint readMultiPoint(ByteData data, int offset) {
-    final bounds = _readBounds(data, offset + 4);
+    final bounds = _readEnvelope(data, offset + 4);
     final numPoints = data.getInt32(offset + 36, Endian.little);
     final points = _readPoints(data, offset + 40, numPoints);
 
@@ -397,7 +397,7 @@ class GeometryDeserializer {
   /// [contentLength] is the record content length in bytes.
   /// If not provided, M values will be read if there's enough data in the buffer.
   static MultiPointM readMultiPointM(ByteData data, int offset, {int? contentLength}) {
-    final baseBounds = _readBounds(data, offset + 4);
+    final baseEnvelope = _readEnvelope(data, offset + 4);
     final numPoints = data.getInt32(offset + 36, Endian.little);
 
     final posPointStart = offset + 40;
@@ -423,7 +423,7 @@ class GeometryDeserializer {
       arrayM = mValues.arrayM;
     }
 
-    final bounds = BoundsM(baseBounds.minX, baseBounds.minY, baseBounds.maxX, baseBounds.maxY, minM, maxM);
+    final bounds = EnvelopeM(baseEnvelope.minX, baseEnvelope.minY, baseEnvelope.maxX, baseEnvelope.maxY, minM, maxM);
 
     return MultiPointM(bounds: bounds, points: points, arrayM: arrayM);
   }
@@ -435,7 +435,7 @@ class GeometryDeserializer {
   /// [contentLength] is the record content length in bytes (excluding the 8-byte record header).
   /// If not provided, M values will be read if there's enough data in the buffer.
   static MultiPointZ readMultiPointZ(ByteData data, int offset, {int? contentLength}) {
-    final baseBounds = _readBounds(data, offset + 4);
+    final baseEnvelope = _readEnvelope(data, offset + 4);
     final numPoints = data.getInt32(offset + 36, Endian.little);
 
     final posPointStart = offset + 40;
@@ -465,11 +465,11 @@ class GeometryDeserializer {
       arrayM = mValues.arrayM;
     }
 
-    final bounds = BoundsZ(
-      baseBounds.minX,
-      baseBounds.minY,
-      baseBounds.maxX,
-      baseBounds.maxY,
+    final bounds = EnvelopeZ(
+      baseEnvelope.minX,
+      baseEnvelope.minY,
+      baseEnvelope.maxX,
+      baseEnvelope.maxY,
       zValues.minZ,
       zValues.maxZ,
       minM,

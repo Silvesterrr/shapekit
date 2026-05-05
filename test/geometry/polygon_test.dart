@@ -12,7 +12,7 @@ void main() {
         Point(0.0, 0.0), // Close the ring
       ];
 
-      final polygon = Polygon(bounds: Bounds(0.0, 0.0, 10.0, 10.0), parts: [0], points: points);
+      final polygon = Polygon(bounds: Envelope(0.0, 0.0, 10.0, 10.0), parts: [0], points: points);
 
       expect(polygon.minX, equals(0.0));
       expect(polygon.minY, equals(0.0));
@@ -40,7 +40,7 @@ void main() {
       ];
 
       final polygon = Polygon(
-        bounds: Bounds(0.0, 0.0, 10.0, 10.0),
+        bounds: Envelope(0.0, 0.0, 10.0, 10.0),
         parts: [0, 5], // Outer ring starts at 0, inner ring at 5
         points: points,
       );
@@ -65,7 +65,7 @@ void main() {
         Point(10.0, 10.0),
       ];
 
-      final polygon = Polygon(bounds: Bounds(0.0, 0.0, 15.0, 15.0), parts: [0, 5], points: points);
+      final polygon = Polygon(bounds: Envelope(0.0, 0.0, 15.0, 15.0), parts: [0, 5], points: points);
 
       expect(polygon.numParts, equals(2));
       expect(polygon.numPoints, equals(10));
@@ -74,7 +74,7 @@ void main() {
     test('parts and points are immutable', () {
       final points = [Point(0.0, 0.0), Point(10.0, 0.0), Point(10.0, 10.0), Point(0.0, 0.0)];
 
-      final polygon = Polygon(bounds: Bounds(0.0, 0.0, 10.0, 10.0), parts: [0], points: points);
+      final polygon = Polygon(bounds: Envelope(0.0, 0.0, 10.0, 10.0), parts: [0], points: points);
 
       expect(() => polygon.parts.add(1), throwsUnsupportedError);
       expect(() => polygon.points.add(Point(5.0, 5.0)), throwsUnsupportedError);
@@ -83,7 +83,7 @@ void main() {
     test('handles triangle (minimum valid polygon)', () {
       final points = [Point(0.0, 0.0), Point(5.0, 0.0), Point(2.5, 5.0), Point(0.0, 0.0)];
 
-      final polygon = Polygon(bounds: Bounds(0.0, 0.0, 5.0, 5.0), parts: [0], points: points);
+      final polygon = Polygon(bounds: Envelope(0.0, 0.0, 5.0, 5.0), parts: [0], points: points);
 
       expect(polygon.numPoints, equals(4)); // 3 vertices + closing point
     });
@@ -96,7 +96,7 @@ void main() {
         points.add(Point(5 + 5 * cos(angle), 5 + 5 * sin(angle)));
       }
 
-      final polygon = Polygon(bounds: Bounds(0.0, 0.0, 10.0, 10.0), parts: [0], points: points);
+      final polygon = Polygon(bounds: Envelope(0.0, 0.0, 10.0, 10.0), parts: [0], points: points);
 
       expect(polygon.numPoints, equals(37));
     });
@@ -108,7 +108,7 @@ void main() {
       final arrayM = [0.0, 10.0, 20.0, 30.0, 40.0]; // Perimeter distance
 
       final polygon = PolygonM(
-        bounds: BoundsM(0.0, 0.0, 10.0, 10.0, 0.0, 40.0),
+        bounds: EnvelopeM(0.0, 0.0, 10.0, 10.0, 0.0, 40.0),
         parts: [0],
         points: points,
         arrayM: arrayM,
@@ -125,7 +125,7 @@ void main() {
       final arrayM = [0.0, 10.0, 20.0, 30.0];
 
       final polygon = PolygonM(
-        bounds: BoundsM(0.0, 0.0, 10.0, 10.0, 0.0, 30.0),
+        bounds: EnvelopeM(0.0, 0.0, 10.0, 10.0, 0.0, 30.0),
         parts: [0],
         points: points,
         arrayM: arrayM,
@@ -142,7 +142,7 @@ void main() {
       final arrayM = [0.0, 10.0, 20.0, 30.0, 40.0]; // Distance
 
       final polygon = PolygonZ(
-        bounds: BoundsZ(0.0, 0.0, 10.0, 10.0, 100.0, 150.0, 0.0, 40.0),
+        bounds: EnvelopeZ(0.0, 0.0, 10.0, 10.0, 100.0, 150.0, 0.0, 40.0),
         parts: [0],
         points: points,
         arrayZ: arrayZ,
@@ -164,7 +164,7 @@ void main() {
       final arrayM = [0.0, 10.0, 20.0];
 
       final polygon = PolygonZ(
-        bounds: BoundsZ(0.0, 0.0, 10.0, 0.0, 100.0, 150.0, 0.0, 20.0),
+        bounds: EnvelopeZ(0.0, 0.0, 10.0, 0.0, 100.0, 150.0, 0.0, 20.0),
         parts: [0],
         points: points,
         arrayZ: arrayZ,
@@ -182,7 +182,7 @@ void main() {
       final arrayM = [0.0, 20.0, 40.0, 60.0, 80.0]; // Perimeter distance
 
       final polygon = PolygonZ(
-        bounds: BoundsZ(0.0, 0.0, 20.0, 20.0, 0.0, 50.0, 0.0, 80.0),
+        bounds: EnvelopeZ(0.0, 0.0, 20.0, 20.0, 0.0, 50.0, 0.0, 80.0),
         parts: [0],
         points: points,
         arrayZ: arrayZ,
@@ -203,7 +203,7 @@ void main() {
       final partTypes = [0]; // Triangle strip
 
       final multiPatch = MultiPatch(
-        bounds: BoundsZ(0.0, 0.0, 10.0, 10.0, 0.0, 10.0, 0.0, 30.0),
+        bounds: EnvelopeZ(0.0, 0.0, 10.0, 10.0, 0.0, 10.0, 0.0, 30.0),
         parts: [0],
         points: points,
         arrayZ: arrayZ,
@@ -222,7 +222,7 @@ void main() {
       final partTypes = [0];
 
       final multiPatch = MultiPatch(
-        bounds: BoundsZ(0.0, 0.0, 10.0, 0.0, 0.0, 10.0, 0.0, 20.0),
+        bounds: EnvelopeZ(0.0, 0.0, 10.0, 0.0, 0.0, 10.0, 0.0, 20.0),
         parts: [0],
         points: points,
         arrayZ: arrayZ,
@@ -240,7 +240,7 @@ void main() {
       final partTypes = [0];
 
       final multiPatch = MultiPatch(
-        bounds: BoundsZ(0.0, 0.0, 10.0, 0.0, 0.0, 10.0, 0.0, 20.0),
+        bounds: EnvelopeZ(0.0, 0.0, 10.0, 0.0, 0.0, 10.0, 0.0, 20.0),
         parts: [0],
         points: points,
         arrayZ: arrayZ,

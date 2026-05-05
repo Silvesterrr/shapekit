@@ -76,7 +76,7 @@ void main() {
 
       final records = [
         Polyline(
-          bounds: Bounds(0.0, 0.0, 10.0, 10.0),
+          bounds: Envelope(0.0, 0.0, 10.0, 10.0),
           parts: [0],
           points: [Point(0.0, 0.0), Point(5.0, 5.0), Point(10.0, 10.0)],
         ),
@@ -93,7 +93,7 @@ void main() {
 
       final records = [
         Polygon(
-          bounds: Bounds(0.0, 0.0, 10.0, 10.0),
+          bounds: Envelope(0.0, 0.0, 10.0, 10.0),
           parts: [0],
           points: [Point(0.0, 0.0), Point(10.0, 0.0), Point(10.0, 10.0), Point(0.0, 10.0), Point(0.0, 0.0)],
         ),
@@ -110,7 +110,7 @@ void main() {
 
       final records = [
         PolylineM(
-          bounds: BoundsM(0.0, 0.0, 10.0, 10.0, 0.0, 14.142),
+          bounds: EnvelopeM(0.0, 0.0, 10.0, 10.0, 0.0, 14.142),
           parts: [0],
           points: [Point(0.0, 0.0), Point(5.0, 5.0), Point(10.0, 10.0)],
           arrayM: [0.0, 7.071, 14.142],
@@ -138,7 +138,7 @@ void main() {
 
       final records = [
         PolylineZ(
-          bounds: BoundsZ(0.0, 0.0, 10.0, 10.0, 100.0, 200.0, 0.0, 14.142),
+          bounds: EnvelopeZ(0.0, 0.0, 10.0, 10.0, 100.0, 200.0, 0.0, 14.142),
           parts: [0],
           points: [Point(0.0, 0.0), Point(5.0, 5.0), Point(10.0, 10.0)],
           arrayZ: [100.0, 150.0, 200.0],
@@ -169,7 +169,7 @@ void main() {
 
       final records = [
         PolygonM(
-          bounds: BoundsM(0.0, 0.0, 10.0, 10.0, 0.0, 40.0),
+          bounds: EnvelopeM(0.0, 0.0, 10.0, 10.0, 0.0, 40.0),
           parts: [0],
           points: [Point(0.0, 0.0), Point(10.0, 0.0), Point(10.0, 10.0), Point(0.0, 10.0), Point(0.0, 0.0)],
           arrayM: [0.0, 10.0, 20.0, 30.0, 40.0],
@@ -197,7 +197,7 @@ void main() {
 
       final records = [
         PolygonZ(
-          bounds: BoundsZ(0.0, 0.0, 10.0, 10.0, 100.0, 150.0, 0.0, 40.0),
+          bounds: EnvelopeZ(0.0, 0.0, 10.0, 10.0, 100.0, 150.0, 0.0, 40.0),
           parts: [0],
           points: [Point(0.0, 0.0), Point(10.0, 0.0), Point(10.0, 10.0), Point(0.0, 10.0), Point(0.0, 0.0)],
           arrayZ: [100.0, 100.0, 150.0, 150.0, 100.0],
@@ -291,8 +291,8 @@ void main() {
       final shapefile = Shapefile();
 
       final records = [
-        MultiPoint(points: [Point(0.0, 0.0), Point(5.0, 5.0), Point(10.0, 10.0)], bounds: Bounds(0.0, 0.0, 10.0, 10.0)),
-        MultiPoint(points: [Point(20.0, 20.0), Point(25.0, 25.0)], bounds: Bounds(20.0, 20.0, 25.0, 25.0)),
+        MultiPoint(points: [Point(0.0, 0.0), Point(5.0, 5.0), Point(10.0, 10.0)], bounds: Envelope(0.0, 0.0, 10.0, 10.0)),
+        MultiPoint(points: [Point(20.0, 20.0), Point(25.0, 25.0)], bounds: Envelope(20.0, 20.0, 25.0, 25.0)),
       ];
 
       shapefile.writeComplete(
@@ -317,7 +317,7 @@ void main() {
         MultiPointM(
           points: [Point(0.0, 0.0), Point(10.0, 10.0)],
           arrayM: [1.0, 2.0],
-          bounds: BoundsM(0.0, 0.0, 10.0, 10.0, 1.0, 2.0),
+          bounds: EnvelopeM(0.0, 0.0, 10.0, 10.0, 1.0, 2.0),
         ),
       ];
 
@@ -345,7 +345,7 @@ void main() {
           points: [Point(0.0, 0.0), Point(10.0, 10.0)],
           arrayZ: [100.0, 200.0],
           arrayM: [1.0, 2.0],
-          bounds: BoundsZ(0.0, 0.0, 10.0, 10.0, 100.0, 200.0, 1.0, 2.0),
+          bounds: EnvelopeZ(0.0, 0.0, 10.0, 10.0, 100.0, 200.0, 1.0, 2.0),
         ),
       ];
 

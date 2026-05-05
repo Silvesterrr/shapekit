@@ -151,10 +151,10 @@ void main() {
   });
 
   group('ShapefileException Base Class', () {
-    test('can be caught as base exception', () {
+    test('is standalone — not a ShapefileException', () {
       final exception = FileNotFoundException('test.shp');
 
-      expect(exception, isA<ShapefileException>());
+      expect(exception, isNot(isA<ShapefileException>()));
       expect(exception, isA<Exception>());
     });
 

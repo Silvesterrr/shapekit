@@ -1,4 +1,4 @@
-import 'package:shapekit/src/domain/entities/shapefile_bounds.dart';
+import 'package:shapekit/src/domain/entities/geometry/envelope.dart';
 import 'package:shapekit/src/domain/entities/geometry/record.dart';
 
 /// Represents the header of a shapefile (.shp or .shx file)
@@ -31,7 +31,7 @@ class ShapeHeader {
   /// Geometry type stored in this shapefile
   ShapeType type = ShapeType.shapeUNDEFINED;
 
-  Bounds bounds = const Bounds.zero();
+  Envelope bounds = const Envelope.zero();
 
   /// File length in bytes (calculated from [length])
   int fileLength = 0;
@@ -59,8 +59,8 @@ class ShapeHeader {
   /// Sets the bounding box for the shapefile
   ///
   /// Parameters:
-  /// - [newBounds]: Bounding box (required)
-  void setBound(Bounds newBounds) => bounds = newBounds;
+  /// - [newEnvelope]: Bounding box (required)
+  void setBound(Envelope newEnvelope) => bounds = newEnvelope;
 
   @override
   String toString() => '{$type, $length, $bounds}';

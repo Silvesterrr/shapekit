@@ -1,6 +1,6 @@
 import 'package:meta/meta.dart';
 import 'package:shapekit/src/domain/entities/geometry/record.dart';
-import 'package:shapekit/src/domain/entities/shapefile_bounds.dart';
+import 'package:shapekit/src/domain/entities/geometry/envelope.dart';
 
 /// Represents a 2D point geometry (X, Y coordinates)
 ///
@@ -93,7 +93,7 @@ class PointZ extends PointM {
 }
 
 class MultiPoint extends Record {
-  MultiPoint({required List<Point> points, required Bounds bounds})
+  MultiPoint({required List<Point> points, required Envelope bounds})
     : points = List.unmodifiable(points),
       minX = bounds.minX,
       minY = bounds.minY,
@@ -102,7 +102,7 @@ class MultiPoint extends Record {
       super(ShapeType.shapeMULTIPOINT);
 
   @protected
-  MultiPoint.protected({required List<Point> points, required Bounds bounds, required ShapeType type})
+  MultiPoint.protected({required List<Point> points, required Envelope bounds, required ShapeType type})
     : points = List.unmodifiable(points),
       minX = bounds.minX,
       minY = bounds.minY,
@@ -135,7 +135,7 @@ class MultiPoint extends Record {
 
 /// MultiPointM has optional M values per ESRI spec
 class MultiPointM extends MultiPoint {
-  MultiPointM({required super.points, List<double>? arrayM, required BoundsM super.bounds})
+  MultiPointM({required super.points, List<double>? arrayM, required EnvelopeM super.bounds})
     : arrayM = arrayM != null ? List.unmodifiable(arrayM) : null,
       minM = bounds.minM,
       maxM = bounds.maxM,
@@ -145,7 +145,7 @@ class MultiPointM extends MultiPoint {
   MultiPointM.protected({
     required super.points,
     List<double>? arrayM,
-    required BoundsM super.bounds,
+    required EnvelopeM super.bounds,
     required super.type,
   }) : arrayM = arrayM != null ? List.unmodifiable(arrayM) : null,
        minM = bounds.minM,
@@ -177,7 +177,7 @@ class MultiPointM extends MultiPoint {
 
 /// MultiPointZ has required Z values and optional M values per ESRI spec
 class MultiPointZ extends MultiPoint {
-  MultiPointZ({required super.points, required List<double> arrayZ, required BoundsZ bounds, List<double>? arrayM})
+  MultiPointZ({required super.points, required List<double> arrayZ, required EnvelopeZ bounds, List<double>? arrayM})
     : arrayZ = List.unmodifiable(arrayZ),
       minZ = bounds.minZ,
       maxZ = bounds.maxZ,

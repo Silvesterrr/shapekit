@@ -121,7 +121,7 @@ void main() {
     test('creates a multipoint with correct bounds', () {
       final points = [Point(0.0, 0.0), Point(10.0, 10.0), Point(5.0, 5.0)];
 
-      final multiPoint = MultiPoint(points: points, bounds: Bounds(0.0, 0.0, 10.0, 10.0));
+      final multiPoint = MultiPoint(points: points, bounds: Envelope(0.0, 0.0, 10.0, 10.0));
 
       expect(multiPoint.minX, equals(0.0));
       expect(multiPoint.minY, equals(0.0));
@@ -133,14 +133,14 @@ void main() {
 
     test('points are immutable', () {
       final points = [Point(0.0, 0.0), Point(10.0, 10.0)];
-      final multiPoint = MultiPoint(points: points, bounds: Bounds(0.0, 0.0, 10.0, 10.0));
+      final multiPoint = MultiPoint(points: points, bounds: Envelope(0.0, 0.0, 10.0, 10.0));
 
       expect(() => multiPoint.points.add(Point(5.0, 5.0)), throwsUnsupportedError);
     });
 
     test('toList returns correct structure', () {
       final points = [Point(1.0, 2.0), Point(3.0, 4.0)];
-      final multiPoint = MultiPoint(points: points, bounds: Bounds(1.0, 2.0, 3.0, 4.0));
+      final multiPoint = MultiPoint(points: points, bounds: Envelope(1.0, 2.0, 3.0, 4.0));
 
       final list = multiPoint.toList();
       expect(list[0], equals(1.0)); // minX
@@ -152,14 +152,14 @@ void main() {
 
     test('handles single point', () {
       final points = [Point(5.0, 5.0)];
-      final multiPoint = MultiPoint(points: points, bounds: Bounds(5.0, 5.0, 5.0, 5.0));
+      final multiPoint = MultiPoint(points: points, bounds: Envelope(5.0, 5.0, 5.0, 5.0));
 
       expect(multiPoint.numPoints, equals(1));
     });
 
     test('handles many points', () {
       final points = List.generate(100, (i) => Point(i.toDouble(), i.toDouble()));
-      final multiPoint = MultiPoint(points: points, bounds: Bounds(0.0, 0.0, 99.0, 99.0));
+      final multiPoint = MultiPoint(points: points, bounds: Envelope(0.0, 0.0, 99.0, 99.0));
 
       expect(multiPoint.numPoints, equals(100));
     });
@@ -170,7 +170,7 @@ void main() {
       final points = [Point(0.0, 0.0), Point(10.0, 10.0)];
       final arrayM = [1.0, 2.0];
 
-      final multiPoint = MultiPointM(points: points, arrayM: arrayM, bounds: BoundsM(0.0, 0.0, 10.0, 10.0, 1.0, 2.0));
+      final multiPoint = MultiPointM(points: points, arrayM: arrayM, bounds: EnvelopeM(0.0, 0.0, 10.0, 10.0, 1.0, 2.0));
 
       expect(multiPoint.minM, equals(1.0));
       expect(multiPoint.maxM, equals(2.0));
@@ -182,7 +182,7 @@ void main() {
       final points = [Point(0.0, 0.0), Point(10.0, 10.0)];
       final arrayM = [1.0, 2.0];
 
-      final multiPoint = MultiPointM(points: points, arrayM: arrayM, bounds: BoundsM(0.0, 0.0, 10.0, 10.0, 1.0, 2.0));
+      final multiPoint = MultiPointM(points: points, arrayM: arrayM, bounds: EnvelopeM(0.0, 0.0, 10.0, 10.0, 1.0, 2.0));
 
       expect(() => multiPoint.arrayM?.add(3.0), throwsUnsupportedError);
     });
@@ -194,12 +194,12 @@ void main() {
       final arrayZ = [100.0, 200.0];
       final arrayM = [1.0, 2.0];
 
-      // BoundsZ order: minX, minY, maxX, maxY, minZ, maxZ, [minM, maxM]
+      // EnvelopeZ order: minX, minY, maxX, maxY, minZ, maxZ, [minM, maxM]
       final multiPoint = MultiPointZ(
         points: points,
         arrayZ: arrayZ,
         arrayM: arrayM,
-        bounds: BoundsZ(0.0, 0.0, 10.0, 10.0, 100.0, 200.0, 1.0, 2.0),
+        bounds: EnvelopeZ(0.0, 0.0, 10.0, 10.0, 100.0, 200.0, 1.0, 2.0),
       );
 
       expect(multiPoint.minZ, equals(100.0));
@@ -220,7 +220,7 @@ void main() {
         points: points,
         arrayZ: arrayZ,
         arrayM: arrayM,
-        bounds: BoundsZ(0.0, 0.0, 0.0, 0.0, 100.0, 100.0, 1.0, 1.0),
+        bounds: EnvelopeZ(0.0, 0.0, 0.0, 0.0, 100.0, 100.0, 1.0, 1.0),
       );
 
       expect(() => multiPoint.arrayZ.add(200.0), throwsUnsupportedError);

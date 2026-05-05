@@ -1,10 +1,10 @@
 import 'package:shapekit/src/domain/entities/geometry/record.dart';
 import 'package:shapekit/src/domain/entities/geometry/point.dart';
-import 'package:shapekit/src/domain/entities/shapefile_bounds.dart';
+import 'package:shapekit/src/domain/entities/geometry/envelope.dart';
 import 'package:meta/meta.dart';
 
 class Polyline extends Record {
-  Polyline({required Bounds bounds, required List<int> parts, required List<Point> points})
+  Polyline({required Envelope bounds, required List<int> parts, required List<Point> points})
     : minX = bounds.minX,
       minY = bounds.minY,
       maxX = bounds.maxX,
@@ -16,7 +16,7 @@ class Polyline extends Record {
   // Internal constructor for subclasses
   @protected
   Polyline.protected({
-    required Bounds bounds,
+    required Envelope bounds,
     required List<int> parts,
     required List<Point> points,
     required ShapeType type,
@@ -56,7 +56,7 @@ class Polyline extends Record {
 
 /// PolylineM has optional M values per ESRI spec
 class PolylineM extends Polyline {
-  PolylineM({required BoundsM bounds, required super.parts, required super.points, List<double>? arrayM})
+  PolylineM({required EnvelopeM bounds, required super.parts, required super.points, List<double>? arrayM})
     : minM = bounds.minM,
       maxM = bounds.maxM,
       arrayM = arrayM != null ? List.unmodifiable(arrayM) : null,
@@ -65,7 +65,7 @@ class PolylineM extends Polyline {
   // Internal constructor for subclasses
   @protected
   PolylineM.protected({
-    required BoundsM bounds,
+    required EnvelopeM bounds,
     required super.parts,
     required super.points,
     List<double>? arrayM,
@@ -101,7 +101,7 @@ class PolylineM extends Polyline {
 /// PolylineZ has required Z values and optional M values per ESRI spec
 class PolylineZ extends Polyline {
   PolylineZ({
-    required BoundsZ bounds,
+    required EnvelopeZ bounds,
     required super.parts,
     required super.points,
     required List<double> arrayZ,
@@ -116,7 +116,7 @@ class PolylineZ extends Polyline {
 
   @protected
   PolylineZ.protected({
-    required BoundsZ bounds,
+    required EnvelopeZ bounds,
     required super.parts,
     required super.points,
     required List<double> arrayZ,

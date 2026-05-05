@@ -1,19 +1,19 @@
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:shapekit/src/domain/entities/shapefile_bounds.dart';
-import 'package:shapekit/src/data/repositories/projection_repository.dart';
+import 'package:shapekit/src/domain/entities/geometry/envelope.dart';
+import 'package:shapekit/src/shapefile/repositories/projection_repository.dart';
 import 'package:shapekit/src/domain/exceptions/shapefile_exception.dart';
 
-import 'package:shapekit/src/data/repositories/dbase_repository.dart';
+import 'package:shapekit/src/shapefile/repositories/dbase_repository.dart';
 import 'package:shapekit/src/domain/entities/geometry/record.dart';
 import 'package:shapekit/src/domain/entities/geometry/point.dart';
 import 'package:shapekit/src/domain/entities/geometry/polygon.dart';
 import 'package:shapekit/src/domain/entities/geometry/polyline.dart';
-import 'package:shapekit/src/data/models/shapefile_header.dart';
-import 'package:shapekit/src/data/models/shapefile_offset.dart';
-import 'package:shapekit/src/data/serializers/geometry_deserializer.dart';
-import 'package:shapekit/src/data/serializers/geometry_serializer.dart';
+import 'package:shapekit/src/shapefile/models/shapefile_header.dart';
+import 'package:shapekit/src/shapefile/models/shapefile_offset.dart';
+import 'package:shapekit/src/shapefile/serializers/geometry_deserializer.dart';
+import 'package:shapekit/src/shapefile/serializers/geometry_serializer.dart';
 import 'package:shapekit/src/domain/entities/dbase_field.dart';
 
 /// Main class for reading and writing ESRI Shapefiles
@@ -176,7 +176,7 @@ class Shapefile {
       final maxZ = dataSHX.getFloat64(76, Endian.little);
       final minM = dataSHX.getFloat64(84, Endian.little);
       final maxM = dataSHX.getFloat64(92, Endian.little);
-      headerSHX.bounds = BoundsZ(minX, minY, maxX, maxY, minZ, maxZ, minM, maxM);
+      headerSHX.bounds = EnvelopeZ(minX, minY, maxX, maxY, minZ, maxZ, minM, maxM);
 
       headerSHX.fileLength = headerSHX.length * lenWord;
       int fieldCount = (headerSHX.fileLength - lenHeader) ~/ lenRecordHeader;
@@ -238,7 +238,7 @@ class Shapefile {
     final maxZ = dataSHP.getFloat64(76, Endian.little);
     final minM = dataSHP.getFloat64(84, Endian.little);
     final maxM = dataSHP.getFloat64(92, Endian.little);
-    headerSHP.bounds = BoundsZ(minX, minY, maxX, maxY, minZ, maxZ, minM, maxM);
+    headerSHP.bounds = EnvelopeZ(minX, minY, maxX, maxY, minZ, maxZ, minM, maxM);
 
     headerSHP.fileLength = headerSHP.length * lenWord;
 
@@ -433,16 +433,16 @@ class Shapefile {
     dataSHX.setFloat64(52, headerSHX.bounds.maxX, Endian.little);
     dataSHX.setFloat64(60, headerSHX.bounds.maxY, Endian.little);
 
-    dataSHX.setFloat64(68, headerSHX.bounds is BoundsZ ? (headerSHX.bounds as BoundsZ).minZ : 0.0, Endian.little);
-    dataSHX.setFloat64(76, headerSHX.bounds is BoundsZ ? (headerSHX.bounds as BoundsZ).maxZ : 0.0, Endian.little);
+    dataSHX.setFloat64(68, headerSHX.bounds is EnvelopeZ ? (headerSHX.bounds as EnvelopeZ).minZ : 0.0, Endian.little);
+    dataSHX.setFloat64(76, headerSHX.bounds is EnvelopeZ ? (headerSHX.bounds as EnvelopeZ).maxZ : 0.0, Endian.little);
     dataSHX.setFloat64(
       84,
-      headerSHX.bounds is BoundsM ? (headerSHX.bounds as BoundsM).minM ?? 0.0 : 0.0,
+      headerSHX.bounds is EnvelopeM ? (headerSHX.bounds as EnvelopeM).minM ?? 0.0 : 0.0,
       Endian.little,
     );
     dataSHX.setFloat64(
       92,
-      headerSHX.bounds is BoundsM ? (headerSHX.bounds as BoundsM).maxM ?? 0.0 : 0.0,
+      headerSHX.bounds is EnvelopeM ? (headerSHX.bounds as EnvelopeM).maxM ?? 0.0 : 0.0,
       Endian.little,
     );
 
@@ -534,16 +534,16 @@ class Shapefile {
     dataSHP.setFloat64(52, headerSHP.bounds.maxX, Endian.little);
     dataSHP.setFloat64(60, headerSHP.bounds.maxY, Endian.little);
 
-    dataSHP.setFloat64(68, headerSHP.bounds is BoundsZ ? (headerSHP.bounds as BoundsZ).minZ : 0.0, Endian.little);
-    dataSHP.setFloat64(76, headerSHP.bounds is BoundsZ ? (headerSHP.bounds as BoundsZ).maxZ : 0.0, Endian.little);
+    dataSHP.setFloat64(68, headerSHP.bounds is EnvelopeZ ? (headerSHP.bounds as EnvelopeZ).minZ : 0.0, Endian.little);
+    dataSHP.setFloat64(76, headerSHP.bounds is EnvelopeZ ? (headerSHP.bounds as EnvelopeZ).maxZ : 0.0, Endian.little);
     dataSHP.setFloat64(
       84,
-      headerSHP.bounds is BoundsM ? (headerSHP.bounds as BoundsM).minM ?? 0.0 : 0.0,
+      headerSHP.bounds is EnvelopeM ? (headerSHP.bounds as EnvelopeM).minM ?? 0.0 : 0.0,
       Endian.little,
     );
     dataSHP.setFloat64(
       92,
-      headerSHP.bounds is BoundsM ? (headerSHP.bounds as BoundsM).maxM ?? 0.0 : 0.0,
+      headerSHP.bounds is EnvelopeM ? (headerSHP.bounds as EnvelopeM).maxM ?? 0.0 : 0.0,
       Endian.little,
     );
 
@@ -778,16 +778,16 @@ class Shapefile {
     double maxM = 0.0,
   ]) {
     // Create appropriate bounds type based on whether Z/M values are provided
-    final Bounds bounds;
+    final Envelope bounds;
     if (minZ != 0.0 || maxZ != 0.0) {
-      // If Z values are set, use BoundsZ (which includes M values)
-      bounds = BoundsZ(minX, minY, maxX, maxY, minM, maxM, minZ, maxZ);
+      // If Z values are set, use EnvelopeZ (which includes M values)
+      bounds = EnvelopeZ(minX, minY, maxX, maxY, minZ, maxZ, minM, maxM);
     } else if (minM != 0.0 || maxM != 0.0) {
-      // If only M values are set, use BoundsM
-      bounds = BoundsM(minX, minY, maxX, maxY, minM, maxM);
+      // If only M values are set, use EnvelopeM
+      bounds = EnvelopeM(minX, minY, maxX, maxY, minM, maxM);
     } else {
-      // No Z or M values, use basic Bounds
-      bounds = Bounds(minX, minY, maxX, maxY);
+      // No Z or M values, use basic Envelope
+      bounds = Envelope(minX, minY, maxX, maxY);
     }
 
     headerSHX.bounds = bounds;
@@ -872,16 +872,16 @@ class Shapefile {
     headerSHP.type = type;
 
     // Create appropriate bounds type based on whether Z/M values are provided
-    final Bounds bounds;
+    final Envelope bounds;
     if (minZ != 0.0 || maxZ != 0.0) {
-      // If Z values are set, use BoundsZ (which includes M values)
-      bounds = BoundsZ(minX, minY, maxX, maxY, minM, maxM, minZ, maxZ);
+      // If Z values are set, use EnvelopeZ (which includes M values)
+      bounds = EnvelopeZ(minX, minY, maxX, maxY, minZ, maxZ, minM, maxM);
     } else if (minM != 0.0 || maxM != 0.0) {
-      // If only M values are set, use BoundsM
-      bounds = BoundsM(minX, minY, maxX, maxY, minM, maxM);
+      // If only M values are set, use EnvelopeM
+      bounds = EnvelopeM(minX, minY, maxX, maxY, minM, maxM);
     } else {
-      // No Z or M values, use basic Bounds
-      bounds = Bounds(minX, minY, maxX, maxY);
+      // No Z or M values, use basic Envelope
+      bounds = Envelope(minX, minY, maxX, maxY);
     }
 
     headerSHX.bounds = bounds;
@@ -914,7 +914,7 @@ class Shapefile {
         details: 'Call setHeaderType() before analysis',
       );
     }
-    if (headerSHP.bounds == const Bounds.zero()) {
+    if (identical(headerSHP.bounds, const Envelope.zero())) {
       throw InvalidBoundsException('Bounds not set', filePath: _fNameSHP);
     }
 

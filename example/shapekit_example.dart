@@ -191,7 +191,7 @@ void advancedGeometryExample() {
   final polylineShapefile = Shapefile();
   final polylineRecords = [
     Polyline(
-      bounds: Bounds(0, 0, 10, 10), // minX, minY, maxX, maxY
+      bounds: Envelope(0, 0, 10, 10), // minX, minY, maxX, maxY
       parts: [0, 3], // Two parts: first starts at index 0, second at index 3
       points: [Point(0, 0), Point(5, 5), Point(10, 10), Point(0, 10), Point(10, 0)],
     ),
@@ -213,7 +213,7 @@ void advancedGeometryExample() {
   final polygonShapefile = Shapefile();
   final polygonRecords = [
     Polygon(
-      bounds: Bounds(0, 0, 10, 10), // minX, minY, maxX, maxY
+      bounds: Envelope(0, 0, 10, 10), // minX, minY, maxX, maxY
       parts: [0], // One part
       points: [
         Point(0, 0),
@@ -279,7 +279,7 @@ void errorHandlingExample() {
     final shapefile = Shapefile();
     shapefile.read('nonexistent.shp');
   } on FileNotFoundException catch (e) {
-    print('✗ File not found: ${e.filePath}');
+    print('✗ File not found: ${e.path}');
   } on InvalidHeaderException catch (e) {
     print('✗ Invalid header: ${e.message}');
   } on CorruptedDataException catch (e) {
