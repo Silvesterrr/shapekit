@@ -12,6 +12,8 @@ class WkbEncoder {
   static const int _wkbPoint = 1;
   static const int _wkbLineString = 2;
   static const int _wkbPolygon = 3;
+  static const int _wkbMultiPoint = 4;
+  static const int _wkbMultiLineString = 5;
 
   /// Encodes a point into a GPKG-WKB blob.
   static Uint8List encodePoint(double x, double y, {int srsId = 4326}) {
@@ -138,7 +140,7 @@ class WkbEncoder {
     final totalSize = 9 + allTuples.fold<int>(0, (sum, part) => sum + 9 + part.length * 16);
     final wkb = ByteData(totalSize);
     wkb.setUint8(0, 0x01);
-    wkb.setUint32(1, _wkbLineString + 3000, Endian.little); // MultiLineString = 5
+    wkb.setUint32(1, _wkbMultiLineString, Endian.little);
     wkb.setUint32(5, numParts, Endian.little);
     int offset = 9;
     for (final part in allTuples) {
@@ -176,18 +178,19 @@ class WkbEncoder {
 
     if (rings.length == 1) return encodePolygon(rings.first, srsId: srsId);
 
-    // Multi-ring polygon
+    // Multi-ring polygon — pre-close rings to size buffer correctly
+    final closedRings = rings.map(_ensureClosed).toList();
+    final totalCoords = closedRings.fold<int>(0, (sum, r) => sum + r.length);
+
     final buf = BytesBuilder();
     _writeGpkgHeader(buf, srsId);
 
-    int totalCoords = rings.fold(0, (sum, r) => sum + r.length);
-    final wkb = ByteData(9 + rings.length * 4 + totalCoords * 16);
+    final wkb = ByteData(9 + closedRings.length * 4 + totalCoords * 16);
     wkb.setUint8(0, 0x01);
     wkb.setUint32(1, _wkbPolygon, Endian.little);
-    wkb.setUint32(5, rings.length, Endian.little);
+    wkb.setUint32(5, closedRings.length, Endian.little);
     int offset = 9;
-    for (final ring in rings) {
-      final closed = _ensureClosed(ring);
+    for (final closed in closedRings) {
       wkb.setUint32(offset, closed.length, Endian.little);
       offset += 4;
       for (final pt in closed) {
@@ -201,7 +204,17 @@ class WkbEncoder {
   }
 
   static Uint8List _encodeMultiPointRecord(MultiPoint multiPoint, {int srsId = 4326}) {
-    if (multiPoint.points.isEmpty) return encodePoint(0, 0, srsId: srsId);
+    if (multiPoint.points.isEmpty) {
+      // Encode as empty MultiPoint (numPoints=0) instead of phantom point at (0,0).
+      final buf = BytesBuilder();
+      _writeGpkgHeader(buf, srsId);
+      final wkb = ByteData(9);
+      wkb.setUint8(0, 0x01);
+      wkb.setUint32(1, _wkbMultiPoint, Endian.little);
+      wkb.setUint32(5, 0, Endian.little); // 0 points
+      buf.add(wkb.buffer.asUint8List());
+      return buf.toBytes();
+    }
     if (multiPoint.points.length == 1) {
       return encodePoint(multiPoint.points.first.x, multiPoint.points.first.y, srsId: srsId);
     }
@@ -212,7 +225,7 @@ class WkbEncoder {
     final n = multiPoint.points.length;
     final wkb = ByteData(9 + n * 21);
     wkb.setUint8(0, 0x01);
-    wkb.setUint32(1, 4, Endian.little); // MultiPoint
+    wkb.setUint32(1, _wkbMultiPoint, Endian.little);
     wkb.setUint32(5, n, Endian.little);
     int offset = 9;
     for (final pt in multiPoint.points) {

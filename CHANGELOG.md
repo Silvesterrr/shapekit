@@ -1,3 +1,11 @@
+## 0.3.1
+
+### Bug Fixes
+- **WKB encoder: wrong geometry type for multi-part polylines** — `MultiLineString` was encoded with WKB type `3002` (LineStringZM) instead of `5` (MultiLineString). This produced corrupt R-Tree spatial index entries (coordinates at `0.0 → Infinity`), making affected features invisible in viewport queries.
+- **WKB encoder: buffer overflow on multi-ring polygons with unclosed rings** — `_ensureClosed()` could add extra points not accounted for in the buffer size calculation, causing a `RangeError` crash.
+- **WKB encoder: empty MultiPoint encoded as phantom Point(0,0)** — replaced with a proper empty MultiPoint WKB (0 sub-points) so no phantom geometry pollutes the spatial index.
+- Replaced magic WKB type literals (`4`, `5`) with named constants to prevent future type confusion bugs.
+
 ## 0.3.0
 
 - Added GeoPackage support for reading feature tables, inspecting metadata, streaming typed features, and reading full tables
