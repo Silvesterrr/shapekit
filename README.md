@@ -1,16 +1,18 @@
 # shapekit
 
-A comprehensive Dart library for reading and writing ESRI Shapefiles with support for all 13 geometry types.
+A comprehensive Dart library for reading and writing ESRI Shapefiles, with GeoPackage support for feature data workflows.
 
 [![pub package](https://img.shields.io/pub/v/shapekit.svg)](https://pub.dev/packages/shapekit)
 [![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-Support-yellow.svg)](https://www.buymeacoffee.com/sylwesterjarosz)
 
 ## Features
 
-- ✅ **Complete Shapefile Support** - Read and write .shp, .shx, .dbf, and .prj files
+- ✅ **Complete Shapefile Support** - Read and write `.shp`, `.shx`, `.dbf`, and `.prj` files
 - ✅ **12 Geometry Types** - Point, PointM, PointZ, Polyline, PolylineM, PolylineZ, Polygon, PolygonM, PolygonZ, MultiPoint, MultiPointM, MultiPointZ
-- ✅ **Attribute Support** - Full dBASE III+ (.dbf) file support for feature attributes
-- ✅ **Projection Support** - Read projection information from .prj files
+- ✅ **GeoPackage Support** - Read feature tables, inspect metadata, stream typed features, and write feature data
+- ✅ **Streaming Shapefile Reads** - Read large shapefiles incrementally with `ShapefileStreamReader`
+- ✅ **Attribute Support** - Full dBASE III+ (`.dbf`) file support for feature attributes
+- ✅ **Projection Support** - Read projection information from `.prj` files
 - ✅ **Korean Text Support** - CP949 encoding for Korean text in attributes
 - ✅ **UTF-8 Support** - Modern UTF-8 encoding support
 - ✅ **Type-Safe** - Strongly typed geometry classes with immutable data structures
@@ -22,7 +24,7 @@ Add this to your package's `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  shapekit: ^0.2.4
+  shapekit: ^0.3.0
 ```
 
 Then run:
@@ -40,11 +42,11 @@ import 'package:shapekit/shapekit.dart';
 
 void main() {
   final shapefile = Shapefile();
-  
+
   try {
     shapefile.read('path/to/file.shp');
     print('Loaded ${shapefile.records.length} records');
-    
+
     // Access geometry
     for (final record in shapefile.records) {
       if (record is Point) {
@@ -55,12 +57,12 @@ void main() {
         print('Polygon with ${record.numParts} parts');
       }
     }
-    
+
     // Access attributes (if .dbf file exists)
     for (int i = 0; i < shapefile.attributeRecords.length; i++) {
       print('Record $i attributes: ${shapefile.attributeRecords[i]}');
     }
-    
+
     // Access projection EPSG code (if .prj file exists)
     if (shapefile.epsgCode != null) {
       print('Projection EPSG: ${shapefile.epsgCode}');
@@ -78,25 +80,25 @@ import 'package:shapekit/shapekit.dart';
 
 void main() {
   final shapefile = Shapefile();
-  
+
   // Create point records
   final records = [
-    Point(126.9780, 37.5665),  // Seoul
-    Point(129.0756, 35.1796),  // Busan
+    Point(126.9780, 37.5665), // Seoul
+    Point(129.0756, 35.1796), // Busan
   ];
-  
+
   // Create attribute fields
   final fields = [
     DbaseField.fieldC('NAME', 50),
     DbaseField.fieldN('POPULATION', 10),
   ];
-  
+
   // Create attribute records
   final attributes = [
     ['Seoul', 9776000],
     ['Busan', 3413000],
   ];
-  
+
   // Write shapefile
   shapefile.writeComplete(
     'cities.shp',
@@ -109,8 +111,49 @@ void main() {
     attributeFields: fields,
     attributeRecords: attributes,
   );
-  
+
   print('Shapefile created successfully!');
+}
+```
+
+### Reading a GeoPackage
+
+```dart
+import 'package:shapekit/shapekit.dart';
+
+Future<void> main() async {
+  final gpkg = GpkgReader.open('path/to/file.gpkg');
+
+  try {
+    final tables = gpkg.listFeatureTables();
+    print('Feature tables: $tables');
+
+    await for (final batch in gpkg.queryFeatures(
+      table: tables.first,
+      bounds: const Envelope(-180, -90, 180, 90),
+      loadAttributes: true,
+    )) {
+      for (final feature in batch.features) {
+        print('${feature.fid}: ${feature.geometry.type}');
+      }
+    }
+  } finally {
+    gpkg.close();
+  }
+}
+```
+
+### Streaming a Shapefile
+
+```dart
+import 'package:shapekit/shapekit.dart';
+
+Future<void> main() async {
+  final reader = ShapefileStreamReader.open('path/to/file.shp', isUtf8: true);
+
+  await for (final feature in reader.features()) {
+    print('Feature ${feature.index}: ${feature.geometry.type}');
+  }
 }
 ```
 
@@ -172,8 +215,7 @@ DbaseField.fieldNF('AREA', 20, 8)  // name, total digits, decimal places
 
 - **No MultiPatch support** - MultiPatch geometry type is not yet implemented
 - **No coordinate transformation** - The library reads projection information but does not transform coordinates
-- **Synchronous I/O** - All file operations are synchronous (blocking)
-- **No streaming** - Entire files are loaded into memory
+- **Synchronous I/O** - File operations are synchronous (blocking)
 
 ## Error Handling
 
@@ -184,7 +226,7 @@ try {
   final shapefile = Shapefile();
   shapefile.read('data.shp');
 } on FileNotFoundException catch (e) {
-  print('File not found: ${e.filePath}');
+  print('File not found: ${e.path}');
 } on InvalidHeaderException catch (e) {
   print('Invalid shapefile header: ${e.message}');
 } on CorruptedDataException catch (e) {
@@ -201,6 +243,7 @@ try {
 - `CorruptedDataException` - Corrupted record data
 - `UnsupportedTypeException` - Unsupported geometry type
 - `ShapefileIOException` - File I/O error
+- `GpkgException` - GeoPackage read/write/query error
 
 ## Support
 
@@ -225,6 +268,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ## References
 
 - [ESRI Shapefile Technical Description](https://www.esri.com/content/dam/esrisites/sitecore-archive/Files/Pdfs/library/whitepapers/pdfs/shapefile.pdf)
+- [OGC GeoPackage Standard](https://www.geopackage.org/spec/)
 - [dBASE File Format](https://www.dbase.com/Knowledgebase/INT/db7_file_fmt.htm)
 
 ## Acknowledgments

@@ -2,37 +2,28 @@ import 'package:shapekit/shapekit.dart';
 
 void main(List<String> args) {
   if (args.isEmpty) {
-    // No arguments: run default examples
     print('Usage: dart run example/shapekit_example.dart <path_to_shp_file>');
-    print('       Or run without arguments to see default examples.\n');
+    print('Or run without arguments to execute the built-in examples.\n');
 
-    // Example 1: Writing a shapefile
     writeShapefileExample();
-
-    // Example 2: Reading a shapefile
     readShapefileExample();
   } else {
-    // Join all arguments to handle paths with spaces
-    final path = args.join(' ');
-    readShapefileFromPath(path);
+    readShapefileFromPath(args.join(' '));
   }
 }
 
-/// Read a shapefile from a given path
 void readShapefileFromPath(String path) {
   print('=== Reading Shapefile: $path ===\n');
 
   final shapefile = Shapefile();
 
   try {
-    // Read the shapefile (automatically reads .shp, .shx, .dbf, and .prj if available)
     shapefile.read(path);
 
-    print('✓ Successfully loaded shapefile');
+    print('Successfully loaded shapefile');
     print('  Records: ${shapefile.records.length}');
     print('  Attributes: ${shapefile.attributeRecords.length}\n');
 
-    // Iterate through geometry records
     print('Geometry Data:');
     for (var i = 0; i < shapefile.records.length; i++) {
       final record = shapefile.records[i];
@@ -46,7 +37,6 @@ void readShapefileFromPath(String path) {
       }
     }
 
-    // Display attribute data
     if (shapefile.attributeRecords.isNotEmpty) {
       print('\nAttribute Data:');
       for (var i = 0; i < shapefile.attributeRecords.length; i++) {
@@ -55,7 +45,6 @@ void readShapefileFromPath(String path) {
       }
     }
 
-    // Display field definitions
     if (shapefile.attributeFields.isNotEmpty) {
       print('\nField Definitions:');
       for (final field in shapefile.attributeFields) {
@@ -63,41 +52,35 @@ void readShapefileFromPath(String path) {
       }
     }
 
-    // Display projection info if available
     if (shapefile.epsgCode != null) {
       print('\nProjection EPSG: ${shapefile.epsgCode}');
     }
   } on ShapefileException catch (e) {
-    print('✗ Failed to read shapefile: $e');
+    print('Failed to read shapefile: $e');
   } finally {
-    // Clean up
     shapefile.dispose();
   }
 }
 
-/// Example: Create and write a new shapefile with points
 void writeShapefileExample() {
   print('=== Writing Shapefile Example ===\n');
 
   final shapefile = Shapefile();
 
-  // Create point records for major cities
   final records = [
-    Point(126.9780, 37.5665), // Seoul
-    Point(129.0756, 35.1796), // Busan
-    Point(126.7052, 37.4563), // Incheon
-    Point(127.3845, 36.3504), // Daejeon
+    Point(126.9780, 37.5665),
+    Point(129.0756, 35.1796),
+    Point(126.7052, 37.4563),
+    Point(127.3845, 36.3504),
   ];
 
-  // Define attribute fields
   final fields = [
-    DbaseField.fieldC('NAME', 50), // City name (text)
-    DbaseField.fieldN('POPULATION', 10), // Population (integer)
-    DbaseField.fieldNF('AREA', 10, 2), // Area in km² (float)
-    DbaseField.fieldL('CAPITAL'), // Is capital? (boolean)
+    DbaseField.fieldC('NAME', 50),
+    DbaseField.fieldN('POPULATION', 10),
+    DbaseField.fieldNF('AREA', 10, 2),
+    DbaseField.fieldL('CAPITAL'),
   ];
 
-  // Create attribute records matching the points
   final attributes = [
     ['Seoul', 9776000, 605.21, true],
     ['Busan', 3413000, 770.07, false],
@@ -105,7 +88,6 @@ void writeShapefileExample() {
     ['Daejeon', 1475000, 539.98, false],
   ];
 
-  // Write the shapefile with all components
   try {
     shapefile.writeComplete(
       'cities.shp',
@@ -119,28 +101,25 @@ void writeShapefileExample() {
       attributeRecords: attributes,
     );
 
-    print('✓ Created cities.shp with ${records.length} points');
-    print('✓ Included .shp, .shx, and .dbf files\n');
+    print('Created cities.shp with ${records.length} points');
+    print('Included .shp, .shx, and .dbf files\n');
   } on ShapefileException catch (e) {
-    print('✗ Error writing shapefile: $e');
+    print('Error writing shapefile: $e');
   }
 }
 
-/// Example: Read an existing shapefile
 void readShapefileExample() {
   print('=== Reading Shapefile Example ===\n');
 
   final shapefile = Shapefile();
 
   try {
-    // Read the shapefile (automatically reads .shp, .shx, .dbf, and .prj if available)
     shapefile.read('cities.shp');
 
-    print('✓ Successfully loaded shapefile');
+    print('Successfully loaded shapefile');
     print('  Records: ${shapefile.records.length}');
     print('  Attributes: ${shapefile.attributeRecords.length}\n');
 
-    // Iterate through geometry records
     print('Geometry Data:');
     for (var i = 0; i < shapefile.records.length; i++) {
       final record = shapefile.records[i];
@@ -154,7 +133,6 @@ void readShapefileExample() {
       }
     }
 
-    // Display attribute data
     if (shapefile.attributeRecords.isNotEmpty) {
       print('\nAttribute Data:');
       for (var i = 0; i < shapefile.attributeRecords.length; i++) {
@@ -163,7 +141,6 @@ void readShapefileExample() {
       }
     }
 
-    // Display field definitions
     if (shapefile.attributeFields.isNotEmpty) {
       print('\nField Definitions:');
       for (final field in shapefile.attributeFields) {
@@ -171,28 +148,24 @@ void readShapefileExample() {
       }
     }
 
-    // Display projection info if available
     if (shapefile.epsgCode != null) {
       print('\nProjection EPSG: ${shapefile.epsgCode}');
     }
   } on ShapefileException catch (e) {
-    print('✗ Failed to read shapefile: $e');
+    print('Failed to read shapefile: $e');
   } finally {
-    // Clean up
     shapefile.dispose();
   }
 }
 
-/// Example: Working with different geometry types
 void advancedGeometryExample() {
   print('=== Advanced Geometry Example ===\n');
 
-  // Example with Polyline (roads, rivers, etc.)
   final polylineShapefile = Shapefile();
   final polylineRecords = [
     Polyline(
-      bounds: Envelope(0, 0, 10, 10), // minX, minY, maxX, maxY
-      parts: [0, 3], // Two parts: first starts at index 0, second at index 3
+      bounds: Envelope(0, 0, 10, 10),
+      parts: [0, 3],
       points: [Point(0, 0), Point(5, 5), Point(10, 10), Point(0, 10), Point(10, 0)],
     ),
   ];
@@ -207,21 +180,14 @@ void advancedGeometryExample() {
     maxY: 10,
   );
 
-  print('✓ Created roads.shp with polyline geometry');
+  print('Created roads.shp with polyline geometry');
 
-  // Example with Polygon (boundaries, parcels, etc.)
   final polygonShapefile = Shapefile();
   final polygonRecords = [
     Polygon(
-      bounds: Envelope(0, 0, 10, 10), // minX, minY, maxX, maxY
-      parts: [0], // One part
-      points: [
-        Point(0, 0),
-        Point(10, 0),
-        Point(10, 10),
-        Point(0, 10),
-        Point(0, 0), // Close the polygon
-      ],
+      bounds: Envelope(0, 0, 10, 10),
+      parts: [0],
+      points: [Point(0, 0), Point(10, 0), Point(10, 10), Point(0, 10), Point(0, 0)],
     ),
   ];
 
@@ -235,25 +201,17 @@ void advancedGeometryExample() {
     maxY: 10,
   );
 
-  print('✓ Created parcels.shp with polygon geometry\n');
+  print('Created parcels.shp with polygon geometry\n');
 }
 
-/// Example: Working with Korean text (CP949 encoding)
 void koreanTextExample() {
   print('=== Korean Text Example ===\n');
 
-  // Create shapefile with CP949 encoding for Korean text
   final shapefile = Shapefile(isCp949: true);
-
   final records = [Point(126.9780, 37.5665)];
-
-  final fields = [
-    DbaseField.fieldC('NAME_KR', 50), // Korean name
-    DbaseField.fieldC('NAME_EN', 50), // English name
-  ];
-
+  final fields = [DbaseField.fieldC('NAME_KR', 50), DbaseField.fieldC('NAME_EN', 50)];
   final attributes = [
-    ['서울', 'Seoul'],
+    ['Seoul', 'Seoul'],
   ];
 
   shapefile.writeComplete(
@@ -268,10 +226,9 @@ void koreanTextExample() {
     attributeRecords: attributes,
   );
 
-  print('✓ Created cities_kr.shp with Korean text (CP949 encoding)\n');
+  print('Created cities_kr.shp with CP949 text data\n');
 }
 
-/// Example: Error handling
 void errorHandlingExample() {
   print('=== Error Handling Example ===\n');
 
@@ -279,13 +236,13 @@ void errorHandlingExample() {
     final shapefile = Shapefile();
     shapefile.read('nonexistent.shp');
   } on FileNotFoundException catch (e) {
-    print('✗ File not found: ${e.path}');
+    print('File not found: ${e.path}');
   } on InvalidHeaderException catch (e) {
-    print('✗ Invalid header: ${e.message}');
+    print('Invalid header: ${e.message}');
   } on CorruptedDataException catch (e) {
-    print('✗ Corrupted data: ${e.details}');
+    print('Corrupted data: ${e.details}');
   } on ShapefileException catch (e) {
-    print('✗ Shapefile error: $e');
+    print('Shapefile error: $e');
   }
 
   print('');

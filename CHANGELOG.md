@@ -1,3 +1,13 @@
+## 0.3.0
+
+- Added GeoPackage support for reading feature tables, inspecting metadata, streaming typed features, and reading full tables
+- Added GeoPackage writing helpers with explicit schema definition and streaming row insertion
+- Added GeoPackage spatial index helpers for building and validating R-Tree indexes
+- Added `ShapefileStreamReader` for streaming shapefile reads
+- Added polygon hole support
+- Improved WKB decoding, including Z and M handling
+- Improved SQL identifier safety and resource cleanup in GeoPackage workflows
+
 ## 0.2.4
 fix the incorrect meta package version
 ## 0.2.3
