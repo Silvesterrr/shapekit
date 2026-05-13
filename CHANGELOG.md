@@ -1,3 +1,9 @@
+## 0.3.2
+
+### Added
+- Added `GpkgConnection` for low-level GeoPackage SQL access with read-only and read-write modes, parameterized `select`/`execute`, and transaction support.
+- Added `hasTable()` helpers to `GpkgConnection` and `GpkgReader`.
+
 ## 0.3.1
 
 ### Bug Fixes

@@ -464,6 +464,17 @@ class GpkgReader {
     return result;
   }
 
+  /// Returns true if a table named [name] exists in `sqlite_master`.
+  bool hasTable(String name) {
+    _checkClosed();
+    final stmt = _db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name = ? LIMIT 1;");
+    try {
+      return stmt.select([name]).isNotEmpty;
+    } finally {
+      stmt.dispose();
+    }
+  }
+
   /// Returns the row count for [tableName] via `SELECT COUNT(*)`.
   /// Returns -1 on error. Use when [FeatureTableMetadata.featureCount] is -1.
   int countFeatures(String tableName) {

@@ -55,6 +55,7 @@ export 'package:shapekit/src/shapefile/repositories/projection_repository.dart';
 
 // GeoPackage support
 export 'package:shapekit/src/gpkg/gpkg_reader.dart' show GpkgReader;
+export 'package:shapekit/src/gpkg/gpkg_connection.dart' show GpkgConnection;
 export 'package:shapekit/src/gpkg/exceptions.dart' show GpkgException;
 export 'package:shapekit/src/gpkg/types/raw_feature_batch.dart' show RawFeatureBatch;
 export 'package:shapekit/src/gpkg/types/column_info.dart' show ColumnDef, ColumnInfo, FeatureTableMetadata, CrsInfo;

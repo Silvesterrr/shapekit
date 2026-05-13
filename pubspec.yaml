@@ -1,6 +1,6 @@
 name: shapekit
 description: Read and write ESRI Shapefiles and GeoPackage feature data in Dart, with streaming, typed geometries, and DBF attribute support.
-version: 0.3.1
+version: 0.3.2
 repository: https://github.com/Silvesterrr/shapekit
 homepage: https://github.com/Silvesterrr/shapekit
 issue_tracker: https://github.com/Silvesterrr/shapekit/issues
